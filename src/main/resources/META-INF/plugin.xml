@@ -1,0 +1,50 @@
+<!--
+  ~ Copyright (c) 2019 Tony Ho
+  -->
+
+<idea-plugin>
+    <id>com.chuntung.plugin.mybatisbuilder</id>
+    <name>Mybatis Builder</name>
+    <version>1.0</version>
+    <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">Tony Ho</vendor>
+
+    <description><![CDATA[
+      Mybaits builder GUI tool integrated with mybatis generator, support IDEA CE specially.
+    ]]></description>
+
+    <change-notes><![CDATA[
+    <ul>
+    <li> v1.0<br>
+      Initial release of plugin, integrated with mybatis generator, support IDEA CE specially.<br>
+      Provide support for Spring Repository Annotation.<br>
+    </li>
+    </ul>
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="173.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- tool window -->
+        <toolWindow id="Mybatis Builder" anchor="left" secondary="false" icon="/images/mybatis-icon.png"
+                    factoryClass="com.chuntung.plugin.mybatisbuilder.view.MybatisBuilderToolWindowFactory"/>
+    </extensions>
+
+    <project-components>
+        <component>
+            <implementation-class>com.chuntung.plugin.mybatisbuilder.MybatisBuilderSettingsManager
+            </implementation-class>
+        </component>
+        <component>
+            <implementation-class>com.chuntung.plugin.mybatisbuilder.MybatisBuilderService</implementation-class>
+        </component>
+    </project-components>
+
+</idea-plugin>
