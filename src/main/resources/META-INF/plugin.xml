@@ -1,7 +1,6 @@
 <!--
-  ~ Copyright (c) 2019 Tony Ho
+  ~ Copyright (c) 2019 Tony Ho. Some rights reserved.
   -->
-
 <idea-plugin>
     <id>com.chuntung.plugin.mybatisbuilder</id>
     <name>Mybatis Builder</name>
@@ -14,9 +13,13 @@
 
     <change-notes><![CDATA[
     <ul>
-    <li> v1.0<br>
+    <li>v1.0<br>
       Initial release of plugin, integrated with mybatis generator, support IDEA CE specially.<br>
-      Provide support for Spring Repository Annotation.<br>
+      Provide with additional features:<br>
+      <ul>
+        <li>Support mapper name customization.</li>
+        <li>Support Spring @Repository Annotation.</li>
+      </ul>
     </li>
     </ul>
     ]]>

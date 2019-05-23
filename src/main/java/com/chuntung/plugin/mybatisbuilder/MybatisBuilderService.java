@@ -13,6 +13,7 @@ import com.chuntung.plugin.mybatisbuilder.model.DatabaseItem;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,6 @@ import java.util.List;
 
 /**
  * The unified plugin service.
-
  * @author Tony Ho
  */
 public class MybatisBuilderService implements ProjectComponent {
@@ -114,13 +114,17 @@ public class MybatisBuilderService implements ProjectComponent {
         try {
             connection = dataSource.getConnection();
             DatabaseMetaData meta = connection.getMetaData();
+
             ResultSet catalogs = meta.getCatalogs();
             while (catalogs.next()) {
-                list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.DATABASE, catalogs.getString(1)));
+                String catalog = catalogs.getString(1);
+                if (StringUtils.isNotEmpty(catalog)) {
+                    list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.DATABASE, catalog));
+                }
             }
 
             // NOTE: hard-code for SQLite which have no catalog
-            if ("SQLiteConnection".equals(connection.getClass().getSimpleName())) {
+            if (list.size() == 0 && "SQLiteConnection".equals(connection.getClass().getSimpleName())) {
                 list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.DATABASE, "dummy"));
             }
         } finally {

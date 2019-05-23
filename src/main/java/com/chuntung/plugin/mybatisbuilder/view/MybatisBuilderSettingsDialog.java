@@ -48,7 +48,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JSpinner portSpinner;
     private JTextField userText;
     private JPasswordField passwordText;
-    private JTextField schemaText;
+    private JTextField databaseText;
     private JCheckBox activeCheckBox;
     private JButton testConnectionButton;
     private JTabbedPane tabbedPane1;
@@ -352,7 +352,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         }
         userText.setText(data.getUserName());
         passwordText.setText(data.getPassword());
-        schemaText.setText(data.getSchema());
+        databaseText.setText(data.getDatabase());
 
         activeCheckBox.setSelected(data.getActive());
 
@@ -373,7 +373,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         data.setPort((Integer) portSpinner.getValue());
         data.setUserName(userText.getText());
         data.setPassword(String.valueOf(passwordText.getPassword()));
-        data.setSchema(schemaText.getText());
+        data.setDatabase(databaseText.getText());
 
         data.setActive(activeCheckBox.isSelected());
     }

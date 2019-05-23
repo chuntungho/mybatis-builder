@@ -77,7 +77,7 @@ public class BuildAction extends AnAction {
         // get connection by id, specify schema, then test connection
         try {
             ConnectionInfo savedConnectionIfo = service.getConnectionInfoWithPassword(connectionInfo.getId());
-            savedConnectionIfo.setSchema(connectionInfo.getSchema());
+            savedConnectionIfo.setDatabase(connectionInfo.getDatabase());
             service.testConnection(savedConnectionIfo);
 
             populateConnection(paramWrapper, savedConnectionIfo);
@@ -125,11 +125,11 @@ public class BuildAction extends AnAction {
                 DatabaseItem item = (DatabaseItem) node.getUserObject();
                 if (DatabaseItem.ItemTypeEnum.TABLE.equals(item.getType())) {
                     // only support tables in the same database
-                    DefaultMutableTreeNode schemaNode = (DefaultMutableTreeNode) node.getParent();
-                    String schema = schemaNode.getUserObject().toString();
-                    if (!schema.equals(info.getSchema())) {
-                        if (info.getSchema() == null) {
-                            info.setSchema(schema);
+                    DefaultMutableTreeNode databaseNode = (DefaultMutableTreeNode) node.getParent();
+                    String database = databaseNode.getUserObject().toString();
+                    if (!database.equals(info.getDatabase())) {
+                        if (info.getDatabase() == null) {
+                            info.setDatabase(database);
                         } else {
                             msg = "Only support the tables in the same database";
                             break;
@@ -137,7 +137,7 @@ public class BuildAction extends AnAction {
                     }
 
                     // only support tables in the same connection
-                    DefaultMutableTreeNode connectionNode = (DefaultMutableTreeNode) schemaNode.getParent();
+                    DefaultMutableTreeNode connectionNode = (DefaultMutableTreeNode) databaseNode.getParent();
                     String connectionId = ((DatabaseItem) connectionNode.getUserObject()).getId();
                     if (!connectionId.equals(info.getId())) {
                         if (info.getId() == null) {
@@ -148,7 +148,7 @@ public class BuildAction extends AnAction {
                         }
                     }
 
-                    TableInfo tableInfo = new TableInfo(info.getSchema(), item.getName());
+                    TableInfo tableInfo = new TableInfo(info.getDatabase(), item.getName());
                     TableInfo lastTableInfo = service.getLastTableInfo(tableInfo);
                     if (lastTableInfo != null) {
                         XmlSerializerUtil.copyBean(lastTableInfo, tableInfo);

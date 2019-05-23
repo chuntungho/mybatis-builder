@@ -21,7 +21,7 @@ public class ConnectionUrlBuilder {
             String url = connectionInfo.getDriverType().getUrlPattern();
             url = url.replace("${host}", connectionInfo.getHost());
             url = url.replace("${port}", String.valueOf(connectionInfo.getPort()));
-            url = url.replace("${schema}", connectionInfo.getSchema());
+            url = url.replace("${db}", connectionInfo.getDatabase());
             return url;
         }
     }

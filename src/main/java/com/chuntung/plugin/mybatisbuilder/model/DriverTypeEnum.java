@@ -6,10 +6,10 @@ package com.chuntung.plugin.mybatisbuilder.model;
 
 public enum DriverTypeEnum {
 
-    MySQL("com.mysql.jdbc.Driver", "jdbc:mysql://${host}:${port}/${schema}?useUnicode=true&useSSL=false&characterEncoding=UTF8", 3306, "/images/MySQL.png"),
-    PostgreSQL("org.postgresql.Driver", "jdbc:postgresql://${host}:${port}/${schema}", 5432, "/images/PostgreSQL.png"),
+    MySQL("com.mysql.jdbc.Driver", "jdbc:mysql://${host}:${port}/${db}?useUnicode=true&useSSL=false&characterEncoding=UTF8", 3306, "/images/MySQL.png"),
+    PostgreSQL("org.postgresql.Driver", "jdbc:postgresql://${host}:${port}/${db}", 5432, "/images/PostgreSQL.png"),
     //    Oracle("oracle.jdbc.driver.OracleDriver", "jdbc:oracle:thin:@%s:%s:%s", ""),
-    Custom("", "jdbc:${vendor}://${host}:${port}/${schema}", 1234, "/images/connection.png");
+    Custom("", "jdbc:${vendor}://${host}:${port}/${db}", 1234, "/images/connection.png");
 
     private final String driverClass;
     private final String urlPattern;

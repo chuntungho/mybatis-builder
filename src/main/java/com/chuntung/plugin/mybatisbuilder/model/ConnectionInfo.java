@@ -22,7 +22,7 @@ public class ConnectionInfo implements Cloneable {
     private String url;
     private String host;
     private Integer port;
-    private String schema;
+    private String database;
     private String userName;
     private String password;
 
@@ -106,12 +106,12 @@ public class ConnectionInfo implements Cloneable {
         this.port = port;
     }
 
-    public String getSchema() {
-        return schema;
+    public String getDatabase() {
+        return database;
     }
 
-    public void setSchema(String schema) {
-        this.schema = schema;
+    public void setDatabase(String database) {
+        this.database = database;
     }
 
     public String getUserName() {
@@ -144,7 +144,7 @@ public class ConnectionInfo implements Cloneable {
         sb.append(", url='").append(url).append('\'');
         sb.append(", host='").append(host).append('\'');
         sb.append(", port=").append(port);
-        sb.append(", schema='").append(schema).append('\'');
+        sb.append(", database='").append(database).append('\'');
         sb.append(", userName='").append(userName).append('\'');
         sb.append(", password='").append(password).append('\'');
         sb.append('}');

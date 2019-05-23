@@ -25,7 +25,7 @@ public class SimpleDataSourceFactory {
             dataSource.setPort(connectionInfo.getPort());
             dataSource.setUser(connectionInfo.getUserName());
             dataSource.setPassword(connectionInfo.getPassword());
-            dataSource.setDatabaseName(connectionInfo.getSchema());
+            dataSource.setDatabaseName(connectionInfo.getDatabase());
             return dataSource;
         } else if (DriverTypeEnum.PostgreSQL.equals(connectionInfo.getDriverType())) {
             PGSimpleDataSource dataSource = new PGSimpleDataSource();
@@ -33,7 +33,7 @@ public class SimpleDataSourceFactory {
             dataSource.setPassword(connectionInfo.getPassword());
             dataSource.setServerName(connectionInfo.getHost());
             dataSource.setPortNumber(connectionInfo.getPort());
-            dataSource.setDatabaseName(connectionInfo.getSchema());
+            dataSource.setDatabaseName(connectionInfo.getDatabase());
 
             return dataSource;
         } else {

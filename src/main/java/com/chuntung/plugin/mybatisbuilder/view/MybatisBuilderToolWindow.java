@@ -17,22 +17,24 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+/**
+ * The only enter point of this plugin.
+ *
+ * @author Tony Ho
+ */
 public class MybatisBuilderToolWindow {
     private JPanel mainPanel;
     private JPanel actionPanel;
     private JTree objectTree;
 
-    private Project project;
-
     public MybatisBuilderToolWindow(Project project) {
-        this.project = project;
         initGUI(project);
     }
 
     private void initGUI(Project project) {
         // tool bar
         // it seems that swing toolbar style has no effect in tool window,
-        // the only way is to use idea manager toolbar
+        // the only way is to use idea managed toolbar
         DefaultActionGroup actionGroup = new DefaultActionGroup(
                 new PopupAction(objectTree),
                 new Separator(),

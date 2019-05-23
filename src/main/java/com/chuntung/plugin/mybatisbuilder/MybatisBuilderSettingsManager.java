@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 https://chuntung.com. Some rights reserved.
+ * Copyright (c) 2019 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatisbuilder;
