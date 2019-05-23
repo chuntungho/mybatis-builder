@@ -216,7 +216,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
             return;
         }
 
-        // before change, saveConnectionInfo previous item
+        // before change, save previous item
         if (current != null) {
             getData(current);
         }

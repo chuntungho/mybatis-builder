@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatisbuilder.view;
 
+import com.chuntung.plugin.mybatisbuilder.model.PluginInfo;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -18,8 +19,10 @@ import java.awt.event.MouseEvent;
 public class AboutDialog extends DialogWrapper {
     private JPanel contentPanel;
     private JLabel authorLabel;
-    private JButton paypalButton;
-    private JButton alipayButton;
+    private JLabel pluginLabel;
+    private JLabel homeLabel;
+    private JLabel paypalLabel;
+    private JLabel alipayLabel;
 
     public AboutDialog(Project project) {
         super(project, false);
@@ -27,25 +30,35 @@ public class AboutDialog extends DialogWrapper {
         setTitle("Mybatis Builder - About");
         setButtonsAlignment(SwingConstants.CENTER);
 
+        pluginLabel.setText(PluginInfo.PLUGIN_NAME + " v" + PluginInfo.PLUGIN_VERSION);
+
+        authorLabel.setText(PluginInfo.AUTHOR);
         authorLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                JLabel label = (JLabel) e.getSource();
-                BrowserUtil.browse(label.getText());
+                BrowserUtil.browse(PluginInfo.GITHUB);
             }
         });
 
-        paypalButton.addActionListener(new ActionListener() {
+        homeLabel.setText(PluginInfo.HOME_PAGE);
+        homeLabel.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                BrowserUtil.browse("https://www.paypal.me/chuntungho?locale.x=en_US");
+            public void mouseClicked(MouseEvent e) {
+                BrowserUtil.browse(PluginInfo.HOME_PAGE);
             }
         });
 
-        alipayButton.addActionListener(new ActionListener() {
+        paypalLabel.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                BrowserUtil.browse("https://chuntung.com/donate/");
+            public void mouseClicked(MouseEvent e) {
+                BrowserUtil.browse(PluginInfo.PAYPAL_LINK);
+            }
+        });
+
+        alipayLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                BrowserUtil.browse(PluginInfo.ALIPAY_LINK);
             }
         });
 

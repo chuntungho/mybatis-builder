@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatisbuilder.view;
 
+import com.chuntung.plugin.mybatisbuilder.action.SettingsHandler;
 import com.chuntung.plugin.mybatisbuilder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatisbuilder.generator.TableKey;
 import com.chuntung.plugin.mybatisbuilder.model.ObjectTableModel;
@@ -20,6 +21,10 @@ import org.mybatis.generator.config.SqlMapGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 
 public class MybatisBuilderParametersDialog extends DialogWrapper {
@@ -44,6 +49,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JCheckBox springRepositorySupportCheckBox;
     private JTextField columnText;
     private JTextField statementText;
+    private JCheckBox allCheckBox;
 
     private String[] javaClientTypes = {"XMLMAPPER", "ANNOTATEDMAPPER", "MIXEDMAPPER"};
 
@@ -51,13 +57,12 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private String[] editableFieldNames = new String[]{"domainName", "keyColumn"};
     private String[] columnNames = new String[]{"Table Name", "Domain Name", "Key Column"};
 
-    @Nullable
-    private Project project;
+    private final SettingsHandler settingsHandler;
     private GeneratorParamWrapper paramWrapper;
 
     public MybatisBuilderParametersDialog(@Nullable Project project, GeneratorParamWrapper paramWrapper) {
         super(project);
-        this.project = project;
+        this.settingsHandler = SettingsHandler.getInstance(project);
         this.paramWrapper = paramWrapper;
 
         initGUI(project);
@@ -66,11 +71,48 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         init();
     }
 
+    private ActionListener renderAllListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            renderAll();
+        }
+    };
+
+    private void renderAll() {
+        allCheckBox.setSelected(enableSelectCheckbox.isSelected()
+                && enableCountCheckbox.isSelected()
+                && enableUpdateCheckbox.isSelected()
+                && enableDeleteCheckbox.isSelected());
+    }
+
     private void initGUI(Project project) {
         setTitle("Mybatis Builder - Parameters");
 
+        // check box
+        allCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JCheckBox checkBox = (JCheckBox) e.getSource();
+                Boolean checked = checkBox.isSelected();
+                enableSelectCheckbox.setSelected(checked);
+                enableCountCheckbox.setSelected(checked);
+                enableUpdateCheckbox.setSelected(checked);
+                enableDeleteCheckbox.setSelected(checked);
+            }
+        });
+        enableSelectCheckbox.addActionListener(renderAllListener);
+        enableCountCheckbox.addActionListener(renderAllListener);
+        enableUpdateCheckbox.addActionListener(renderAllListener);
+        enableDeleteCheckbox.addActionListener(renderAllListener);
+
         // Combo box
         javaClientTypeCombobox.setModel(new DefaultComboBoxModel(javaClientTypes));
+        javaClientTypeCombobox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                sqlMapGeneratorPanel.setVisible(!"ANNOTATEDMAPPER".equals(e.getItem()));
+            }
+        });
 
         // directory chooser
         javaModelProjectText.addBrowseFolderListener("Choose Target Project", "", null, FOLDER_DESCRIPTOR);
@@ -100,6 +142,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         enableCountCheckbox.setSelected(defaultTableConfig.isCountByExampleStatementEnabled());
         enableUpdateCheckbox.setSelected(defaultTableConfig.isUpdateByExampleStatementEnabled());
         enableDeleteCheckbox.setSelected(defaultTableConfig.isDeleteByExampleStatementEnabled());
+
+        renderAll();
 
         TableKey defaultTabledKey = data.getDefaultTabledKey();
         columnText.setText(defaultTabledKey.getColumn());
@@ -202,6 +246,20 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
             }
         }
         return info;
+    }
+
+    private Action stashAction = new AbstractAction("Stash") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            getData(paramWrapper);
+            settingsHandler.stashGeneratorParamWrapper(paramWrapper);
+            close(CLOSE_EXIT_CODE);
+        }
+    };
+
+    @Override
+    protected Action[] createLeftSideActions(){
+        return new Action[]{stashAction};
     }
 
 }

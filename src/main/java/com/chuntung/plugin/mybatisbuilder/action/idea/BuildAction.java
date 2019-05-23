@@ -92,8 +92,8 @@ public class BuildAction extends AnAction {
         MybatisBuilderParametersDialog dialog = new MybatisBuilderParametersDialog(project, paramWrapper);
 
         if (dialog.showAndGet()) {
-            // save last config
-            service.saveGeneratorParamWrapper(paramWrapper);
+            // stash last parameters
+            service.stashGeneratorParamWrapper(paramWrapper);
 
             // build in background
             SwingUtilities.invokeLater(() -> {

@@ -6,6 +6,7 @@ package com.chuntung.plugin.mybatisbuilder.action;
 
 import com.chuntung.plugin.mybatisbuilder.MybatisBuilderService;
 import com.chuntung.plugin.mybatisbuilder.generator.DefaultParameters;
+import com.chuntung.plugin.mybatisbuilder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -46,6 +47,10 @@ public class SettingsHandler {
     public void saveAll(List<ConnectionInfo> list, DefaultParameters defaultParameters) {
         service.saveConnectionInfo(list);
         service.saveDefaultParameters(defaultParameters);
+    }
+
+    public void stashGeneratorParamWrapper(GeneratorParamWrapper paramWrapper){
+        service.stashGeneratorParamWrapper(paramWrapper);
     }
 
 }

@@ -27,6 +27,7 @@ import java.util.List;
 
 /**
  * The unified plugin service.
+ *
  * @author Tony Ho
  */
 public class MybatisBuilderService implements ProjectComponent {
@@ -48,10 +49,14 @@ public class MybatisBuilderService implements ProjectComponent {
         manager.saveConnectionInfo(connectionInfoList);
     }
 
-    public boolean testConnection(ConnectionInfo connectionInfo) throws SQLException {
+    public void testConnection(ConnectionInfo connectionInfo) throws SQLException {
         DataSource dataSource = SimpleDataSourceFactory.getInstance().getDataSource(connectionInfo);
-        dataSource.getConnection();
-        return true;
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+        } finally {
+            close(connection);
+        }
     }
 
     public List<ConnectionInfo> loadConnectionInfoList() {
@@ -151,7 +156,7 @@ public class MybatisBuilderService implements ProjectComponent {
         return list;
     }
 
-    public void saveGeneratorParamWrapper(GeneratorParamWrapper paramWrapper) {
+    public void stashGeneratorParamWrapper(GeneratorParamWrapper paramWrapper) {
         manager.getSettings().setLastGeneratorParamWrapper(paramWrapper);
         manager.saveTableInfo(paramWrapper.getTableList());
     }
