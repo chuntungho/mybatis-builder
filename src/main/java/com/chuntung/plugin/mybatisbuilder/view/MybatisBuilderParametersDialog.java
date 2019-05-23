@@ -10,6 +10,7 @@ import com.chuntung.plugin.mybatisbuilder.model.ObjectTableModel;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -131,9 +132,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         sqlMapPackageText.setText(sqlMapConfig.getTargetPackage());
     }
 
-    public ValidationInfo getData(GeneratorParamWrapper data) {
-        ValidationInfo info = null;
-
+    public void getData(GeneratorParamWrapper data) {
         // context
         data.setBeginningDelimiter(beginningDelimiterText.getText());
         data.setEndingDelimiter(endingDelimiterText.getText());
@@ -161,51 +160,48 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         javaModelConfig.setTargetProject(javaModelProjectText.getText());
         javaModelConfig.setTargetPackage(javaModelPackageText.getText());
 
-        if (StringUtils.isBlank(javaModelConfig.getTargetProject())) {
-            info = new ValidationInfo("Java model target project not specified", javaModelProjectText);
-        } else {
-            if (!new File(javaModelConfig.getTargetProject()).exists()) {
-                info = new ValidationInfo("Java model target project does not exist", javaModelProjectText);
-            }
-        }
-        if (info != null) {
-            return info;
-        }
-
         // client config
         JavaClientGeneratorConfiguration javaClientConfig = data.getJavaClientConfig();
         javaClientConfig.setConfigurationType((String) javaClientTypeCombobox.getSelectedItem());
         javaClientConfig.setTargetProject(javaClientProjectText.getText());
         javaClientConfig.setTargetPackage(javaClientPackageText.getText());
 
-        if (StringUtils.isBlank(javaClientConfig.getTargetProject())) {
-            info = new ValidationInfo("Java client target project not specified", javaClientProjectText);
-        } else {
-            if (!new File(javaClientConfig.getTargetProject()).exists()) {
-                info = new ValidationInfo("Java client target project does not exist", javaClientProjectText);
-            }
-        }
-        if (info != null) {
-            return info;
-        }
-
         // sqlmap config
         SqlMapGeneratorConfiguration sqlMapConfig = data.getSqlMapConfig();
         sqlMapConfig.setTargetProject(sqlMapProjectText.getText());
         sqlMapConfig.setTargetPackage(sqlMapPackageText.getText());
-        if (StringUtils.isBlank(sqlMapConfig.getTargetProject())) {
-            info = new ValidationInfo("SQL map target project not specified", sqlMapProjectText);
+    }
+
+    // validate before pressing OK button
+    protected ValidationInfo doValidate() {
+        ValidationInfo info = checkTargetProjects(javaModelProjectText, javaClientProjectText, sqlMapProjectText);
+
+        if (info == null) {
+            getData(paramWrapper);
         } else {
-            if (!new File(sqlMapConfig.getTargetProject()).exists()) {
-                info = new ValidationInfo("SQL map target project does not exist", sqlMapProjectText);
+            // select tab pane of the component
+            if (info.component != null) {
+                MybatisBuilderSettingsDialog.focusTab(info.component);
             }
         }
 
         return info;
     }
 
-    // validate before pressing OK button
-    protected ValidationInfo doValidate() {
-        return getData(paramWrapper);
+    private ValidationInfo checkTargetProjects(TextFieldWithBrowseButton... textFields) {
+        ValidationInfo info = null;
+        for (TextFieldWithBrowseButton textField : textFields) {
+            String path = textField.getText();
+            if (StringUtils.isBlank(path)) {
+                info = new ValidationInfo(textField.getToolTipText() + " not specified", textField);
+            } else if (!new File(path).exists()) {
+                info = new ValidationInfo(textField.getToolTipText() + " does not exist", textField);
+            }
+            if (info != null) {
+                break;
+            }
+        }
+        return info;
     }
+
 }

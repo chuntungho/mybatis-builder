@@ -192,7 +192,9 @@
                         <preferred-size width="150" height="-1"/>
                       </grid>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <toolTipText value="Java model target project"/>
+                    </properties>
                   </component>
                   <component id="fab1c" class="javax.swing.JLabel">
                     <constraints>
@@ -278,7 +280,9 @@
                         <preferred-size width="150" height="-1"/>
                       </grid>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <toolTipText value="Java client target project"/>
+                    </properties>
                   </component>
                   <component id="e0331" class="javax.swing.JCheckBox" binding="springRepositorySupportCheckBox" default-binding="true">
                     <constraints>
@@ -333,7 +337,9 @@
                         <preferred-size width="150" height="-1"/>
                       </grid>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <toolTipText value="SQL map target project"/>
+                    </properties>
                   </component>
                   <component id="ffd2e" class="javax.swing.JLabel">
                     <constraints>

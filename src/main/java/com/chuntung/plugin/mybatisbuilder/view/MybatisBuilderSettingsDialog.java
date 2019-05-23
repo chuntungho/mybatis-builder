@@ -275,8 +275,12 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         super.doOKAction();
     }
 
-    protected void doApplyAction() {
-        saveAll();
+    protected void doApplyAction(ActionEvent e) {
+        // simulate OK button but not close window
+        getOKAction().setEnabled(false);
+        getOKAction().actionPerformed(e);
+        getOKAction().setEnabled(true);
+
         getApplyAction().setEnabled(false);
     }
 
@@ -294,7 +298,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
             applyAction = new AbstractAction("Apply") {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    doApplyAction();
+                    doApplyAction(e);
                 }
             };
         }
@@ -394,10 +398,42 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         String pattern = mapperNamePatternText.getText();
         if (StringUtils.isNotBlank(pattern)) {
             if (!pattern.contains(DefaultParameters.DOMAIN_NAME_PLACEHOLDER)) {
-                info = new ValidationInfo("Mapper Name Pattern should contains " + DefaultParameters.DOMAIN_NAME_PLACEHOLDER);
+                info = new ValidationInfo("Mapper Name Pattern should contains " + DefaultParameters.DOMAIN_NAME_PLACEHOLDER, mapperNamePatternText);
             }
         }
+
+        if (info != null) {
+            focusTab(mapperNamePatternText);
+        }
+
         return info;
+    }
+
+    /**
+     * Focus component in tabbed pane.
+     *
+     * @param component
+     */
+    public static void focusTab(JComponent component) {
+        JTabbedPane tabbedPane = null;
+        // find out tabbed pane & the tab
+        Component focusTab = component;
+        while (true) {
+            Container parent = focusTab.getParent();
+            if (parent instanceof JTabbedPane) {
+                tabbedPane = (JTabbedPane) parent;
+                break;
+            }
+            if (parent == null) {
+                break;
+            }
+            focusTab = parent;
+        }
+
+        if (tabbedPane != null && tabbedPane.getSelectedComponent() != focusTab) {
+            tabbedPane.setSelectedComponent(focusTab);
+            component.requestFocus();
+        }
     }
 
 }

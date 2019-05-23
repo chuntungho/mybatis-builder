@@ -74,7 +74,7 @@ public class BuildAction extends AnAction {
             return;
         }
 
-        // get connection by id, specify schema, then test connection
+        // get connection by id, specify database, then test connection
         try {
             ConnectionInfo savedConnectionIfo = service.getConnectionInfoWithPassword(connectionInfo.getId());
             savedConnectionIfo.setDatabase(connectionInfo.getDatabase());
