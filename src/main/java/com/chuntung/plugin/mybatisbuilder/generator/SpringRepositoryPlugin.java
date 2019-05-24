@@ -24,10 +24,12 @@ public class SpringRepositoryPlugin extends PluginAdapter {
     public SpringRepositoryPlugin() {
     }
 
+    @Override
     public boolean validate(List<String> list) {
         return true;
     }
 
+    @Override
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         interfaze.addImportedType(this.annotationRepository);
         interfaze.addAnnotation(this.annotation);

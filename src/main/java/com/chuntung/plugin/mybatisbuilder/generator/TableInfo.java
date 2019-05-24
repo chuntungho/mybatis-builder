@@ -6,7 +6,7 @@ package com.chuntung.plugin.mybatisbuilder.generator;
 
 // table info
 public class TableInfo {
-    private String schema;
+    private String database;
     private String tableName;
     private String domainName;
     private String keyColumn;
@@ -14,17 +14,17 @@ public class TableInfo {
     public TableInfo() {
     }
 
-    public TableInfo(String schema, String tableName) {
-        this.schema = schema;
+    public TableInfo(String database, String tableName) {
+        this.database = database;
         this.tableName = tableName;
     }
 
-    public String getSchema() {
-        return schema;
+    public String getDatabase() {
+        return database;
     }
 
-    public void setSchema(String schema) {
-        this.schema = schema;
+    public void setDatabase(String database) {
+        this.database = database;
     }
 
     public String getTableName() {

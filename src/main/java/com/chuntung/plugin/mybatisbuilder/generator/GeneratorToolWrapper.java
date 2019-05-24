@@ -60,7 +60,7 @@ public class GeneratorToolWrapper {
 
         // java model config,  trim strings
         if (Boolean.TRUE.equals(paramWrapper.getTrimStrings())) {
-            paramWrapper.getJavaModelConfig().addProperty("trimStrings", "true");
+            paramWrapper.getJavaModelConfig().addProperty(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS, "true");
         }
         context.setJavaModelGeneratorConfiguration(paramWrapper.getJavaModelConfig());
 

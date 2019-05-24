@@ -27,14 +27,19 @@ public class DbCommentGenerator implements CommentGenerator {
 
     @Override
     public void addFieldComment(Field field, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
+        field.addJavaDocLine("/**");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(" * Column name: ").append(introspectedColumn.getActualColumnName());
+        field.addJavaDocLine(sb.toString());
+
         if (StringUtils.isNotBlank(introspectedColumn.getRemarks())) {
-            field.addJavaDocLine("/**");
-            StringBuilder sb = new StringBuilder();
-            sb.append(" * ");
-            sb.append(introspectedColumn.getRemarks());
+            sb.setLength(0);
+            sb.append(" * Column remark: ").append(introspectedColumn.getRemarks().replace('\n', ' '));
             field.addJavaDocLine(sb.toString());
-            field.addJavaDocLine(" */");
         }
+
+        field.addJavaDocLine(" */");
     }
 
     @Override
@@ -44,7 +49,13 @@ public class DbCommentGenerator implements CommentGenerator {
 
     @Override
     public void addModelClassComment(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        topLevelClass.addJavaDocLine("/**");
 
+        StringBuilder sb = new StringBuilder();
+        sb.append(" * Table name: ").append(introspectedTable.getFullyQualifiedTable());
+        topLevelClass.addJavaDocLine(sb.toString());
+
+        topLevelClass.addJavaDocLine(" */");
     }
 
     @Override

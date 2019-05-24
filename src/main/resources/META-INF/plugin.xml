@@ -4,7 +4,7 @@
 <idea-plugin>
     <id>com.chuntung.plugin.mybatisbuilder</id>
     <name>Mybatis Builder</name>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">Tony Ho</vendor>
 
     <description><![CDATA[
@@ -20,6 +20,9 @@
         <li>Support mapper name customization.</li>
         <li>Support Spring @Repository Annotation.</li>
       </ul>
+    </li>
+    <li>v1.0.1<br>
+        Improve UI Operation.
     </li>
     </ul>
     ]]>

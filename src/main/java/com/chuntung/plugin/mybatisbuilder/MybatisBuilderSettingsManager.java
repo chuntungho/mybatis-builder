@@ -80,7 +80,7 @@ public class MybatisBuilderSettingsManager implements ProjectComponent, Persiste
 
     @NotNull
     private String formatMappingKey(TableInfo tableInfo) {
-        return tableInfo.getSchema() + "#" + tableInfo.getTableName();
+        return tableInfo.getDatabase() + "#" + tableInfo.getTableName();
     }
 
     @Nullable

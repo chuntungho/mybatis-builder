@@ -17,6 +17,7 @@ public class GeneratorParamWrapper implements Cloneable {
     private String endingDelimiter = "`";
     private Boolean trimStrings = true;
     private Boolean springRepositorySupport = true;
+    // TODO selectWithLockSupport = true;
 
     private JDBCConnectionConfiguration jdbcConfig = new JDBCConnectionConfiguration();
     private JavaModelGeneratorConfiguration javaModelConfig = new JavaModelGeneratorConfiguration();

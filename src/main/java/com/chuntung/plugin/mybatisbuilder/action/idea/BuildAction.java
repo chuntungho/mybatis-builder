@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
 import org.mybatis.generator.config.PropertyHolder;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,6 +153,8 @@ public class BuildAction extends AnAction {
                     TableInfo lastTableInfo = service.getLastTableInfo(tableInfo);
                     if (lastTableInfo != null) {
                         XmlSerializerUtil.copyBean(lastTableInfo, tableInfo);
+                        // fix v1.0.1 upgrade issue: reset since old version use a different name
+                        tableInfo.setDatabase(database);
                     }
 
                     // pre-gen domain name for reference
@@ -196,7 +199,7 @@ public class BuildAction extends AnAction {
 
     private void enableSubPackages(PropertyHolder... holders) {
         for (PropertyHolder holder : holders) {
-            holder.addProperty("enableSubPackages", "true");
+            holder.addProperty(PropertyRegistry.ANY_ENABLE_SUB_PACKAGES, "true");
         }
     }
 
