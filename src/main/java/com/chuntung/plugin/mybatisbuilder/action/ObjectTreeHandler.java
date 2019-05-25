@@ -5,6 +5,7 @@
 package com.chuntung.plugin.mybatisbuilder.action;
 
 import com.chuntung.plugin.mybatisbuilder.MybatisBuilderService;
+import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DatabaseItem;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
@@ -78,6 +79,23 @@ public class ObjectTreeHandler {
         return new ObjectTreeHandler(objectTree, project);
     }
 
+    // load active connection on start
+    public void initConnectionNodes() {
+        MybatisBuilderService service = MybatisBuilderService.getInstance(project);
+        List<ConnectionInfo> connectionInfoList = service.loadConnectionInfoList();
+        if (connectionInfoList != null && connectionInfoList.size() > 0) {
+            DefaultMutableTreeNode root = (DefaultMutableTreeNode) objectTree.getModel().getRoot();
+            for (ConnectionInfo connectionInfo : connectionInfoList) {
+                if (Boolean.TRUE.equals(connectionInfo.getActive())) {
+                    DatabaseItem item = DatabaseItem.of(DatabaseItem.ItemTypeEnum.CONNECTION,
+                            connectionInfo.getName(), connectionInfo.getId());
+                    root.add(new DefaultMutableTreeNode(item, true));
+                }
+            }
+            objectTree.updateUI();
+        }
+    }
+
     // load sub nodes for connection or database
     private void loadSubNodes(DefaultMutableTreeNode node, boolean forced) {
         int count = node.getChildCount();
@@ -88,11 +106,24 @@ public class ObjectTreeHandler {
 
             try {
                 DatabaseItem item = (DatabaseItem) node.getUserObject();
+                
                 if (DatabaseItem.ItemTypeEnum.CONNECTION.equals(item.getType())) {
+                    TreePath toPath = null;
+                    ConnectionInfo connectionInfo = service.getConnectionInfoWithPassword(item.getId());
+                    String defaultDatabase = connectionInfo.getDatabase();
+
                     List<DatabaseItem> databaseItems = service.fetchDatabases(item.getId());
                     for (DatabaseItem dbItem : databaseItems) {
-                        node.add(new DefaultMutableTreeNode(dbItem,
-                                true));
+                        node.add(new DefaultMutableTreeNode(dbItem, true));
+                        if (dbItem.getName().equals(defaultDatabase)) {
+                            toPath = new TreePath(node.getPath()).pathByAddingChild(node.getLastChild());
+                        }
+                    }
+
+                    // select and scroll to default database
+                    if (toPath != null) {
+                        objectTree.setSelectionPath(toPath);
+                        objectTree.scrollPathToVisible(toPath);
                     }
                 } else if (DatabaseItem.ItemTypeEnum.DATABASE.equals(item.getType())) {
                     DefaultMutableTreeNode connNode = (DefaultMutableTreeNode) node.getParent();

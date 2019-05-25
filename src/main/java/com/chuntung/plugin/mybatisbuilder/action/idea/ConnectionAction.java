@@ -33,7 +33,11 @@ public class ConnectionAction extends AnAction {
             DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
             DatabaseItem item = (DatabaseItem) child.getUserObject();
             if (item.getId().equals(connectionInfo.getId())) {
-                objectTree.setSelectionPath(new TreePath(child.getPath()));
+                // select and expand
+                TreePath toPath = new TreePath(child.getPath());
+                objectTree.setSelectionPath(toPath);
+                objectTree.scrollPathToVisible(toPath);
+                objectTree.expandPath(toPath);
                 return;
             }
         }
@@ -41,6 +45,12 @@ public class ConnectionAction extends AnAction {
         DatabaseItem item = DatabaseItem.of(DatabaseItem.ItemTypeEnum.CONNECTION,
                 connectionInfo.getName(), connectionInfo.getId());
         root.add(new DefaultMutableTreeNode(item));
+        // expand immediately
+        TreePath toPath = new TreePath(root.getPath()).pathByAddingChild(root.getLastChild());
+        objectTree.setSelectionPath(toPath);
+        objectTree.scrollPathToVisible(toPath);
+        objectTree.expandPath(toPath);
+
         objectTree.updateUI();
     }
 }

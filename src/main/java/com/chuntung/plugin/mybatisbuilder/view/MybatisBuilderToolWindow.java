@@ -53,6 +53,9 @@ public class MybatisBuilderToolWindow {
         objectTree.addMouseListener(treeHandler.getMouseListener());
 
         objectTree.setCellRenderer(treeHandler.getTreeCellRenderer());
+
+        // init tree nodes
+        treeHandler.initConnectionNodes();
     }
 
     public JComponent getComponent() {

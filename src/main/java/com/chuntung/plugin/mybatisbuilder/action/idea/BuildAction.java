@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,7 @@ public class BuildAction extends AnAction {
         Project project = anActionEvent.getProject();
         MybatisBuilderService service = MybatisBuilderService.getInstance(project);
 
-        // load the last config
+        // load the last parameters
         GeneratorParamWrapper paramWrapper = service.getLastGeneratorParamWrapper();
 
         // load default parameters
@@ -83,7 +84,7 @@ public class BuildAction extends AnAction {
 
             populateConnection(paramWrapper, savedConnectionIfo);
         } catch (SQLException e) {
-            logger.warn("Failed to connect to server", e);
+            logger.warn("Failed to connect to database", e);
             Messages.showErrorDialog(e.getMessage(), "Building Error");
         }
 
@@ -189,7 +190,7 @@ public class BuildAction extends AnAction {
                 connectionInfo.getDriverClass() : connectionInfo.getDriverType().getDriverClass();
         jdbcConfig.setDriverClass(driverClass);
 
-        // connection url, should contains schema
+        // connection url, should contains database
         String connectionUrl = new ConnectionUrlBuilder(connectionInfo).getConnectionUrl();
         jdbcConfig.setConnectionURL(connectionUrl);
 
@@ -206,8 +207,14 @@ public class BuildAction extends AnAction {
     private void populateProjectAndPackage(GeneratorParamWrapper paramWrapper, Project project) {
         // maven/gradle default path
         String projectPath = project.getBasePath();
-        String sourceCodeRoot = projectPath + "/src/main/java/";
-        String resourceRoot = projectPath + "/src/main/resource/";
+        String sourceCodeRoot = projectPath + "/src/main/java";
+        String resourcesRoot = projectPath + "/src/main/resources";
+        if (!new File(sourceCodeRoot).exists()) {
+            sourceCodeRoot = projectPath;
+        }
+        if (!new File(resourcesRoot).exists()) {
+            resourcesRoot = projectPath;
+        }
 
         // initialize project paths
         if (paramWrapper.getJavaModelConfig().getTargetProject() == null) {
@@ -221,7 +228,7 @@ public class BuildAction extends AnAction {
         }
 
         if (paramWrapper.getSqlMapConfig().getTargetProject() == null) {
-            paramWrapper.getSqlMapConfig().setTargetProject(resourceRoot);
+            paramWrapper.getSqlMapConfig().setTargetProject(resourcesRoot);
             paramWrapper.getSqlMapConfig().setTargetPackage("sqlmap");
         }
     }
