@@ -4,6 +4,8 @@
 
 package com.chuntung.plugin.mybatisbuilder.database;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.PrintWriter;
@@ -12,10 +14,11 @@ import java.net.URLClassLoader;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 public class CustomDataSource implements DataSource {
-    private static final Map<String, Driver> driverMap = new HashMap<>();
+    private static final Map<String, Driver> driverCache = new HashMap<>();
     private String driverLibrary;
     private String driverClass;
     private String url;
@@ -51,20 +54,22 @@ public class CustomDataSource implements DataSource {
         this.password = password;
     }
 
-    private void checkRegister() throws SQLException {
-        if (!driverMap.containsKey(driverClass)) {
-            URLClassLoader driverClassLoader = null;
+    private Driver getDriver() throws SQLException {
+        ClassLoader parentClassLoader = getClass().getClassLoader();
+        String key = driverClass + "@" + driverLibrary;
+        if (!driverCache.containsKey(key)) {
             try {
-                driverClassLoader = new URLClassLoader(new URL[]{new File(driverLibrary)
-                        .toURI().toURL()});
-                Class<?> clazz = driverClassLoader.loadClass(driverClass);
+                URL[] urls = {new File(driverLibrary).toURI().toURL()};
+                URLClassLoader classLoader = URLClassLoader.newInstance(urls, parentClassLoader);
+                Class<?> clazz = classLoader.loadClass(driverClass);
                 Driver driver = (Driver) clazz.newInstance();
                 DriverManager.registerDriver(driver);
-                driverMap.put(driverClass, driver);
+                driverCache.put(key, driver);
             } catch (Exception e) {
                 throw new SQLException("Driver initialization failed");
             }
         }
+        return driverCache.get(key);
     }
 
     @Override
@@ -74,8 +79,14 @@ public class CustomDataSource implements DataSource {
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        checkRegister();
-        Connection connection = DriverManager.getConnection(url, user, password);
+        Properties props = new Properties();
+        if (StringUtils.isNotEmpty(username)) {
+            props.put("user", username);
+        }
+        if (StringUtils.isNotEmpty(password)) {
+            props.put("password", password);
+        }
+        Connection connection = getDriver().connect(url, props);
         return connection;
     }
 
