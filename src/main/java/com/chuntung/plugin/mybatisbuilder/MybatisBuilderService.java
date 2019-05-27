@@ -128,6 +128,17 @@ public class MybatisBuilderService implements ProjectComponent {
                 }
             }
 
+            // oracle use schema for catalog
+            if (list.size() == 0 && isOracle(connection)) {
+                catalogs = meta.getSchemas();
+                while (catalogs.next()) {
+                    String catalog = catalogs.getString(1);
+                    if (StringUtils.isNotEmpty(catalog)) {
+                        list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.DATABASE, catalog));
+                    }
+                }
+            }
+
             // NOTE: hard-code for SQLite which have no catalog
             if (list.size() == 0 && "SQLiteConnection".equals(connection.getClass().getSimpleName())) {
                 list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.DATABASE, "dummy"));
@@ -138,6 +149,10 @@ public class MybatisBuilderService implements ProjectComponent {
         return list;
     }
 
+    private boolean isOracle(Connection connection) {
+        return connection.getClass().getName().startsWith("oracle");
+    }
+
     public List<DatabaseItem> fetchTables(String connectionId, String database) throws SQLException {
         List<DatabaseItem> list = new ArrayList<>();
         ConnectionInfo connectionInfo = getConnectionInfoWithPassword(connectionId);
@@ -146,7 +161,14 @@ public class MybatisBuilderService implements ProjectComponent {
         try {
             connection = dataSource.getConnection();
             DatabaseMetaData meta = connection.getMetaData();
-            ResultSet tables = meta.getTables(database, null, null, new String[]{"TABLE"});
+            String catalog = database, schema = null;
+
+            // oracle should specify schema
+            if(isOracle(connection)) {
+                schema = database;
+            }
+
+            ResultSet tables = meta.getTables(catalog, schema, null, new String[]{"TABLE"});
             while (tables.next()) {
                 list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.TABLE, tables.getString("TABLE_NAME")));
             }
