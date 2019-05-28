@@ -2,7 +2,7 @@
  * Copyright (c) 2019 Tony Ho. Some rights reserved.
  */
 
-package com.chuntung.plugin.mybatisbuilder.generator;
+package com.chuntung.plugin.mybatisbuilder.generator.plugins;
 
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -13,13 +13,13 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import java.util.List;
 
 /**
- * A plugin that support Spring Repository Annotation.
+ * Spring Repository Annotation support.
  *
  * @author Tony Ho
  */
 public class SpringRepositoryPlugin extends PluginAdapter {
-    private FullyQualifiedJavaType annotationRepository = new FullyQualifiedJavaType("org.springframework.stereotype.Repository");
-    private String annotation = "@Repository";
+    private final static String ANNOTATION = "@Repository";
+    private final static FullyQualifiedJavaType ANNOTATION_TYPE = new FullyQualifiedJavaType("org.springframework.stereotype.Repository");
 
     public SpringRepositoryPlugin() {
     }
@@ -31,8 +31,8 @@ public class SpringRepositoryPlugin extends PluginAdapter {
 
     @Override
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        interfaze.addImportedType(this.annotationRepository);
-        interfaze.addAnnotation(this.annotation);
+        interfaze.addAnnotation(this.ANNOTATION);
+        interfaze.addImportedType(this.ANNOTATION_TYPE);
         return true;
     }
 }

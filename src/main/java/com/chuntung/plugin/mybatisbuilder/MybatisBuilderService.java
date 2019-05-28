@@ -180,7 +180,7 @@ public class MybatisBuilderService implements ProjectComponent {
 
     public void stashGeneratorParamWrapper(GeneratorParamWrapper paramWrapper) {
         manager.getSettings().setLastGeneratorParamWrapper(paramWrapper);
-        manager.saveTableInfo(paramWrapper.getTableList());
+        manager.saveTableInfo(paramWrapper.getSelectedTables());
     }
 
     public GeneratorParamWrapper getLastGeneratorParamWrapper() {

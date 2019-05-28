@@ -7,6 +7,9 @@ package com.chuntung.plugin.mybatisbuilder.view;
 import com.chuntung.plugin.mybatisbuilder.action.SettingsHandler;
 import com.chuntung.plugin.mybatisbuilder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatisbuilder.generator.TableKey;
+import com.chuntung.plugin.mybatisbuilder.generator.plugins.LombokPlugin;
+import com.chuntung.plugin.mybatisbuilder.generator.plugins.SpringRepositoryPlugin;
+import com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock.SelectWithLockPlugin;
 import com.chuntung.plugin.mybatisbuilder.model.ObjectTableModel;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
@@ -50,6 +53,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JTextField columnText;
     private JTextField statementText;
     private JCheckBox allCheckBox;
+    private JCheckBox lombokSupportCheckBox;
+    private JCheckBox selectWithLockSupportCheckBox;
 
     private String[] javaClientTypes = {"XMLMAPPER", "ANNOTATEDMAPPER", "MIXEDMAPPER"};
 
@@ -74,11 +79,11 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private ActionListener renderAllListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            renderAll();
+            renderAllCheckBox();
         }
     };
 
-    private void renderAll() {
+    private void renderAllCheckBox() {
         allCheckBox.setSelected(enableSelectCheckbox.isSelected()
                 && enableCountCheckbox.isSelected()
                 && enableUpdateCheckbox.isSelected()
@@ -134,7 +139,13 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         // model property
         trimStringsCheckBox.setSelected(data.getTrimStrings());
 
-        springRepositorySupportCheckBox.setSelected(data.getSpringRepositorySupport());
+        // plugins
+        boolean repositorySelected = data.getSelectedPlugins().containsKey(SpringRepositoryPlugin.class.getName());
+        springRepositorySupportCheckBox.setSelected(repositorySelected);
+        boolean lombokSelected = data.getSelectedPlugins().containsKey(LombokPlugin.class.getName());
+        lombokSupportCheckBox.setSelected(lombokSelected);
+        boolean selectWithLockSelected = data.getSelectedPlugins().containsKey(SelectWithLockPlugin.class.getName());
+        selectWithLockSupportCheckBox.setSelected(selectWithLockSelected);
 
         // default table config
         TableConfiguration defaultTableConfig = data.getDefaultTableConfig();
@@ -143,14 +154,14 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         enableUpdateCheckbox.setSelected(defaultTableConfig.isUpdateByExampleStatementEnabled());
         enableDeleteCheckbox.setSelected(defaultTableConfig.isDeleteByExampleStatementEnabled());
 
-        renderAll();
+        renderAllCheckBox();
 
         TableKey defaultTabledKey = data.getDefaultTabledKey();
         columnText.setText(defaultTabledKey.getColumn());
         statementText.setText(defaultTabledKey.getStatement());
 
         // selected tables
-        ObjectTableModel tableModel = new ObjectTableModel(data.getTableList(), fieldNames, columnNames);
+        ObjectTableModel tableModel = new ObjectTableModel(data.getSelectedTables(), fieldNames, columnNames);
         tableModel.setEditableFieldNames(editableFieldNames);
         selectedTables.setModel(tableModel);
         selectedTables.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -184,8 +195,16 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         // model property
         data.setTrimStrings(trimStringsCheckBox.isSelected());
 
-        // plugin
-        data.setSpringRepositorySupport(springRepositorySupportCheckBox.isSelected());
+        // plugins
+        if (springRepositorySupportCheckBox.isSelected()) {
+            data.getSelectedPlugins().put(SpringRepositoryPlugin.class.getName(), null);
+        }
+        if (lombokSupportCheckBox.isSelected()) {
+            data.getSelectedPlugins().put(LombokPlugin.class.getName(), null);
+        }
+        if (selectWithLockSupportCheckBox.isSelected()) {
+            data.getSelectedPlugins().put(SelectWithLockPlugin.class.getName(), null);
+        }
 
         // default table config
         TableConfiguration defaultTableConfig = data.getDefaultTableConfig();

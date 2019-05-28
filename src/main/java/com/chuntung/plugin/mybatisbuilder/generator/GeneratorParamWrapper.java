@@ -7,7 +7,9 @@ package com.chuntung.plugin.mybatisbuilder.generator;
 import com.intellij.util.xmlb.annotations.Transient;
 import org.mybatis.generator.config.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GeneratorParamWrapper implements Cloneable {
     private DefaultParameters defaultParameters;
@@ -16,8 +18,6 @@ public class GeneratorParamWrapper implements Cloneable {
     private String beginningDelimiter = "`";
     private String endingDelimiter = "`";
     private Boolean trimStrings = true;
-    private Boolean springRepositorySupport = true;
-    // TODO selectWithLockSupport = true;
 
     private JDBCConnectionConfiguration jdbcConfig = new JDBCConnectionConfiguration();
     private JavaModelGeneratorConfiguration javaModelConfig = new JavaModelGeneratorConfiguration();
@@ -28,7 +28,12 @@ public class GeneratorParamWrapper implements Cloneable {
     private ColumnRenamingRule defaultColumnConfig = new ColumnRenamingRule();
     private TableKey defaultTabledKey = new TableKey();
 
-    private List<TableInfo> tableList;
+    // selected plugins
+    private Map<String, Object> selectedPlugins = new LinkedHashMap<>();
+
+    // selected tables
+    private List<TableInfo> selectedTables;
+
 
     @Transient
     public DefaultParameters getDefaultParameters() {
@@ -62,6 +67,14 @@ public class GeneratorParamWrapper implements Cloneable {
 
     public void setEndingDelimiter(String endingDelimiter) {
         this.endingDelimiter = endingDelimiter;
+    }
+
+    public Boolean getTrimStrings() {
+        return trimStrings;
+    }
+
+    public void setTrimStrings(Boolean trimStrings) {
+        this.trimStrings = trimStrings;
     }
 
     @Transient
@@ -121,29 +134,21 @@ public class GeneratorParamWrapper implements Cloneable {
         this.defaultTabledKey = defaultTabledKey;
     }
 
+    public Map<String, Object> getSelectedPlugins() {
+        return selectedPlugins;
+    }
+
+    public void setSelectedPlugins(Map<String, Object> selectedPlugins) {
+        this.selectedPlugins = selectedPlugins;
+    }
+
     @Transient
-    public List<TableInfo> getTableList() {
-        return tableList;
+    public List<TableInfo> getSelectedTables() {
+        return selectedTables;
     }
 
-    public void setTableList(List<TableInfo> tableList) {
-        this.tableList = tableList;
-    }
-
-    public Boolean getTrimStrings() {
-        return trimStrings;
-    }
-
-    public void setTrimStrings(Boolean trimStrings) {
-        this.trimStrings = trimStrings;
-    }
-
-    public Boolean getSpringRepositorySupport() {
-        return springRepositorySupport;
-    }
-
-    public void setSpringRepositorySupport(Boolean springRepositorySupport) {
-        this.springRepositorySupport = springRepositorySupport;
+    public void setSelectedTables(List<TableInfo> selectedTables) {
+        this.selectedTables = selectedTables;
     }
 
     public GeneratorParamWrapper clone() {

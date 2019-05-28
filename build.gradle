@@ -14,15 +14,24 @@ apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 
 intellij {
-    version 'IC-2019.1'
-    pluginName 'MybatisBuilder'
-
-    // Bundled plugin dependencies
+    version ideaVersion
+    pluginName "MybatisBuilder"
     plugins 'coverage'
+    sameSinceUntilBuild Boolean.valueOf(isEAP)
+    patchPluginXml{
+        untilBuild customUtilBuild
+        changeNotes "${new File('changeNotes.txt').getText('UTF-8')}"
+    }
 }
 
 group 'com.chuntung'
-version '1.0.1'
+version "${version}"
+
+publishPlugin {
+    username 'tonyhoo'
+    password System.properties['intellij.publish.password']
+    channels "${pluginChannels}"
+}
 
 repositories {
     mavenLocal()

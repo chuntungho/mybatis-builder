@@ -15,10 +15,7 @@ import org.mybatis.generator.internal.DefaultShellCallback;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Mybatis Generator Tool wrapper.
@@ -71,7 +68,7 @@ public class GeneratorToolWrapper {
         context.setSqlMapGeneratorConfiguration(paramWrapper.getSqlMapConfig());
 
         // add each table config
-        for (TableInfo tableInfo : paramWrapper.getTableList()) {
+        for (TableInfo tableInfo : paramWrapper.getSelectedTables()) {
             TableConfiguration tableConfig = new TableConfiguration(context);
             populateTableConfig(tableConfig, tableInfo);
             context.addTableConfiguration(tableConfig);
@@ -93,11 +90,15 @@ public class GeneratorToolWrapper {
     }
 
     private void populatePlugins(Context context) {
-        if (Boolean.TRUE.equals(paramWrapper.getSpringRepositorySupport())) {
-            PluginConfiguration repositoryPlugin = new PluginConfiguration();
-            repositoryPlugin.setConfigurationType(SpringRepositoryPlugin.class.getName());
-            repositoryPlugin.addProperty("type", SpringRepositoryPlugin.class.getName());
-            context.addPluginConfiguration(repositoryPlugin);
+        if (paramWrapper.getSelectedPlugins().isEmpty()) {
+            return;
+        }
+
+        for (Map.Entry<String, Object> entry : paramWrapper.getSelectedPlugins().entrySet()) {
+            PluginConfiguration pluginConfig = new PluginConfiguration();
+            pluginConfig.setConfigurationType(entry.getKey());
+            pluginConfig.addProperty("type", entry.getKey());
+            context.addPluginConfiguration(pluginConfig);
         }
     }
 

@@ -104,7 +104,7 @@ public class BuildAction extends AnAction {
                     toolWrapper.generate();
                     project.getProjectFile().refresh(true, true);
 
-                    int cnt = paramWrapper.getTableList().size();
+                    int cnt = paramWrapper.getSelectedTables().size();
                     String successMsg = cnt + (cnt > 1 ? " tables were built" : " table was built") + ", sync project folder for details";
                     Notification success = notificationGroup.createNotification(successMsg, NotificationType.INFORMATION);
                     Notifications.Bus.notify(success, project);
@@ -169,7 +169,7 @@ public class BuildAction extends AnAction {
             }
         }
 
-        paramWrapper.setTableList(tables);
+        paramWrapper.setSelectedTables(tables);
 
         if (tables.size() == 0) {
             msg = "There is no table selected";
