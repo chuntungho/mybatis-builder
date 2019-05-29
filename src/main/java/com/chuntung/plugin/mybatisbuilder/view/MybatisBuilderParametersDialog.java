@@ -60,7 +60,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
 
     private String[] fieldNames = new String[]{"tableName", "domainName", "keyColumn"};
     private String[] editableFieldNames = new String[]{"domainName", "keyColumn"};
-    private String[] columnNames = new String[]{"Table Name", "Domain Name", "Key Column"};
+    private String[] columnNames = new String[]{"Table name", "Domain name", "Key column"};
 
     private final SettingsHandler settingsHandler;
     private GeneratorParamWrapper paramWrapper;
