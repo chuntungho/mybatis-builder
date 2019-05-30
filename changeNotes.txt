@@ -1,11 +1,3 @@
 <ul>
-<li>Fixed class not found issue for custom connection.</li>
-<li>Supported more databases: oracle, sqlserver, sqlite and h2.</li>
-<li>Improved tree UI operation.</li>
-<li>Provided with new features:<br>
-    <ul>
-        <li>Lombok @Data on java model support.</li>
-        <li>Select with lock support, which will generate new methods selectByPrimaryKeyWithLock/selectByExampleWithLock on java client.</li>
-    </ul>
-</li>
+<li>Supported "Run Mybatis Generator" on configuration file popup menu</li>
 </ul>

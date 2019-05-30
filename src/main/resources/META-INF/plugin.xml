@@ -8,7 +8,18 @@
     <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">Tony Ho</vendor>
 
     <description><![CDATA[
-      A GUI tool integrated with mybatis generator, support IDEA CE specially.
+    A free GUI tool integrated with Mybatis Generator, compatible with both IDEA Ultimate and CE.
+    Alternatively, it supports to "Run Mybatis Generator" on configuration file popup menu.<br>
+    <br>
+    Supported databases: mysql/postgresql/oracle/sqlserver/sqlite/h2.<br>
+    <br>
+    Provides with additional features as below.<br>
+    <ul>
+      <li>Unified mapper name custom support.</li>
+      <li>Spring @Repository support.</li>
+      <li>Lombok @Data support.</li>
+      <li>Select with lock support, which will generate selectByPrimaryKeyWithLock/selectByExampleWithLock.</li>
+    </ul>
     ]]></description>
 
     <change-notes><![CDATA[
@@ -23,6 +34,15 @@
          on how to target different products -->
      <!--uncomment to enable plugin in all products-->
     <depends>com.intellij.modules.java</depends>
+
+    <actions>
+        <!-- popup menu -->
+        <group id="ProjectViewPopupMenuMybatisBuilderGroup">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="ProjectViewPopupMenuRunGroup"/>
+            <action id="RunMybatisGenerator" class="com.chuntung.plugin.mybatisbuilder.action.idea.RunMybatisGeneratorAction" text="Run Mybatis Generator" >
+            </action>
+        </group>
+    </actions>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- tool window -->
