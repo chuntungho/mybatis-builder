@@ -57,6 +57,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JComboBox targetRuntimeCombobox;
     private JTextField mapperNamePatternText;
     private JPanel hostPanel;
+    private JPanel connectionPanel;
 
     private final SettingsHandler settingsHandler;
     private Project project;
@@ -107,6 +108,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         });
 
         // view panel
+        makeAvailable(connectionPanel, false);
+
         driverPanel.setVisible(false);
         driverLibraryText.addBrowseFolderListener("Choose Library", "Library should contain java.sql.Driver implement ", null, LIBRARY_FILE_DESCRIPTOR);
 
@@ -337,6 +340,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     }
 
     public void setData(ConnectionInfo data) {
+        makeAvailable(connectionPanel, true);
+
         connectionNameText.setText(data.getName());
         descriptionText.setText(data.getDescription());
         if (data.getDriverType() != null) {
@@ -433,6 +438,21 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         if (tabbedPane != null && tabbedPane.getSelectedComponent() != focusTab) {
             tabbedPane.setSelectedComponent(focusTab);
             component.requestFocus();
+        }
+    }
+
+
+    public static void makeAvailable(JPanel container, boolean b) {
+        if (container.isEnabled() != b) {
+            container.setEnabled(b);
+            for (int i = 0; i < container.getComponentCount(); i++) {
+                Component component = container.getComponent(i);
+                if (component instanceof JPanel) {
+                    makeAvailable((JPanel) component, b);
+                } else if (component instanceof JComponent) {
+                    component.setEnabled(b);
+                }
+            }
         }
     }
 
