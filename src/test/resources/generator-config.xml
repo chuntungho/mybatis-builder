@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+  PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+  <context id="test" targetRuntime="MyBatis3">
+    <jdbcConnection driverClass="org.sqlite.JDBC"
+        connectionURL="jdbc:sqlite:/Users/tonyho/Downloads/ghost.db"
+        userId=""
+        password="">
+    </jdbcConnection>
+
+    <javaTypeResolver >
+      <property name="forceBigDecimals" value="false" />
+    </javaTypeResolver>
+
+	<javaModelGenerator targetPackage="mybatisbuilder.example.model" targetProject="./src/test/java">
+      <property name="enableSubPackages" value="true" />
+      <property name="trimStrings" value="true" />
+    </javaModelGenerator>
+
+    <sqlMapGenerator targetPackage="sqlmap"  targetProject="./src/test/resources">
+      <property name="enableSubPackages" value="true" />
+    </sqlMapGenerator>
+
+    <javaClientGenerator type="XMLMAPPER" targetPackage="mybatisbuilder.example.mapper" targetProject="./src/test/java">
+      <property name="enableSubPackages" value="true" />
+    </javaClientGenerator>
+
+    <table tableName="actions" domainObjectName="gen.Action"
+           enableSelectByExample="true"
+           enableUpdateByExample="false"
+           enableCountByExample="false"
+           enableDeleteByExample="false" />
+  </context>
+</generatorConfiguration>

@@ -6,15 +6,15 @@ package com.chuntung.plugin.mybatisbuilder.action.idea;
 
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DatabaseItem;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-public class ConnectionAction extends AnAction {
+public class ConnectionAction extends DumbAwareAction{
     private ConnectionInfo connectionInfo;
     private JTree objectTree;
 

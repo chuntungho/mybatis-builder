@@ -18,6 +18,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -97,22 +98,22 @@ public class BuildAction extends AnAction {
             // stash last parameters
             service.stashGeneratorParamWrapper(paramWrapper);
 
-            // build in background
-            SwingUtilities.invokeLater(() -> {
-                GeneratorToolWrapper toolWrapper = new GeneratorToolWrapper(paramWrapper);
-                try {
-                    toolWrapper.generate();
-                    project.getProjectFile().refresh(true, true);
+            GeneratorToolWrapper toolWrapper = new GeneratorToolWrapper(paramWrapper);
+            try {
+                toolWrapper.generate();
 
-                    int cnt = paramWrapper.getSelectedTables().size();
-                    String successMsg = cnt + (cnt > 1 ? " tables were built" : " table was built") + ", sync project folder for details";
-                    Notification success = notificationGroup.createNotification(successMsg, NotificationType.INFORMATION);
-                    Notifications.Bus.notify(success, project);
-                } catch (Exception e) {
-                    logger.error("Failed to generate", e);
-                    Messages.showErrorDialog(e.getMessage(), "Building Error");
-                }
-            });
+                // NOTE: syncRefresh run in background will raise Write-unsafe exception
+                // therefore not to use SwingUtilities.invokeLater
+                VirtualFileManager.getInstance().syncRefresh();
+
+                int cnt = paramWrapper.getSelectedTables().size();
+                String successMsg = cnt + (cnt > 1 ? " tables were built" : " table was built") + ", sync project folder for details";
+                Notification success = notificationGroup.createNotification(successMsg, NotificationType.INFORMATION);
+                Notifications.Bus.notify(success, project);
+            } catch (Exception e) {
+                logger.error("Failed to generate", e);
+                Messages.showErrorDialog(e.getMessage(), "Building Error");
+            }
         }
     }
 

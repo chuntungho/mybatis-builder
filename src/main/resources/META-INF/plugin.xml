@@ -39,21 +39,20 @@
         <!-- popup menu -->
         <group id="ProjectViewPopupMenuMybatisBuilderGroup">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="ProjectViewPopupMenuRunGroup"/>
-            <action id="RunMybatisGenerator" class="com.chuntung.plugin.mybatisbuilder.action.idea.RunMybatisGeneratorAction" text="Run Mybatis Generator" >
-            </action>
+            <action id="RunMybatisGenerator" text="Run Mybatis Generator" icon="/images/mybatis-icon.png"
+                    class="com.chuntung.plugin.mybatisbuilder.action.idea.RunMybatisGeneratorAction" />
         </group>
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- tool window -->
-        <toolWindow id="Mybatis Builder" anchor="left" secondary="false" icon="/images/mybatis-icon.png"
+        <toolWindow id="Mybatis Builder" anchor="left" secondary="true" icon="/images/mybatis-icon.png"
                     factoryClass="com.chuntung.plugin.mybatisbuilder.view.MybatisBuilderToolWindowFactory"/>
     </extensions>
 
     <project-components>
         <component>
-            <implementation-class>com.chuntung.plugin.mybatisbuilder.MybatisBuilderSettingsManager
-            </implementation-class>
+            <implementation-class>com.chuntung.plugin.mybatisbuilder.MybatisBuilderSettingsManager</implementation-class>
         </component>
         <component>
             <implementation-class>com.chuntung.plugin.mybatisbuilder.MybatisBuilderService</implementation-class>

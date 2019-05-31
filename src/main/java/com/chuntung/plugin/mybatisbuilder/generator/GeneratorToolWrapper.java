@@ -10,9 +10,13 @@ import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.ShellCallback;
 import org.mybatis.generator.api.VerboseProgressCallback;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
+import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.DefaultShellCallback;
+import org.mybatis.generator.internal.NullProgressCallback;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -20,7 +24,7 @@ import java.util.*;
 /**
  * Mybatis Generator Tool wrapper.
  *
- * @author  Tony Ho
+ * @author Tony Ho
  */
 public class GeneratorToolWrapper {
 
@@ -30,10 +34,10 @@ public class GeneratorToolWrapper {
         this.paramWrapper = paramWrapper;
     }
 
-    public void generate() throws InvalidConfigurationException, InterruptedException, SQLException, IOException {
+    public List<String> generate() throws InvalidConfigurationException, InterruptedException, SQLException, IOException {
         DefaultParameters defaultParameters = paramWrapper.getDefaultParameters();
         Configuration configuration = new Configuration();
-        if (StringUtils.isNotBlank(paramWrapper.getDriverLibrary())){
+        if (StringUtils.isNotBlank(paramWrapper.getDriverLibrary())) {
             configuration.addClasspathEntry(paramWrapper.getDriverLibrary());
         }
         Context context = new Context(defaultParameters.getDefaultModelType());
@@ -87,6 +91,8 @@ public class GeneratorToolWrapper {
 
         MyBatisGenerator myBatisGenerator = new MyBatisGenerator(configuration, shellCallback, warnings);
         myBatisGenerator.generate(progressCallback, contexts, fullyQualifiedTables);
+
+        return warnings;
     }
 
     private void populatePlugins(Context context) {
@@ -140,5 +146,17 @@ public class GeneratorToolWrapper {
             String mapperName = pattern.replace(DefaultParameters.DOMAIN_NAME_PLACEHOLDER, tableConfig.getDomainObjectName());
             tableConfig.setMapperName(mapperName);
         }
+    }
+
+    public static List<String> runWithConfigurationFile(String path) throws IOException, XMLParserException, InvalidConfigurationException, SQLException, InterruptedException {
+        List<String> warnings = new ArrayList<>();
+        ConfigurationParser parser = new ConfigurationParser(warnings);
+        Configuration configuration = parser.parseConfiguration(new File(path));
+        ShellCallback shellCallback = new DefaultShellCallback(true);
+        MyBatisGenerator generator = new MyBatisGenerator(configuration, shellCallback, warnings);
+        ProgressCallback processCallback = new NullProgressCallback();
+        generator.generate(processCallback);
+
+        return warnings;
     }
 }

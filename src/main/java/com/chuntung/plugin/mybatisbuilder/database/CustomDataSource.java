@@ -59,14 +59,18 @@ public class CustomDataSource implements DataSource {
         String key = driverClass + "@" + driverLibrary;
         if (!driverCache.containsKey(key)) {
             try {
-                URL[] urls = {new File(driverLibrary).toURI().toURL()};
+                URL[] urls = {};
+                // support built-in driver with empty library
+                if (driverLibrary != null && !driverLibrary.isEmpty()) {
+                    urls = new URL[]{new File(driverLibrary).toURI().toURL()};
+                }
                 URLClassLoader classLoader = URLClassLoader.newInstance(urls, parentClassLoader);
                 Class<?> clazz = classLoader.loadClass(driverClass);
                 Driver driver = (Driver) clazz.newInstance();
                 DriverManager.registerDriver(driver);
                 driverCache.put(key, driver);
             } catch (Exception e) {
-                throw new SQLException("Driver initialization failed");
+                throw new SQLException("Driver initialization failed, error: " + e.getMessage());
             }
         }
         return driverCache.get(key);

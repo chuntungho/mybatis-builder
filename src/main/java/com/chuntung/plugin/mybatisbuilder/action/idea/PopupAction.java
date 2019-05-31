@@ -9,6 +9,7 @@ import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -20,7 +21,7 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.util.List;
 
-public class PopupAction extends AnAction {
+public class PopupAction extends DumbAwareAction {
 
     private JTree objectTree;
 
