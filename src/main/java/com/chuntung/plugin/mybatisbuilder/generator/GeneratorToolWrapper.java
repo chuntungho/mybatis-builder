@@ -4,6 +4,8 @@
 
 package com.chuntung.plugin.mybatisbuilder.generator;
 
+import com.chuntung.plugin.mybatisbuilder.generator.annotation.PluginConfig;
+import com.chuntung.plugin.mybatisbuilder.generator.callback.CustomShellCallback;
 import org.apache.commons.lang.StringUtils;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ProgressCallback;
@@ -18,6 +20,7 @@ import org.mybatis.generator.internal.NullProgressCallback;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -51,11 +54,6 @@ public class GeneratorToolWrapper {
         context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, paramWrapper.getBeginningDelimiter());
         context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, paramWrapper.getEndingDelimiter());
 
-        // default comment config
-        CommentGeneratorConfiguration commentConfig = new CommentGeneratorConfiguration();
-        commentConfig.setConfigurationType(DbCommentGenerator.class.getName());
-        context.setCommentGeneratorConfiguration(commentConfig);
-
         // JDBC config
         context.setJdbcConnectionConfiguration(paramWrapper.getJdbcConfig());
 
@@ -78,11 +76,14 @@ public class GeneratorToolWrapper {
             context.addTableConfiguration(tableConfig);
         }
 
+        // comment config
+        populateCommentConfig(context);
+
         // custom plugin
         populatePlugins(context);
 
         // start invocation
-        ShellCallback shellCallback = new DefaultShellCallback(true);
+        ShellCallback shellCallback = new CustomShellCallback(true);
         ProgressCallback progressCallback = new VerboseProgressCallback();
 
         List<String> warnings = new ArrayList<>();
@@ -95,6 +96,13 @@ public class GeneratorToolWrapper {
         return warnings;
     }
 
+    private void populateCommentConfig(Context context) {
+        CommentGeneratorConfiguration commentConfig = new CommentGeneratorConfiguration();
+        commentConfig.setConfigurationType(CustomCommentGenerator.class.getName());
+        commentConfig.addProperty(CustomCommentGenerator.ADD_DATABASE_REMARK, paramWrapper.getDatabaseRemark().toString());
+        context.setCommentGeneratorConfiguration(commentConfig);
+    }
+
     private void populatePlugins(Context context) {
         if (paramWrapper.getSelectedPlugins().isEmpty()) {
             return;
@@ -104,7 +112,23 @@ public class GeneratorToolWrapper {
             PluginConfiguration pluginConfig = new PluginConfiguration();
             pluginConfig.setConfigurationType(entry.getKey());
             pluginConfig.addProperty("type", entry.getKey());
+            populatePluginConfig(entry, pluginConfig);
+
             context.addPluginConfiguration(pluginConfig);
+        }
+    }
+
+    private void populatePluginConfig(Map.Entry<String, Object> entry, PluginConfiguration pluginConfig) {
+        if (entry.getValue() != null) {
+            Object config = entry.getValue();
+            for (Field field : config.getClass().getFields()) {
+                PluginConfig annotation = field.getAnnotation(PluginConfig.class);
+                try {
+                    pluginConfig.addProperty(annotation.configKey(), String.valueOf(field.get(config)));
+                } catch (IllegalAccessException e) {
+                    // NOOP
+                }
+            }
         }
     }
 

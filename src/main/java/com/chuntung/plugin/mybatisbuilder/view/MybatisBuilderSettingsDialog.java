@@ -58,6 +58,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JTextField mapperNamePatternText;
     private JPanel hostPanel;
     private JPanel connectionPanel;
+    private JTextField customAnnotationTypeText;
 
     private final SettingsHandler settingsHandler;
     private Project project;
@@ -330,6 +331,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
         javaFileEncodingText.setText(defaultParameters.getJavaFileEncoding());
         mapperNamePatternText.setText(defaultParameters.getMapperNamePattern());
+
+        customAnnotationTypeText.setText(defaultParameters.getMapperAnnotationConfig().customAnnotationType);
     }
 
     public void getData(DefaultParameters defaultParameters) {
@@ -337,6 +340,9 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         defaultParameters.setDefaultModelType((ModelType) defaultModelTypeCombobox.getSelectedItem());
         defaultParameters.setJavaFileEncoding(javaFileEncodingText.getText());
         defaultParameters.setMapperNamePattern(mapperNamePatternText.getText());
+
+        // plugin
+        defaultParameters.getMapperAnnotationConfig().customAnnotationType = customAnnotationTypeText.getText();
     }
 
     public void setData(ConnectionInfo data) {

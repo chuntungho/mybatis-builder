@@ -19,13 +19,25 @@ public class GeneratorToolWrapperTest {
     @Test
     public void generate() {
         GeneratorParamWrapper param = new GeneratorParamWrapper();
+        param.setDefaultParameters(new DefaultParameters());
 
         JDBCConnectionConfiguration jdbcConfig = param.getJdbcConfig();
         ConnectionInfo connectionInfo = MybatisBuilderServiceTest.getTestConnectionInfo();
         String connectionUrl = new ConnectionUrlBuilder(connectionInfo).getConnectionUrl();
         jdbcConfig.setConnectionURL(connectionUrl);
+        jdbcConfig.setDriverClass(connectionInfo.getDriverClass());
         jdbcConfig.setUserId(connectionInfo.getUserName());
         jdbcConfig.setPassword(connectionInfo.getPassword());
+
+        param.getJavaClientConfig().setConfigurationType("XMLMAPPER");
+        param.getJavaClientConfig().setTargetProject("./src/test/java");
+        param.getJavaClientConfig().setTargetPackage("mybatisbuilder.example.mapper");
+
+        param.getJavaModelConfig().setTargetProject("./src/test/java");
+        param.getJavaModelConfig().setTargetPackage("mybatisbuilder.example.model");
+
+        param.getSqlMapConfig().setTargetProject("./src/test/resources");
+        param.getSqlMapConfig().setTargetPackage("sqlmap");
 
         TableInfo tableInfo = new TableInfo();
         tableInfo.setTableName("actions");

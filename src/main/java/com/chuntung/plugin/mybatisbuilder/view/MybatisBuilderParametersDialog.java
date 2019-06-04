@@ -8,7 +8,7 @@ import com.chuntung.plugin.mybatisbuilder.action.SettingsHandler;
 import com.chuntung.plugin.mybatisbuilder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatisbuilder.generator.TableKey;
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.LombokPlugin;
-import com.chuntung.plugin.mybatisbuilder.generator.plugins.SpringRepositoryPlugin;
+import com.chuntung.plugin.mybatisbuilder.generator.plugins.MapperAnnotationPlugin;
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock.SelectWithLockPlugin;
 import com.chuntung.plugin.mybatisbuilder.model.ObjectTableModel;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -49,12 +49,13 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JTable selectedTables;
     private JTextField endingDelimiterText;
     private JTextField beginningDelimiterText;
-    private JCheckBox springRepositorySupportCheckBox;
+    private JCheckBox mapperAnnotationSupportCheckBox;
     private JTextField columnText;
     private JTextField statementText;
     private JCheckBox allCheckBox;
     private JCheckBox lombokSupportCheckBox;
     private JCheckBox selectWithLockSupportCheckBox;
+    private JCheckBox databaseRemarkCheckBox;
 
     private String[] javaClientTypes = {"XMLMAPPER", "ANNOTATEDMAPPER", "MIXEDMAPPER"};
 
@@ -138,10 +139,14 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
 
         // model property
         trimStringsCheckBox.setSelected(data.getTrimStrings());
+        databaseRemarkCheckBox.setSelected(data.getTrimStrings());
 
         // plugins
-        boolean repositorySelected = data.getSelectedPlugins().containsKey(SpringRepositoryPlugin.class.getName());
-        springRepositorySupportCheckBox.setSelected(repositorySelected);
+        boolean mapperAnnotationSelected = data.getSelectedPlugins().containsKey(MapperAnnotationPlugin.class.getName());
+        mapperAnnotationSupportCheckBox.setSelected(mapperAnnotationSelected);
+        String customAnnotationType = settingsHandler.getDefaultParameters().getMapperAnnotationConfig().customAnnotationType;
+        mapperAnnotationSupportCheckBox.setToolTipText(customAnnotationType);
+
         boolean lombokSelected = data.getSelectedPlugins().containsKey(LombokPlugin.class.getName());
         lombokSupportCheckBox.setSelected(lombokSelected);
         boolean selectWithLockSelected = data.getSelectedPlugins().containsKey(SelectWithLockPlugin.class.getName());
@@ -194,10 +199,13 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
 
         // model property
         data.setTrimStrings(trimStringsCheckBox.isSelected());
+        data.setDatabaseRemark(databaseRemarkCheckBox.isSelected());
 
         // plugins
-        if (springRepositorySupportCheckBox.isSelected()) {
-            data.getSelectedPlugins().put(SpringRepositoryPlugin.class.getName(), null);
+        data.getSelectedPlugins().clear();
+        if (mapperAnnotationSupportCheckBox.isSelected()) {
+            data.getSelectedPlugins().put(MapperAnnotationPlugin.class.getName()
+                    , settingsHandler.getDefaultParameters().getMapperAnnotationConfig());
         }
         if (lombokSupportCheckBox.isSelected()) {
             data.getSelectedPlugins().put(LombokPlugin.class.getName(), null);

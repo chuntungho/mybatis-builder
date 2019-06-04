@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatisbuilder.generator;
 
+import com.chuntung.plugin.mybatisbuilder.generator.plugins.MapperAnnotationPlugin;
 import org.mybatis.generator.config.ModelType;
 
 public class DefaultParameters {
@@ -13,6 +14,9 @@ public class DefaultParameters {
     private ModelType defaultModelType = ModelType.FLAT;
     private String javaFileEncoding = "UTF-8";
     private String mapperNamePattern = "${domainName}Mapper";
+
+    private MapperAnnotationPlugin.Config mapperAnnotationConfig
+            = new MapperAnnotationPlugin.Config("org.springframework.stereotype.Repository");
 
     public String getTargetRuntime() {
         return targetRuntime;
@@ -44,5 +48,13 @@ public class DefaultParameters {
 
     public void setMapperNamePattern(String mapperNamePattern) {
         this.mapperNamePattern = mapperNamePattern;
+    }
+
+    public MapperAnnotationPlugin.Config getMapperAnnotationConfig() {
+        return mapperAnnotationConfig;
+    }
+
+    public void setMapperAnnotationConfig(MapperAnnotationPlugin.Config mapperAnnotationConfig) {
+        this.mapperAnnotationConfig = mapperAnnotationConfig;
     }
 }

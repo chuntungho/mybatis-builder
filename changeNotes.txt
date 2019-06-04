@@ -1,3 +1,5 @@
 <ul>
 <li>Supported "Run Mybatis Generator" on configuration file popup menu</li>
+<li>Supported auto merger for java file</li>
+<li>Supported custom mapper annotation</li>
 </ul>

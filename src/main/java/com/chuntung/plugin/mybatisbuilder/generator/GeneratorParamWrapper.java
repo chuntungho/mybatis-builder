@@ -18,6 +18,7 @@ public class GeneratorParamWrapper implements Cloneable {
     private String beginningDelimiter = "`";
     private String endingDelimiter = "`";
     private Boolean trimStrings = true;
+    private Boolean databaseRemark = true;
 
     private JDBCConnectionConfiguration jdbcConfig = new JDBCConnectionConfiguration();
     private JavaModelGeneratorConfiguration javaModelConfig = new JavaModelGeneratorConfiguration();
@@ -75,6 +76,14 @@ public class GeneratorParamWrapper implements Cloneable {
 
     public void setTrimStrings(Boolean trimStrings) {
         this.trimStrings = trimStrings;
+    }
+
+    public Boolean getDatabaseRemark() {
+        return databaseRemark;
+    }
+
+    public void setDatabaseRemark(Boolean databaseRemark) {
+        this.databaseRemark = databaseRemark;
     }
 
     @Transient

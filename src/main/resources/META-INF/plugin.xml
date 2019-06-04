@@ -15,10 +15,11 @@
     <br>
     Provides with additional features as below.<br>
     <ul>
-      <li>Unified mapper name custom support.</li>
-      <li>Spring @Repository support.</li>
-      <li>Lombok @Data support.</li>
-      <li>Select with lock support, which will generate selectByPrimaryKeyWithLock/selectByExampleWithLock.</li>
+      <li>Auto merger for java file.</li>
+      <li>Lombok @Data on java model.</li>
+      <li>Unified custom mapper name.</li>
+      <li>Custom mapper annotation, default is Spring @Repository.</li>
+      <li>Select with lock, which will generate selectByPrimaryKeyWithLock/selectByExampleWithLock.</li>
     </ul>
     ]]></description>
 
