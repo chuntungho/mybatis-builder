@@ -41,7 +41,7 @@ public class GeneratorToolWrapperTest {
 
         TableInfo tableInfo = new TableInfo();
         tableInfo.setTableName("actions");
-        tableInfo.setDomainName("Action");
+        tableInfo.setDomainName("gene.Action");
         param.setSelectedTables(Arrays.asList(tableInfo));
 
         GeneratorToolWrapper tool = new GeneratorToolWrapper(param);

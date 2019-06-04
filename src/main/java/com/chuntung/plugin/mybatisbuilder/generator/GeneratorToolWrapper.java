@@ -176,7 +176,7 @@ public class GeneratorToolWrapper {
         List<String> warnings = new ArrayList<>();
         ConfigurationParser parser = new ConfigurationParser(warnings);
         Configuration configuration = parser.parseConfiguration(new File(path));
-        ShellCallback shellCallback = new DefaultShellCallback(true);
+        ShellCallback shellCallback = new CustomShellCallback(true);
         MyBatisGenerator generator = new MyBatisGenerator(configuration, shellCallback, warnings);
         ProgressCallback processCallback = new NullProgressCallback();
         generator.generate(processCallback);

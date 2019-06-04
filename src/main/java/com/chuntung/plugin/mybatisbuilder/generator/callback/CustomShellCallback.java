@@ -10,6 +10,8 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.TypeDeclaration;
+import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
@@ -63,8 +65,8 @@ public class CustomShellCallback extends DefaultShellCallback {
     }
 
     public String mergerFile(CompilationUnit newCompilationUnit, CompilationUnit oldCompilationUnit) {
-        NodeList<ImportDeclaration> newImports = newCompilationUnit.getImports();
         NodeList<ImportDeclaration> oldImports = oldCompilationUnit.getImports();
+        NodeList<ImportDeclaration> newImports = newCompilationUnit.getImports();
 
         LinkedHashSet<ImportDeclaration> customImportSet = new LinkedHashSet<>(oldImports);
         customImportSet.removeAll(newImports);
@@ -72,13 +74,21 @@ public class CustomShellCallback extends DefaultShellCallback {
             newCompilationUnit.addImport(importDeclaration);
         }
 
-        List<MethodDeclaration> newMethods = newCompilationUnit.getTypes().get(0).getMethods();
-        List<MethodDeclaration> oldMethods = oldCompilationUnit.getTypes().get(0).getMethods();
+        List<MethodDeclaration> oldMethods = oldCompilationUnit.getType(0).getMethods();
+        TypeDeclaration<?> typeDeclaration = newCompilationUnit.getType(0);
+        List<MethodDeclaration> newMethods = typeDeclaration.getMethods();
 
         LinkedHashSet<MethodDeclaration> customMethodSet = new LinkedHashSet<>(oldMethods);
         customMethodSet.removeAll(newMethods);
         for (MethodDeclaration methodDeclaration : customMethodSet) {
-            newCompilationUnit.getType(0).addMember(methodDeclaration);
+            if (methodDeclaration.getComment().isPresent()) {
+                if (methodDeclaration.getComment().get().getContent().contains(MergeConstants.NEW_ELEMENT_TAG)) {
+                    // skip generated methods
+                    continue;
+                }
+            }
+
+            typeDeclaration.addMember(methodDeclaration);
         }
 
         return newCompilationUnit.toString();
