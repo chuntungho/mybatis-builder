@@ -1,5 +1,6 @@
 <ul>
-<li>Supported "Run Mybatis Generator" on configuration file popup menu</li>
-<li>Supported auto merger for java file</li>
-<li>Supported custom mapper annotation</li>
+<li>Supported customizable basic statements</li>
+<li>Improved select with lock plugin </li>
+<li>Fixed table config persistence issue</li>
+<li>Optimized code</li>
 </ul>

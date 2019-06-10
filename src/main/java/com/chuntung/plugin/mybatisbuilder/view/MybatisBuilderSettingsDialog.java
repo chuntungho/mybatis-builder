@@ -8,6 +8,7 @@ import com.chuntung.plugin.mybatisbuilder.action.SettingsHandler;
 import com.chuntung.plugin.mybatisbuilder.generator.DefaultParameters;
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DriverTypeEnum;
+import com.chuntung.plugin.mybatisbuilder.util.ViewUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -59,6 +60,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JPanel hostPanel;
     private JPanel connectionPanel;
     private JTextField customAnnotationTypeText;
+    private JTextField byPrimaryKeyOverrideText;
+    private JTextField byExampleOverrideText;
 
     private final SettingsHandler settingsHandler;
     private Project project;
@@ -109,7 +112,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         });
 
         // view panel
-        makeAvailable(connectionPanel, false);
+        ViewUtil.makeAvailable(connectionPanel, false);
 
         driverPanel.setVisible(false);
         driverLibraryText.addBrowseFolderListener("Choose Library", "Library should contain java.sql.Driver implement ", null, LIBRARY_FILE_DESCRIPTOR);
@@ -333,6 +336,9 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         mapperNamePatternText.setText(defaultParameters.getMapperNamePattern());
 
         customAnnotationTypeText.setText(defaultParameters.getMapperAnnotationConfig().customAnnotationType);
+
+        byPrimaryKeyOverrideText.setText(defaultParameters.getSelectWithLockConfig().byPrimaryKeyWithLockOverride);
+        byExampleOverrideText.setText(defaultParameters.getSelectWithLockConfig().byExampleWithLockOverride);
     }
 
     public void getData(DefaultParameters defaultParameters) {
@@ -341,12 +347,15 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         defaultParameters.setJavaFileEncoding(javaFileEncodingText.getText());
         defaultParameters.setMapperNamePattern(mapperNamePatternText.getText());
 
-        // plugin
+        // plugins
         defaultParameters.getMapperAnnotationConfig().customAnnotationType = customAnnotationTypeText.getText();
+
+        defaultParameters.getSelectWithLockConfig().byPrimaryKeyWithLockOverride = byPrimaryKeyOverrideText.getText();
+        defaultParameters.getSelectWithLockConfig().byExampleWithLockOverride = byExampleOverrideText.getText();
     }
 
     public void setData(ConnectionInfo data) {
-        makeAvailable(connectionPanel, true);
+        ViewUtil.makeAvailable(connectionPanel, true);
 
         connectionNameText.setText(data.getName());
         descriptionText.setText(data.getDescription());
@@ -414,52 +423,9 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         }
 
         if (info != null) {
-            focusTab(mapperNamePatternText);
+            ViewUtil.focusTab(mapperNamePatternText);
         }
 
         return info;
     }
-
-    /**
-     * Focus component in tabbed pane.
-     *
-     * @param component
-     */
-    public static void focusTab(JComponent component) {
-        JTabbedPane tabbedPane = null;
-        // find out tabbed pane & the tab
-        Component focusTab = component;
-        while (true) {
-            Container parent = focusTab.getParent();
-            if (parent instanceof JTabbedPane) {
-                tabbedPane = (JTabbedPane) parent;
-                break;
-            }
-            if (parent == null) {
-                break;
-            }
-            focusTab = parent;
-        }
-
-        if (tabbedPane != null && tabbedPane.getSelectedComponent() != focusTab) {
-            tabbedPane.setSelectedComponent(focusTab);
-            component.requestFocus();
-        }
-    }
-
-
-    public static void makeAvailable(JPanel container, boolean b) {
-        if (container.isEnabled() != b) {
-            container.setEnabled(b);
-            for (int i = 0; i < container.getComponentCount(); i++) {
-                Component component = container.getComponent(i);
-                if (component instanceof JPanel) {
-                    makeAvailable((JPanel) component, b);
-                } else if (component instanceof JComponent) {
-                    component.setEnabled(b);
-                }
-            }
-        }
-    }
-
 }

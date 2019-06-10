@@ -10,17 +10,17 @@ import org.apache.commons.lang.StringUtils;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.ShellCallback;
-import org.mybatis.generator.api.VerboseProgressCallback;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
-import org.mybatis.generator.internal.DefaultShellCallback;
 import org.mybatis.generator.internal.NullProgressCallback;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -32,9 +32,11 @@ import java.util.*;
 public class GeneratorToolWrapper {
 
     private GeneratorParamWrapper paramWrapper;
+    private ProgressCallback progressCallback;
 
-    public GeneratorToolWrapper(GeneratorParamWrapper paramWrapper) {
+    public GeneratorToolWrapper(GeneratorParamWrapper paramWrapper, ProgressCallback progressCallback) {
         this.paramWrapper = paramWrapper;
+        this.progressCallback = progressCallback;
     }
 
     public List<String> generate() throws InvalidConfigurationException, InterruptedException, SQLException, IOException {
@@ -71,7 +73,7 @@ public class GeneratorToolWrapper {
 
         // add each table config
         for (TableInfo tableInfo : paramWrapper.getSelectedTables()) {
-            TableConfiguration tableConfig = new TableConfiguration(context);
+            TableConfiguration tableConfig = paramWrapper.getDefaultTableConfigWrapper().createTableConfig(context);
             populateTableConfig(tableConfig, tableInfo);
             context.addTableConfiguration(tableConfig);
         }
@@ -84,7 +86,6 @@ public class GeneratorToolWrapper {
 
         // start invocation
         ShellCallback shellCallback = new CustomShellCallback(true);
-        ProgressCallback progressCallback = new VerboseProgressCallback();
 
         List<String> warnings = new ArrayList<>();
         Set<String> fullyQualifiedTables = new HashSet<>();
@@ -108,7 +109,7 @@ public class GeneratorToolWrapper {
             return;
         }
 
-        for (Map.Entry<String, Object> entry : paramWrapper.getSelectedPlugins().entrySet()) {
+        for (Map.Entry<String, PluginConfigWrapper> entry : paramWrapper.getSelectedPlugins().entrySet()) {
             PluginConfiguration pluginConfig = new PluginConfiguration();
             pluginConfig.setConfigurationType(entry.getKey());
             pluginConfig.addProperty("type", entry.getKey());
@@ -118,13 +119,23 @@ public class GeneratorToolWrapper {
         }
     }
 
-    private void populatePluginConfig(Map.Entry<String, Object> entry, PluginConfiguration pluginConfig) {
+    private void populatePluginConfig(Map.Entry<String, PluginConfigWrapper> entry, PluginConfiguration pluginConfig) {
         if (entry.getValue() != null) {
-            Object config = entry.getValue();
+            PluginConfigWrapper configWrapper = entry.getValue();
+            Object config = configWrapper.getPluginConfig();
             for (Field field : config.getClass().getFields()) {
                 PluginConfig annotation = field.getAnnotation(PluginConfig.class);
+                if (Modifier.isStatic(field.getModifiers()) || annotation == null) {
+                    continue;
+                }
+
                 try {
-                    pluginConfig.addProperty(annotation.configKey(), String.valueOf(field.get(config)));
+                    Object val = field.get(config);
+                    if (val != null && StringUtils.isNotBlank(String.valueOf(val))) {
+                        pluginConfig.addProperty(annotation.configKey(), String.valueOf(val));
+                    } else if (StringUtils.isNotBlank(annotation.defaultValue())) {
+                        pluginConfig.addProperty(annotation.configKey(), annotation.defaultValue());
+                    }
                 } catch (IllegalAccessException e) {
                     // NOOP
                 }
@@ -133,36 +144,9 @@ public class GeneratorToolWrapper {
     }
 
     private void populateTableConfig(TableConfiguration tableConfig, TableInfo tableInfo) {
-        TableConfiguration defaultTableConfig = paramWrapper.getDefaultTableConfig();
         tableConfig.setTableName(tableInfo.getTableName());
         if (StringUtils.isNotBlank(tableInfo.getDomainName())) {
             tableConfig.setDomainObjectName(tableInfo.getDomainName());
-        }
-
-        String keyColumn = tableInfo.getKeyColumn();
-        if (StringUtils.isBlank(keyColumn)) {
-            keyColumn = paramWrapper.getDefaultTabledKey().getColumn();
-        }
-        if (StringUtils.isNotBlank(keyColumn)) {
-            String statement = paramWrapper.getDefaultTabledKey().getStatement();
-            if (StringUtils.isBlank(statement)) {
-                // use JDBC standard
-                statement = "JDBC";
-            }
-            GeneratedKey generatedKey = new GeneratedKey(keyColumn, statement, true, null);
-            tableConfig.setGeneratedKey(generatedKey);
-        }
-
-        tableConfig.setSelectByPrimaryKeyQueryId(defaultTableConfig.getSelectByPrimaryKeyQueryId());
-        tableConfig.setSelectByExampleQueryId(defaultTableConfig.getSelectByExampleQueryId());
-
-        tableConfig.setSelectByExampleStatementEnabled(defaultTableConfig.isSelectByExampleStatementEnabled());
-        tableConfig.setCountByExampleStatementEnabled(defaultTableConfig.isCountByExampleStatementEnabled());
-        tableConfig.setUpdateByExampleStatementEnabled(defaultTableConfig.isUpdateByExampleStatementEnabled());
-        tableConfig.setDeleteByExampleStatementEnabled(defaultTableConfig.isDeleteByExampleStatementEnabled());
-
-        if (StringUtils.isNotBlank(paramWrapper.getDefaultColumnConfig().getSearchString())) {
-            tableConfig.setColumnRenamingRule(paramWrapper.getDefaultColumnConfig());
         }
 
         String pattern = paramWrapper.getDefaultParameters().getMapperNamePattern();
@@ -170,17 +154,61 @@ public class GeneratorToolWrapper {
             String mapperName = pattern.replace(DefaultParameters.DOMAIN_NAME_PLACEHOLDER, tableConfig.getDomainObjectName());
             tableConfig.setMapperName(mapperName);
         }
+
+        GeneratedKeyWrapper generatedKeyWrapper = paramWrapper.getDefaultTableConfigWrapper().getGeneratedKeyWrapper();
+        tableConfig.setGeneratedKey(generatedKeyWrapper.createGeneratedKey(tableInfo));
     }
 
-    public static List<String> runWithConfigurationFile(String path) throws IOException, XMLParserException, InvalidConfigurationException, SQLException, InterruptedException {
+    public static List<String> runWithConfigurationFile(String path, Properties properties) throws IOException, XMLParserException, InvalidConfigurationException, SQLException, InterruptedException {
         List<String> warnings = new ArrayList<>();
         ConfigurationParser parser = new ConfigurationParser(warnings);
         Configuration configuration = parser.parseConfiguration(new File(path));
+
+        Context context = configuration.getContexts().get(0);
+        context.getProperties().putAll(properties);
+        validateTargetProject(context);
+
         ShellCallback shellCallback = new CustomShellCallback(true);
         MyBatisGenerator generator = new MyBatisGenerator(configuration, shellCallback, warnings);
         ProgressCallback processCallback = new NullProgressCallback();
         generator.generate(processCallback);
 
         return warnings;
+    }
+
+    private static void validateTargetProject(Context context) throws IOException {
+        JavaClientGeneratorConfiguration javaClientConfig = context.getJavaClientGeneratorConfiguration();
+        javaClientConfig.setTargetProject(resolve(javaClientConfig.getTargetProject(), context.getProperties()));
+        File file = new File(javaClientConfig.getTargetProject());
+        if (!file.exists()) {
+            throw new FileNotFoundException("Target project not found: " + file.getCanonicalPath());
+        }
+
+        JavaModelGeneratorConfiguration javaModelConfig = context.getJavaModelGeneratorConfiguration();
+        javaModelConfig.setTargetProject(resolve(javaModelConfig.getTargetProject(), context.getProperties()));
+        file = new File(javaModelConfig.getTargetProject());
+        if (!file.exists()) {
+            throw new FileNotFoundException("Target project not found: " + file.getCanonicalPath());
+        }
+
+        if (!"ANNOTATEDMAPPER".equalsIgnoreCase(javaClientConfig.getConfigurationType())) {
+            SqlMapGeneratorConfiguration sqlMapConfig = context.getSqlMapGeneratorConfiguration();
+            sqlMapConfig.setTargetProject(resolve(sqlMapConfig.getTargetProject(), context.getProperties()));
+            file = new File(sqlMapConfig.getTargetProject());
+            if (!file.exists()) {
+                throw new FileNotFoundException("Target project not found: " + file.getCanonicalPath());
+            }
+        }
+    }
+
+    private static String resolve(String txt, Properties properties) {
+        String resolved = txt;
+        if (resolved.contains("${PROJECT_DIR}")) {
+            resolved = resolved.replace("${PROJECT_DIR}", properties.getProperty("PROJECT_DIR"));
+        }
+        if (resolved.contains("${CURRENT_DIR}")) {
+            resolved = resolved.replace("${CURRENT_DIR}", properties.getProperty("CURRENT_DIR"));
+        }
+        return resolved;
     }
 }

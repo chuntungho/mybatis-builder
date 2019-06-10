@@ -13,8 +13,9 @@ import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DatabaseItem;
 import com.chuntung.plugin.mybatisbuilder.view.MybatisBuilderParametersDialog;
 import com.intellij.notification.*;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
 import org.mybatis.generator.config.PropertyHolder;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.internal.NullProgressCallback;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,7 @@ import java.util.List;
  *
  * @author Tony Ho
  */
-public class BuildAction extends AnAction {
+public class BuildAction extends DumbAwareAction {
     private static final Logger logger = LoggerFactory.getLogger(BuildAction.class);
     private JTree objectTree;
     private NotificationGroup notificationGroup;
@@ -87,6 +89,7 @@ public class BuildAction extends AnAction {
         } catch (SQLException e) {
             logger.warn("Failed to connect to database", e);
             Messages.showErrorDialog(e.getMessage(), "Building Error");
+            return;
         }
 
         // populate project and package
@@ -98,22 +101,26 @@ public class BuildAction extends AnAction {
             // stash last parameters
             service.stashGeneratorParamWrapper(paramWrapper);
 
-            GeneratorToolWrapper toolWrapper = new GeneratorToolWrapper(paramWrapper);
-            try {
-                toolWrapper.generate();
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+                        GeneratorToolWrapper toolWrapper = new GeneratorToolWrapper(paramWrapper, null);
+                        try {
+                            toolWrapper.generate();
 
-                // NOTE: syncRefresh run in background will raise Write-unsafe exception
-                // therefore not to use SwingUtilities.invokeLater
-                VirtualFileManager.getInstance().syncRefresh();
+                            // NOTE: syncRefresh run in background will raise Write-unsafe exception
+                            // therefore not to use SwingUtilities.invokeLater
+                            VirtualFileManager.getInstance().syncRefresh();
 
-                int cnt = paramWrapper.getSelectedTables().size();
-                String successMsg = cnt + (cnt > 1 ? " tables were built" : " table was built") + ", sync project folder for details";
-                Notification success = notificationGroup.createNotification(successMsg, NotificationType.INFORMATION);
-                Notifications.Bus.notify(success, project);
-            } catch (Exception e) {
-                logger.error("Failed to generate", e);
-                Messages.showErrorDialog(e.getMessage(), "Building Error");
-            }
+                            int cnt = paramWrapper.getSelectedTables().size();
+                            String successMsg = cnt + (cnt > 1 ? " tables were built" : " table was built") + ", sync project folder for details";
+                            Notification success = notificationGroup.createNotification(successMsg, NotificationType.INFORMATION);
+                            Notifications.Bus.notify(success, project);
+                        } catch (Exception e) {
+                            logger.warn("Failed to generate", e);
+                            Notification error = notificationGroup.createNotification(e.getMessage(), NotificationType.ERROR);
+                            Notifications.Bus.notify(error, project);
+                        }
+                    }
+            );
         }
     }
 

@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
 
 import java.util.Arrays;
+import java.util.Properties;
 
 import static org.junit.Assert.fail;
 
@@ -44,7 +45,7 @@ public class GeneratorToolWrapperTest {
         tableInfo.setDomainName("gene.Action");
         param.setSelectedTables(Arrays.asList(tableInfo));
 
-        GeneratorToolWrapper tool = new GeneratorToolWrapper(param);
+        GeneratorToolWrapper tool = new GeneratorToolWrapper(param, null);
         try {
             tool.generate();
         } catch (Exception e) {
@@ -55,7 +56,10 @@ public class GeneratorToolWrapperTest {
     @Test
     public void runWithConfigurationFile() {
         try {
-            GeneratorToolWrapper.runWithConfigurationFile("./src/test/resources/generator-config.xml");
+            Properties properties = new Properties();
+            properties.setProperty("PROJECT_DIR", ".");
+            properties.setProperty("CURRENT_DIR", "./src/test/resources");
+            GeneratorToolWrapper.runWithConfigurationFile("./src/test/resources/generator-config.xml", properties);
         } catch (Exception e) {
             fail(e.getMessage());
         }

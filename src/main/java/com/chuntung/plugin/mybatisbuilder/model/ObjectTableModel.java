@@ -13,16 +13,20 @@ import java.util.List;
  *
  * @author Tony Ho
  */
-public class ObjectTableModel extends AbstractTableModel {
-    private List<?> items;
+public class ObjectTableModel<T> extends AbstractTableModel {
+    private List<T> items;
     private String[] fieldNames;
     private String[] columnNames;
     private String[] editableFieldNames;
 
-    public ObjectTableModel(List<?> items, String[] fieldNames, String[] columnNames) {
+    public ObjectTableModel(List<T> items, String[] fieldNames, String[] columnNames) {
         this.items = items;
         this.fieldNames = fieldNames;
         this.columnNames = columnNames;
+    }
+
+    public List<T> getItems(){
+        return items;
     }
 
     @Override

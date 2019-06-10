@@ -25,12 +25,10 @@ public class GeneratorParamWrapper implements Cloneable {
     private JavaClientGeneratorConfiguration javaClientConfig = new JavaClientGeneratorConfiguration();
     private SqlMapGeneratorConfiguration sqlMapConfig = new SqlMapGeneratorConfiguration();
 
-    private TableConfiguration defaultTableConfig = new TableConfiguration(new Context(null));
-    private ColumnRenamingRule defaultColumnConfig = new ColumnRenamingRule();
-    private TableKey defaultTabledKey = new TableKey();
+    private TableConfigurationWrapper defaultTableConfigWrapper = new TableConfigurationWrapper();
 
     // selected plugins
-    private Map<String, Object> selectedPlugins = new LinkedHashMap<>();
+    private Map<String, PluginConfigWrapper> selectedPlugins = new LinkedHashMap<>();
 
     // selected tables
     private List<TableInfo> selectedTables;
@@ -119,35 +117,20 @@ public class GeneratorParamWrapper implements Cloneable {
         this.sqlMapConfig = sqlMapConfig;
     }
 
-    public TableConfiguration getDefaultTableConfig() {
-        return defaultTableConfig;
+    public TableConfigurationWrapper getDefaultTableConfigWrapper() {
+        return defaultTableConfigWrapper;
     }
 
-    public void setDefaultTableConfig(TableConfiguration defaultTableConfig) {
-        this.defaultTableConfig = defaultTableConfig;
+    public void setDefaultTableConfigWrapper(TableConfigurationWrapper defaultTableConfigWrapper) {
+        this.defaultTableConfigWrapper = defaultTableConfigWrapper;
     }
 
-    public ColumnRenamingRule getDefaultColumnConfig() {
-        return defaultColumnConfig;
-    }
-
-    public void setDefaultColumnConfig(ColumnRenamingRule defaultColumnConfig) {
-        this.defaultColumnConfig = defaultColumnConfig;
-    }
-
-    public TableKey getDefaultTabledKey() {
-        return defaultTabledKey;
-    }
-
-    public void setDefaultTabledKey(TableKey defaultTabledKey) {
-        this.defaultTabledKey = defaultTabledKey;
-    }
-
-    public Map<String, Object> getSelectedPlugins() {
+    // save config in JSON, due to persistence issue.
+    public Map<String, PluginConfigWrapper> getSelectedPlugins() {
         return selectedPlugins;
     }
 
-    public void setSelectedPlugins(Map<String, Object> selectedPlugins) {
+    public void setSelectedPlugins(Map<String, PluginConfigWrapper> selectedPlugins) {
         this.selectedPlugins = selectedPlugins;
     }
 

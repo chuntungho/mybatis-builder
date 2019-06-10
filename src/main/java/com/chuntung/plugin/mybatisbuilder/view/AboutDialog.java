@@ -11,6 +11,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -30,8 +31,11 @@ public class AboutDialog extends DialogWrapper {
         setTitle("Mybatis Builder - About");
         setButtonsAlignment(SwingConstants.CENTER);
 
+        Cursor hand = new Cursor(Cursor.HAND_CURSOR);
+
         pluginLabel.setText(PluginInfo.PLUGIN_NAME + " v" + PluginInfo.PLUGIN_VERSION);
 
+        authorLabel.setCursor(hand);
         authorLabel.setText(PluginInfo.AUTHOR);
         authorLabel.addMouseListener(new MouseAdapter() {
             @Override
@@ -40,6 +44,7 @@ public class AboutDialog extends DialogWrapper {
             }
         });
 
+        homeLabel.setCursor(hand);
         homeLabel.setText(PluginInfo.HOME_PAGE);
         homeLabel.addMouseListener(new MouseAdapter() {
             @Override
@@ -48,6 +53,7 @@ public class AboutDialog extends DialogWrapper {
             }
         });
 
+        paypalLabel.setCursor(hand);
         paypalLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -55,6 +61,7 @@ public class AboutDialog extends DialogWrapper {
             }
         });
 
+        alipayLabel.setCursor(hand);
         alipayLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

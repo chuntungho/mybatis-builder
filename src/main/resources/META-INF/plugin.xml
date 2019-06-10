@@ -8,7 +8,7 @@
     <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">Tony Ho</vendor>
 
     <description><![CDATA[
-    A free GUI tool integrated with Mybatis Generator, compatible with both IDEA Ultimate and CE.
+    A free GUI tool integrated with Mybatis Generator, compatible with IntelliJ IDEA, Android Studio.
     Alternatively, it supports to "Run Mybatis Generator" on configuration file popup menu.<br>
     <br>
     Supported databases: mysql/postgresql/oracle/sqlserver/sqlite/h2.<br>

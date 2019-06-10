@@ -19,16 +19,21 @@
       <property name="forceBigDecimals" value="true" />
     </javaTypeResolver>
 
-	<javaModelGenerator targetPackage="mybatisbuilder.example.model" targetProject="./src/test/java">
+    <!--
+    Support two variables which should be wrapped with ${}.
+    PROJECT_DIR: the project base path.
+    CURRENT_DIR: the configuration file path.
+    -->
+	<javaModelGenerator targetPackage="mybatisbuilder.example.model" targetProject="${PROJECT_DIR}/src/test/java">
       <property name="enableSubPackages" value="true" />
       <property name="trimStrings" value="true" />
     </javaModelGenerator>
 
-    <sqlMapGenerator targetPackage="sqlmap"  targetProject="./src/test/resources">
+    <sqlMapGenerator targetPackage="sqlmap"  targetProject="${PROJECT_DIR}/src/test/resources">
       <property name="enableSubPackages" value="true" />
     </sqlMapGenerator>
 
-    <javaClientGenerator type="XMLMAPPER" targetPackage="mybatisbuilder.example.mapper" targetProject="./src/test/java">
+    <javaClientGenerator type="XMLMAPPER" targetPackage="mybatisbuilder.example.mapper" targetProject="${PROJECT_DIR}/src/test/java">
       <property name="enableSubPackages" value="true" />
     </javaClientGenerator>
 

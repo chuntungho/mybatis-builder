@@ -13,12 +13,17 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * refer to {@link org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.SelectByPrimaryKeyElementGenerator}
  */
 public class SelectByPrimaryKeyWithLockElementGenerator extends AbstractXmlElementGenerator {
+    private String statementId;
+
+    public SelectByPrimaryKeyWithLockElementGenerator(String statementId) {
+        this.statementId = statementId;
+    }
+
     @Override
     public void addElements(XmlElement parentElement) {
         XmlElement answer = new XmlElement("select"); //$NON-NLS-1$
 
-        answer.addAttribute(new Attribute(
-                "id", SelectWithLockPlugin.SELECT_BY_PRIMARY_KEY_WITH_LOCK)); //$NON-NLS-1$
+        answer.addAttribute(new Attribute("id", statementId)); //$NON-NLS-1$
         if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
             answer.addAttribute(new Attribute("resultMap", //$NON-NLS-1$
                     introspectedTable.getResultMapWithBLOBsId()));

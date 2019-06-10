@@ -5,6 +5,7 @@
 package com.chuntung.plugin.mybatisbuilder.generator;
 
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.MapperAnnotationPlugin;
+import com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock.SelectWithLockConfig;
 import org.mybatis.generator.config.ModelType;
 
 public class DefaultParameters {
@@ -17,6 +18,8 @@ public class DefaultParameters {
 
     private MapperAnnotationPlugin.Config mapperAnnotationConfig
             = new MapperAnnotationPlugin.Config("org.springframework.stereotype.Repository");
+
+    private SelectWithLockConfig selectWithLockConfig = new SelectWithLockConfig();
 
     public String getTargetRuntime() {
         return targetRuntime;
@@ -56,5 +59,13 @@ public class DefaultParameters {
 
     public void setMapperAnnotationConfig(MapperAnnotationPlugin.Config mapperAnnotationConfig) {
         this.mapperAnnotationConfig = mapperAnnotationConfig;
+    }
+
+    public SelectWithLockConfig getSelectWithLockConfig() {
+        return selectWithLockConfig;
+    }
+
+    public void setSelectWithLockConfig(SelectWithLockConfig selectWithLockConfig) {
+        this.selectWithLockConfig = selectWithLockConfig;
     }
 }

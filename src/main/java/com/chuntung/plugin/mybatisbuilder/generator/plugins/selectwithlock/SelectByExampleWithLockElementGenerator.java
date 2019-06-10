@@ -11,13 +11,19 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * refer to {@link org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.SelectByExampleWithoutBLOBsElementGenerator}
  */
 public class SelectByExampleWithLockElementGenerator extends AbstractXmlElementGenerator {
+    private String statementId;
+
+    public SelectByExampleWithLockElementGenerator(String statementId) {
+        this.statementId = statementId;
+    }
+
     @Override
     public void addElements(XmlElement parentElement) {
         String exampleType = introspectedTable.getExampleType();
 
         XmlElement answer = new XmlElement("select"); //$NON-NLS-1$
 
-        answer.addAttribute(new Attribute("id", SelectWithLockPlugin.SELECT_BY_EXAMPLE_WITH_LOCK));
+        answer.addAttribute(new Attribute("id", statementId));
         answer.addAttribute(new Attribute(
                 "resultMap", introspectedTable.getBaseResultMapId())); //$NON-NLS-1$
         answer.addAttribute(new Attribute("parameterType", exampleType)); //$NON-NLS-1$

@@ -10,6 +10,12 @@ import java.util.TreeSet;
  * refer to {@link org.mybatis.generator.codegen.mybatis3.javamapper.elements.SelectByExampleWithBLOBsMethodGenerator}
  */
 public class SelectByExampleWithLockMethoGenerator extends AbstractJavaMapperMethodGenerator {
+    private String methodName;
+
+    public SelectByExampleWithLockMethoGenerator(String methodName) {
+        this.methodName = methodName;
+    }
+
     @Override
     public void addInterfaceElements(Interface interfaze) {
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
@@ -36,7 +42,7 @@ public class SelectByExampleWithLockMethoGenerator extends AbstractJavaMapperMet
         importedTypes.add(listType);
         returnType.addTypeArgument(listType);
         method.setReturnType(returnType);
-        method.setName(SelectWithLockPlugin.SELECT_BY_EXAMPLE_WITH_LOCK);
+        method.setName(methodName);
         method.addParameter(new Parameter(type, "example")); //$NON-NLS-1$
 
         context.getCommentGenerator().addGeneralMethodComment(method,

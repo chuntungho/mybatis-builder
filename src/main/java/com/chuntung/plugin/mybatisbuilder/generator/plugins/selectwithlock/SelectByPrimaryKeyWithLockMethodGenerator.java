@@ -14,10 +14,12 @@ import java.util.TreeSet;
  */
 public class SelectByPrimaryKeyWithLockMethodGenerator extends AbstractJavaMapperMethodGenerator {
     private boolean isSimple;
+    private String methodName;
 
-    public SelectByPrimaryKeyWithLockMethodGenerator(boolean isSimple) {
+    public SelectByPrimaryKeyWithLockMethodGenerator(boolean isSimple, String methodName) {
         super();
         this.isSimple = isSimple;
+        this.methodName = methodName;
     }
 
     @Override
@@ -31,7 +33,7 @@ public class SelectByPrimaryKeyWithLockMethodGenerator extends AbstractJavaMappe
         method.setReturnType(returnType);
         importedTypes.add(returnType);
 
-        method.setName(SelectWithLockPlugin.SELECT_BY_PRIMARY_KEY_WITH_LOCK);
+        method.setName(methodName);
 
         if (!isSimple && introspectedTable.getRules().generatePrimaryKeyClass()) {
             FullyQualifiedJavaType type = new FullyQualifiedJavaType(

@@ -16,7 +16,6 @@ apply plugin: 'org.jetbrains.intellij'
 intellij {
     version ideaVersion
     pluginName "MybatisBuilder"
-    plugins 'coverage'
     sameSinceUntilBuild Boolean.valueOf(isEAP)
     patchPluginXml{
         untilBuild customUtilBuild
@@ -28,8 +27,8 @@ group 'com.chuntung.plugin'
 version "${version}"
 
 publishPlugin {
-    username 'tonyhoo'
-    password System.properties['intellij.publish.password']
+    username System.properties['publish.username']
+    password System.properties['publish.password']
     channels "${pluginChannels}"
 }
 

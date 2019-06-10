@@ -13,5 +13,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD})
 public @interface PluginConfig {
     String configKey() default "";
+    String defaultValue() default "" ;
     String displayName() default "";
+    ScopeEnum scope() default ScopeEnum.GLOBAL;
 }

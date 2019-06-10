@@ -5,9 +5,11 @@
 package com.chuntung.plugin.mybatisbuilder.action;
 
 import com.chuntung.plugin.mybatisbuilder.MybatisBuilderService;
+import com.chuntung.plugin.mybatisbuilder.action.idea.BuildAction;
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DatabaseItem;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
@@ -35,7 +37,7 @@ public class ObjectTreeHandler {
     private TreePath currentTreePath;
 
     // for connection or database
-    private AnAction refreshAction = new AnAction("Refresh") {
+    private AnAction refreshAction = new DumbAwareAction("Refresh") {
         @Override
         public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
             if (currentTreePath != null) {
@@ -47,7 +49,7 @@ public class ObjectTreeHandler {
     };
 
     // just for connection
-    private AnAction disconnectAction = new AnAction("Disconnect") {
+    private AnAction disconnectAction = new DumbAwareAction("Disconnect") {
         @Override
         public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
             if (currentTreePath != null) {
@@ -59,7 +61,8 @@ public class ObjectTreeHandler {
     };
 
     private final ActionGroup connectionPopupActionGroup;
-    private final DefaultActionGroup databasePopupActionGroup;
+    private final ActionGroup databasePopupActionGroup;
+    private final ActionGroup tablePopupActionGroup;
 
     public ObjectTreeHandler(JTree objectTree, Project project) {
         this.project = project;
@@ -73,6 +76,9 @@ public class ObjectTreeHandler {
         databasePopupActionGroup = new DefaultActionGroup(
                 refreshAction
         );
+
+        AnAction buildAction = new BuildAction(objectTree);
+        tablePopupActionGroup = new DefaultActionGroup(buildAction);
     }
 
     public static ObjectTreeHandler getInstance(JTree objectTree, Project project) {
@@ -181,6 +187,8 @@ public class ObjectTreeHandler {
                         popupActionGroup = connectionPopupActionGroup;
                     } else if (DatabaseItem.ItemTypeEnum.DATABASE.equals(item.getType())) {
                         popupActionGroup = databasePopupActionGroup;
+                    } else if (DatabaseItem.ItemTypeEnum.TABLE.equals(item.getType())) {
+                        popupActionGroup = tablePopupActionGroup;
                     }
 
                     if (popupActionGroup != null) {

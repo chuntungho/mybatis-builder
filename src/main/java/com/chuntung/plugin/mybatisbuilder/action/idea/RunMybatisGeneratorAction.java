@@ -15,6 +15,9 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlFile;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.util.Properties;
+
 /**
  * Run Mybatis Generator on xml file.
  *
@@ -34,7 +37,13 @@ public class RunMybatisGeneratorAction extends AnAction {
 
             String error = null;
             try {
-                GeneratorToolWrapper.runWithConfigurationFile(vFile.getPath());
+                Properties properties = new Properties();
+                properties.setProperty("CURRENT_DIR", new File(vFile.getPath()).getParent());
+                if (event.getProject() != null) {
+                    properties.setProperty("PROJECT_DIR", event.getProject().getBasePath());
+                }
+
+                GeneratorToolWrapper.runWithConfigurationFile(vFile.getPath(), properties);
 
                 Notification notification = notificationGroup.createNotification("Generated successfully", NotificationType.INFORMATION);
                 Notifications.Bus.notify(notification, event.getProject());
