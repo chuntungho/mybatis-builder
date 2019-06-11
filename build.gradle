@@ -27,8 +27,8 @@ group 'com.chuntung.plugin'
 version "${version}"
 
 publishPlugin {
-    username System.properties['publish.username']
-    password System.properties['publish.password']
+    username System.properties['plugin.publish.username']
+    password System.properties['plugin.publish.password']
     channels "${pluginChannels}"
 }
 

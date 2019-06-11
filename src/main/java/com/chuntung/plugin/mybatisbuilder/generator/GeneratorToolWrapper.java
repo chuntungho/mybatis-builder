@@ -6,6 +6,7 @@ package com.chuntung.plugin.mybatisbuilder.generator;
 
 import com.chuntung.plugin.mybatisbuilder.generator.annotation.PluginConfig;
 import com.chuntung.plugin.mybatisbuilder.generator.callback.CustomShellCallback;
+import com.chuntung.plugin.mybatisbuilder.generator.plugins.RenamePlugin;
 import org.apache.commons.lang.StringUtils;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ProgressCallback;
@@ -105,6 +106,15 @@ public class GeneratorToolWrapper {
     }
 
     private void populatePlugins(Context context) {
+        {
+            // support rename plugin by default
+            PluginConfiguration pluginConfig = new PluginConfiguration();
+            pluginConfig.setConfigurationType(RenamePlugin.class.getName());
+            pluginConfig.addProperty("type", RenamePlugin.class.getName());
+            populatePluginConfig(new PluginConfigWrapper(paramWrapper.getDefaultParameters().getRenameConfig()), pluginConfig);
+            context.addPluginConfiguration(pluginConfig);
+        }
+
         if (paramWrapper.getSelectedPlugins().isEmpty()) {
             return;
         }
@@ -113,15 +123,14 @@ public class GeneratorToolWrapper {
             PluginConfiguration pluginConfig = new PluginConfiguration();
             pluginConfig.setConfigurationType(entry.getKey());
             pluginConfig.addProperty("type", entry.getKey());
-            populatePluginConfig(entry, pluginConfig);
+            populatePluginConfig(entry.getValue(), pluginConfig);
 
             context.addPluginConfiguration(pluginConfig);
         }
     }
 
-    private void populatePluginConfig(Map.Entry<String, PluginConfigWrapper> entry, PluginConfiguration pluginConfig) {
-        if (entry.getValue() != null) {
-            PluginConfigWrapper configWrapper = entry.getValue();
+    private void populatePluginConfig(PluginConfigWrapper configWrapper, PluginConfiguration pluginConfig) {
+        if (configWrapper != null) {
             Object config = configWrapper.getPluginConfig();
             for (Field field : config.getClass().getFields()) {
                 PluginConfig annotation = field.getAnnotation(PluginConfig.class);
@@ -147,12 +156,6 @@ public class GeneratorToolWrapper {
         tableConfig.setTableName(tableInfo.getTableName());
         if (StringUtils.isNotBlank(tableInfo.getDomainName())) {
             tableConfig.setDomainObjectName(tableInfo.getDomainName());
-        }
-
-        String pattern = paramWrapper.getDefaultParameters().getMapperNamePattern();
-        if (StringUtils.isNotBlank(pattern)) {
-            String mapperName = pattern.replace(DefaultParameters.DOMAIN_NAME_PLACEHOLDER, tableConfig.getDomainObjectName());
-            tableConfig.setMapperName(mapperName);
         }
 
         GeneratedKeyWrapper generatedKeyWrapper = paramWrapper.getDefaultTableConfigWrapper().getGeneratedKeyWrapper();

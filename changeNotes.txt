@@ -1,6 +1,6 @@
 <ul>
 <li>Supported customizable basic statements</li>
+<li>Supported to rename mapper, example and sql file</li>
 <li>Improved select with lock plugin </li>
 <li>Fixed table config persistence issue</li>
-<li>Optimized code</li>
 </ul>

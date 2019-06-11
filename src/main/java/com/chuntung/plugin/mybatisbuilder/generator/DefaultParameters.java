@@ -5,21 +5,21 @@
 package com.chuntung.plugin.mybatisbuilder.generator;
 
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.MapperAnnotationPlugin;
+import com.chuntung.plugin.mybatisbuilder.generator.plugins.RenamePlugin;
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock.SelectWithLockConfig;
 import org.mybatis.generator.config.ModelType;
 
 public class DefaultParameters {
-    public static final String DOMAIN_NAME_PLACEHOLDER = "${domainName}";
-
     private String targetRuntime = "MyBatis3";
     private ModelType defaultModelType = ModelType.FLAT;
     private String javaFileEncoding = "UTF-8";
-    private String mapperNamePattern = "${domainName}Mapper";
 
     private MapperAnnotationPlugin.Config mapperAnnotationConfig
             = new MapperAnnotationPlugin.Config("org.springframework.stereotype.Repository");
 
     private SelectWithLockConfig selectWithLockConfig = new SelectWithLockConfig();
+
+    private RenamePlugin.Config renameConfig = new RenamePlugin.Config();
 
     public String getTargetRuntime() {
         return targetRuntime;
@@ -45,14 +45,6 @@ public class DefaultParameters {
         this.javaFileEncoding = javaFileEncoding;
     }
 
-    public String getMapperNamePattern() {
-        return mapperNamePattern;
-    }
-
-    public void setMapperNamePattern(String mapperNamePattern) {
-        this.mapperNamePattern = mapperNamePattern;
-    }
-
     public MapperAnnotationPlugin.Config getMapperAnnotationConfig() {
         return mapperAnnotationConfig;
     }
@@ -67,5 +59,13 @@ public class DefaultParameters {
 
     public void setSelectWithLockConfig(SelectWithLockConfig selectWithLockConfig) {
         this.selectWithLockConfig = selectWithLockConfig;
+    }
+
+    public RenamePlugin.Config getRenameConfig() {
+        return renameConfig;
+    }
+
+    public void setRenameConfig(RenamePlugin.Config renameConfig) {
+        this.renameConfig = renameConfig;
     }
 }

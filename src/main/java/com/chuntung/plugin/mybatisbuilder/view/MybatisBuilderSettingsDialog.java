@@ -6,12 +6,15 @@ package com.chuntung.plugin.mybatisbuilder.view;
 
 import com.chuntung.plugin.mybatisbuilder.action.SettingsHandler;
 import com.chuntung.plugin.mybatisbuilder.generator.DefaultParameters;
+import com.chuntung.plugin.mybatisbuilder.generator.plugins.RenamePlugin;
+import com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock.SelectWithLockConfig;
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DriverTypeEnum;
 import com.chuntung.plugin.mybatisbuilder.util.ViewUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.IconLoader;
 import org.apache.commons.lang.StringUtils;
@@ -40,7 +43,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JButton upButton;
     private JTextField connectionNameText;
     private JComboBox driverTypeComboBox;
-    private com.intellij.openapi.ui.TextFieldWithBrowseButton driverLibraryText;
+    private TextFieldWithBrowseButton driverLibraryText;
     private JTextField driverClassText;
     private JTextField urlText;
     private JTextField descriptionText;
@@ -52,16 +55,17 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JTextField databaseText;
     private JCheckBox activeCheckBox;
     private JButton testConnectionButton;
-    private JTabbedPane tabbedPane1;
     private JTextField javaFileEncodingText;
-    private JComboBox defaultModelTypeCombobox;
-    private JComboBox targetRuntimeCombobox;
-    private JTextField mapperNamePatternText;
+    private JComboBox defaultModelTypeComboBox;
+    private JComboBox targetRuntimeComboBox;
     private JPanel hostPanel;
     private JPanel connectionPanel;
     private JTextField customAnnotationTypeText;
     private JTextField byPrimaryKeyOverrideText;
     private JTextField byExampleOverrideText;
+    private JTextField mapperTypePatternText;
+    private JTextField exampleTypePatternText;
+    private JTextField sqlFileNamePatternText;
 
     private final SettingsHandler settingsHandler;
     private Project project;
@@ -183,8 +187,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     private void initDefaultParameterPane() {
         // init component
-        defaultModelTypeCombobox.setModel(new DefaultComboBoxModel(ModelType.values()));
-        targetRuntimeCombobox.setModel(new DefaultComboBoxModel(targetRuntimes));
+        defaultModelTypeComboBox.setModel(new DefaultComboBoxModel(ModelType.values()));
+        targetRuntimeComboBox.setModel(new DefaultComboBoxModel(targetRuntimes));
 
         // set data
         DefaultParameters defaultParameters = settingsHandler.getDefaultParameters();
@@ -321,37 +325,48 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     public void setData(DefaultParameters defaultParameters) {
         if (defaultParameters.getTargetRuntime() == null) {
-            targetRuntimeCombobox.setSelectedIndex(0);
+            targetRuntimeComboBox.setSelectedIndex(0);
         } else {
-            targetRuntimeCombobox.setSelectedItem(defaultParameters.getTargetRuntime());
+            targetRuntimeComboBox.setSelectedItem(defaultParameters.getTargetRuntime());
         }
 
         if (defaultParameters.getDefaultModelType() == null) {
-            defaultModelTypeCombobox.setSelectedIndex(0);
+            defaultModelTypeComboBox.setSelectedIndex(0);
         } else {
-            defaultModelTypeCombobox.setSelectedItem(defaultParameters.getDefaultModelType());
+            defaultModelTypeComboBox.setSelectedItem(defaultParameters.getDefaultModelType());
         }
 
         javaFileEncodingText.setText(defaultParameters.getJavaFileEncoding());
-        mapperNamePatternText.setText(defaultParameters.getMapperNamePattern());
 
+        // plugins
         customAnnotationTypeText.setText(defaultParameters.getMapperAnnotationConfig().customAnnotationType);
 
-        byPrimaryKeyOverrideText.setText(defaultParameters.getSelectWithLockConfig().byPrimaryKeyWithLockOverride);
-        byExampleOverrideText.setText(defaultParameters.getSelectWithLockConfig().byExampleWithLockOverride);
+        SelectWithLockConfig selectWithLockConfig = defaultParameters.getSelectWithLockConfig();
+        byPrimaryKeyOverrideText.setText(selectWithLockConfig.byPrimaryKeyWithLockOverride);
+        byExampleOverrideText.setText(selectWithLockConfig.byExampleWithLockOverride);
+
+        RenamePlugin.Config renameConfig = defaultParameters.getRenameConfig();
+        mapperTypePatternText.setText(renameConfig.mapperTypePattern);
+        exampleTypePatternText.setText(renameConfig.exampleTypePattern);
+        sqlFileNamePatternText.setText(renameConfig.sqlFileNamePattern);
     }
 
     public void getData(DefaultParameters defaultParameters) {
-        defaultParameters.setTargetRuntime((String) targetRuntimeCombobox.getSelectedItem());
-        defaultParameters.setDefaultModelType((ModelType) defaultModelTypeCombobox.getSelectedItem());
+        defaultParameters.setTargetRuntime((String) targetRuntimeComboBox.getSelectedItem());
+        defaultParameters.setDefaultModelType((ModelType) defaultModelTypeComboBox.getSelectedItem());
         defaultParameters.setJavaFileEncoding(javaFileEncodingText.getText());
-        defaultParameters.setMapperNamePattern(mapperNamePatternText.getText());
 
         // plugins
         defaultParameters.getMapperAnnotationConfig().customAnnotationType = customAnnotationTypeText.getText();
 
-        defaultParameters.getSelectWithLockConfig().byPrimaryKeyWithLockOverride = byPrimaryKeyOverrideText.getText();
-        defaultParameters.getSelectWithLockConfig().byExampleWithLockOverride = byExampleOverrideText.getText();
+        SelectWithLockConfig selectWithLockConfig = defaultParameters.getSelectWithLockConfig();
+        selectWithLockConfig.byPrimaryKeyWithLockOverride = byPrimaryKeyOverrideText.getText();
+        selectWithLockConfig.byExampleWithLockOverride = byExampleOverrideText.getText();
+
+        RenamePlugin.Config renameConfig = defaultParameters.getRenameConfig();
+        renameConfig.mapperTypePattern = mapperTypePatternText.getText();
+        renameConfig.exampleTypePattern = exampleTypePatternText.getText();
+        renameConfig.sqlFileNamePattern = sqlFileNamePatternText.getText();
     }
 
     public void setData(ConnectionInfo data) {
@@ -414,16 +429,26 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     }
 
     protected ValidationInfo doValidate() {
-        ValidationInfo info = null;
-        String pattern = mapperNamePatternText.getText();
-        if (StringUtils.isNotBlank(pattern)) {
-            if (!pattern.contains(DefaultParameters.DOMAIN_NAME_PLACEHOLDER)) {
-                info = new ValidationInfo("Mapper Name Pattern should contains " + DefaultParameters.DOMAIN_NAME_PLACEHOLDER, mapperNamePatternText);
-            }
-        }
+        ValidationInfo info = renameValidate(mapperTypePatternText, exampleTypePatternText, sqlFileNamePatternText);
 
         if (info != null) {
-            ViewUtil.focusTab(mapperNamePatternText);
+            ViewUtil.focusTab(info.component);
+        }
+
+        return info;
+    }
+
+    @Nullable
+    private ValidationInfo renameValidate(JTextField... textFields) {
+        ValidationInfo info = null;
+        for (JTextField textField : textFields) {
+            String pattern = textField.getText();
+            if (StringUtils.isNotBlank(pattern)) {
+                if (!pattern.contains(RenamePlugin.DOMAIN_NAME)) {
+                    info = new ValidationInfo("Pattern should contains " + RenamePlugin.DOMAIN_NAME, textField);
+                    break;
+                }
+            }
         }
 
         return info;
