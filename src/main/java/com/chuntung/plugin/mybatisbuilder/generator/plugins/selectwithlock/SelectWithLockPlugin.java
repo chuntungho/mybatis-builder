@@ -1,7 +1,7 @@
 package com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock;
 
 import com.chuntung.plugin.mybatisbuilder.util.ConfigUtil;
-import org.apache.commons.lang.StringUtils;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Interface;
@@ -36,11 +36,11 @@ public class SelectWithLockPlugin extends PluginAdapter {
 
     public boolean validate(List<String> warnings) {
         boolean passed = true;
-        if (Boolean.TRUE.equals(config.byPrimaryKeyWithLockEnabled) && StringUtils.isBlank(config.byPrimaryKeyWithLockOverride)) {
+        if (Boolean.TRUE.equals(config.byPrimaryKeyWithLockEnabled) && StringUtil.isBlank(config.byPrimaryKeyWithLockOverride)) {
             warnings.add("Please specify method name for select by primary key with lock");
             passed = false;
         }
-        if (Boolean.TRUE.equals(config.byExampleWithLockEnabled) && StringUtils.isBlank(config.byExampleWithLockOverride)) {
+        if (Boolean.TRUE.equals(config.byExampleWithLockEnabled) && StringUtil.isBlank(config.byExampleWithLockOverride)) {
             warnings.add("Please specify method name for select by example with lock");
             passed = false;
         }

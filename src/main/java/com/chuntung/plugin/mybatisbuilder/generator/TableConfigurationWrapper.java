@@ -4,7 +4,7 @@
 
 package com.chuntung.plugin.mybatisbuilder.generator;
 
-import org.apache.commons.lang.StringUtils;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import org.mybatis.generator.config.*;
 
 /**
@@ -44,11 +44,11 @@ public class TableConfigurationWrapper extends TableConfiguration{
         tableConfig.setUpdateByExampleStatementEnabled(isUpdateByExampleStatementEnabled());
         tableConfig.setDeleteByExampleStatementEnabled(isDeleteByExampleStatementEnabled());
 
-        if (StringUtils.isNotBlank(getDomainObjectRenamingRule().getSearchString())) {
+        if (StringUtil.stringHasValue(getDomainObjectRenamingRule().getSearchString())) {
             tableConfig.setDomainObjectRenamingRule(getDomainObjectRenamingRule());
         }
 
-        if (StringUtils.isNotBlank(getColumnRenamingRule().getSearchString())) {
+        if (StringUtil.stringHasValue(getColumnRenamingRule().getSearchString())) {
             tableConfig.setColumnRenamingRule(getColumnRenamingRule());
         }
 

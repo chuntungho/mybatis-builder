@@ -10,6 +10,7 @@ import com.chuntung.plugin.mybatisbuilder.generator.plugins.RenamePlugin;
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock.SelectWithLockConfig;
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DriverTypeEnum;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import com.chuntung.plugin.mybatisbuilder.util.ViewUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
@@ -17,7 +18,6 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.IconLoader;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.mybatis.generator.config.ModelType;
 
@@ -443,9 +443,9 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         ValidationInfo info = null;
         for (JTextField textField : textFields) {
             String pattern = textField.getText();
-            if (StringUtils.isNotBlank(pattern)) {
+            if (StringUtil.stringHasValue(pattern)) {
                 if (!pattern.contains(RenamePlugin.DOMAIN_NAME)) {
-                    info = new ValidationInfo("Pattern should contains " + RenamePlugin.DOMAIN_NAME, textField);
+                    info = new ValidationInfo("Pattern should contain " + RenamePlugin.DOMAIN_NAME, textField);
                     break;
                 }
             }

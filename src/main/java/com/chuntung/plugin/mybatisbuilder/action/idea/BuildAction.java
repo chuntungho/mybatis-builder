@@ -11,6 +11,7 @@ import com.chuntung.plugin.mybatisbuilder.generator.GeneratorToolWrapper;
 import com.chuntung.plugin.mybatisbuilder.generator.TableInfo;
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DatabaseItem;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import com.chuntung.plugin.mybatisbuilder.view.MybatisBuilderParametersDialog;
 import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -21,12 +22,10 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
 import org.mybatis.generator.config.PropertyHolder;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.internal.NullProgressCallback;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,7 +166,7 @@ public class BuildAction extends DumbAwareAction {
                     }
 
                     // pre-gen domain name for reference
-                    if (StringUtils.isBlank(tableInfo.getDomainName())) {
+                    if (StringUtil.isBlank(tableInfo.getDomainName())) {
                         String domainName = JavaBeansUtil.getCamelCaseString(tableInfo.getTableName(), true);
                         tableInfo.setDomainName(domainName);
                     }
@@ -188,17 +187,17 @@ public class BuildAction extends DumbAwareAction {
 
     private void populateConnection(GeneratorParamWrapper paramWrapper, ConnectionInfo connectionInfo) {
         // dynamic library
-        if (StringUtils.isNotBlank(connectionInfo.getDriverLibrary())) {
+        if (StringUtil.stringHasValue(connectionInfo.getDriverLibrary())) {
             paramWrapper.setDriverLibrary(connectionInfo.getDriverLibrary());
         }
 
         JDBCConnectionConfiguration jdbcConfig = paramWrapper.getJdbcConfig();
         // the known driver class or custom driver class
-        String driverClass = StringUtils.isNotBlank(connectionInfo.getDriverClass()) ?
+        String driverClass = StringUtil.stringHasValue(connectionInfo.getDriverClass()) ?
                 connectionInfo.getDriverClass() : connectionInfo.getDriverType().getDriverClass();
         jdbcConfig.setDriverClass(driverClass);
 
-        // connection url, should contains database
+        // connection url, should contain database
         String connectionUrl = new ConnectionUrlBuilder(connectionInfo).getConnectionUrl();
         jdbcConfig.setConnectionURL(connectionUrl);
 

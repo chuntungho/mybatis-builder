@@ -4,7 +4,7 @@
 
 package com.chuntung.plugin.mybatisbuilder.database;
 
-import org.apache.commons.lang.StringUtils;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -84,10 +84,10 @@ public class CustomDataSource implements DataSource {
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
         Properties props = new Properties();
-        if (StringUtils.isNotEmpty(username)) {
+        if (StringUtil.stringHasValue(username)) {
             props.put("user", username);
         }
-        if (StringUtils.isNotEmpty(password)) {
+        if (StringUtil.stringHasValue(password)) {
             props.put("password", password);
         }
         Connection connection = getDriver().connect(url, props);

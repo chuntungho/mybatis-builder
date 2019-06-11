@@ -5,7 +5,7 @@
 package com.chuntung.plugin.mybatisbuilder.database;
 
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
-import org.apache.commons.lang.StringUtils;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 
 public class ConnectionUrlBuilder {
     private ConnectionInfo connectionInfo;
@@ -15,7 +15,7 @@ public class ConnectionUrlBuilder {
     }
 
     public String getConnectionUrl() {
-        if (StringUtils.isNotBlank(connectionInfo.getUrl())) {
+        if (StringUtil.stringHasValue(connectionInfo.getUrl())) {
             return connectionInfo.getUrl();
         } else {
             String url = connectionInfo.getDriverType().getUrlPattern();

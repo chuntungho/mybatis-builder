@@ -4,7 +4,7 @@
 
 package com.chuntung.plugin.mybatisbuilder.generator;
 
-import org.apache.commons.lang.StringUtils;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import org.mybatis.generator.config.GeneratedKey;
 
 /**
@@ -56,10 +56,10 @@ public class GeneratedKeyWrapper {
 
     public GeneratedKey createGeneratedKey(TableInfo tableInfo) {
         String keyColumn = getColumn();
-        if (StringUtils.isBlank(keyColumn)) {
+        if (StringUtil.isBlank(keyColumn)) {
             keyColumn = tableInfo.getKeyColumn();
         }
-        if (StringUtils.isNotBlank(keyColumn)) {
+        if (StringUtil.stringHasValue(keyColumn)) {
             GeneratedKey generatedKey = new GeneratedKey(keyColumn, statement, isIdentity(), getType());
             return generatedKey;
         } else {

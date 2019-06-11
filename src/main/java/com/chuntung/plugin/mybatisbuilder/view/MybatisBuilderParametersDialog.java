@@ -11,28 +11,27 @@ import com.chuntung.plugin.mybatisbuilder.generator.plugins.MapperAnnotationPlug
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock.SelectWithLockConfig;
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock.SelectWithLockPlugin;
 import com.chuntung.plugin.mybatisbuilder.model.ObjectTableModel;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import com.chuntung.plugin.mybatisbuilder.util.ViewUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.util.IconLoader;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
 import org.mybatis.generator.config.SqlMapGeneratorConfiguration;
 import org.mybatis.generator.internal.db.DatabaseDialects;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 
 public class MybatisBuilderParametersDialog extends DialogWrapper {
@@ -347,7 +346,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
             }
 
             String path = textField.getText();
-            if (StringUtils.isBlank(path)) {
+            if (StringUtil.isBlank(path)) {
                 info = new ValidationInfo(textField.getToolTipText() + " not specified", textField);
             } else if (!new File(path).exists()) {
                 info = new ValidationInfo(textField.getToolTipText() + " does not exist", textField);

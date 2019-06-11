@@ -4,7 +4,7 @@
 
 package com.chuntung.plugin.mybatisbuilder.generator;
 
-import org.apache.commons.lang.StringUtils;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -51,7 +51,7 @@ public class CustomCommentGenerator implements CommentGenerator {
         sb.append(" * Column: ").append(introspectedColumn.getActualColumnName());
         field.addJavaDocLine(sb.toString());
 
-        if (StringUtils.isNotBlank(introspectedColumn.getRemarks())) {
+        if (StringUtil.stringHasValue(introspectedColumn.getRemarks())) {
             sb.setLength(0);
             sb.append(" * Remark: ").append(introspectedColumn.getRemarks().replace('\n', ' '));
             field.addJavaDocLine(sb.toString());

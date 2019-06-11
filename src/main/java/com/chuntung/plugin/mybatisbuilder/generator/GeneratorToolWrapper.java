@@ -7,7 +7,7 @@ package com.chuntung.plugin.mybatisbuilder.generator;
 import com.chuntung.plugin.mybatisbuilder.generator.annotation.PluginConfig;
 import com.chuntung.plugin.mybatisbuilder.generator.callback.CustomShellCallback;
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.RenamePlugin;
-import org.apache.commons.lang.StringUtils;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.ShellCallback;
@@ -43,7 +43,7 @@ public class GeneratorToolWrapper {
     public List<String> generate() throws InvalidConfigurationException, InterruptedException, SQLException, IOException {
         DefaultParameters defaultParameters = paramWrapper.getDefaultParameters();
         Configuration configuration = new Configuration();
-        if (StringUtils.isNotBlank(paramWrapper.getDriverLibrary())) {
+        if (StringUtil.stringHasValue(paramWrapper.getDriverLibrary())) {
             configuration.addClasspathEntry(paramWrapper.getDriverLibrary());
         }
         Context context = new Context(defaultParameters.getDefaultModelType());
@@ -140,9 +140,9 @@ public class GeneratorToolWrapper {
 
                 try {
                     Object val = field.get(config);
-                    if (val != null && StringUtils.isNotBlank(String.valueOf(val))) {
+                    if (val != null && StringUtil.stringHasValue(String.valueOf(val))) {
                         pluginConfig.addProperty(annotation.configKey(), String.valueOf(val));
-                    } else if (StringUtils.isNotBlank(annotation.defaultValue())) {
+                    } else if (StringUtil.stringHasValue(annotation.defaultValue())) {
                         pluginConfig.addProperty(annotation.configKey(), annotation.defaultValue());
                     }
                 } catch (IllegalAccessException e) {
@@ -154,7 +154,7 @@ public class GeneratorToolWrapper {
 
     private void populateTableConfig(TableConfiguration tableConfig, TableInfo tableInfo) {
         tableConfig.setTableName(tableInfo.getTableName());
-        if (StringUtils.isNotBlank(tableInfo.getDomainName())) {
+        if (StringUtil.stringHasValue(tableInfo.getDomainName())) {
             tableConfig.setDomainObjectName(tableInfo.getDomainName());
         }
 

@@ -10,10 +10,10 @@ import com.chuntung.plugin.mybatisbuilder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatisbuilder.generator.TableInfo;
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DatabaseItem;
+import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +123,7 @@ public class MybatisBuilderService implements ProjectComponent {
             ResultSet catalogs = meta.getCatalogs();
             while (catalogs.next()) {
                 String catalog = catalogs.getString(1);
-                if (StringUtils.isNotEmpty(catalog)) {
+                if (StringUtil.stringHasValue(catalog)) {
                     list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.DATABASE, catalog));
                 }
             }
@@ -133,7 +133,7 @@ public class MybatisBuilderService implements ProjectComponent {
                 catalogs = meta.getSchemas();
                 while (catalogs.next()) {
                     String catalog = catalogs.getString(1);
-                    if (StringUtils.isNotEmpty(catalog)) {
+                    if (StringUtil.stringHasValue(catalog)) {
                         list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.DATABASE, catalog));
                     }
                 }
