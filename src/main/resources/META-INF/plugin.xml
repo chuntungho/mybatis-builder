@@ -5,7 +5,7 @@
     <id>com.chuntung.plugin.mybatisbuilder</id>
     <name>Mybatis Builder</name>
     <version>1.0</version>
-    <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">Tony Ho</vendor>
+    <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">chuntung.com</vendor>
 
     <description><![CDATA[
     A free GUI tool integrated with Mybatis Generator, compatible with IntelliJ IDEA, Android Studio.
@@ -17,7 +17,7 @@
     <ul>
       <li>Auto merger for java file.</li>
       <li>Lombok @Data on java model.</li>
-      <li>Unified custom mapper name.</li>
+      <li>Unified custom mapper type, example type and SQL file name.</li>
       <li>Custom mapper annotation, default is Spring @Repository.</li>
       <li>Select with lock, which will generate selectByPrimaryKeyWithLock/selectByExampleWithLock.</li>
     </ul>
