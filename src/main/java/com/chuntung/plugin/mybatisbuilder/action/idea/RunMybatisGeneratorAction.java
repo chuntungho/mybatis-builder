@@ -5,10 +5,13 @@
 package com.chuntung.plugin.mybatisbuilder.action.idea;
 
 import com.chuntung.plugin.mybatisbuilder.generator.GeneratorToolWrapper;
+import com.chuntung.plugin.mybatisbuilder.generator.callback.IndicatorProcessCallback;
 import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.util.StatusBarProgress;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
@@ -27,6 +30,7 @@ public class RunMybatisGeneratorAction extends AnAction {
     private NotificationGroup notificationGroup = new NotificationGroup(
             "MybatisBuilder.NotificationGroup",
             NotificationDisplayType.BALLOON, true);
+    private ProgressIndicator processIndicator = new StatusBarProgress();
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
@@ -35,16 +39,15 @@ public class RunMybatisGeneratorAction extends AnAction {
             VirtualFile vFile = psiFile.getVirtualFile();
             vFile.refresh(false, false);
 
+            Properties properties = new Properties();
+            properties.setProperty("CURRENT_DIR", new File(vFile.getPath()).getParent());
+            if (event.getProject() != null) {
+                properties.setProperty("PROJECT_DIR", event.getProject().getBasePath());
+            }
+
             String error = null;
             try {
-                Properties properties = new Properties();
-                properties.setProperty("CURRENT_DIR", new File(vFile.getPath()).getParent());
-                if (event.getProject() != null) {
-                    properties.setProperty("PROJECT_DIR", event.getProject().getBasePath());
-                }
-
-                GeneratorToolWrapper.runWithConfigurationFile(vFile.getPath(), properties);
-
+                GeneratorToolWrapper.runWithConfigurationFile(vFile.getPath(), properties, new IndicatorProcessCallback(processIndicator));
                 Notification notification = notificationGroup.createNotification("Generated successfully", NotificationType.INFORMATION);
                 Notifications.Bus.notify(notification, event.getProject());
 

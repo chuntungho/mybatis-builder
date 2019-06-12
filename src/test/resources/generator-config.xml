@@ -9,8 +9,8 @@
       <property name="addDatabaseRemark" value="true"/>
     </commentGenerator>
 
-    <jdbcConnection driverClass="org.sqlite.JDBC"
-        connectionURL="jdbc:sqlite:/Users/tonyho/Downloads/ghost.db"
+    <jdbcConnection driverClass="org.h2.Driver"
+        connectionURL="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
         userId=""
         password="">
     </jdbcConnection>
@@ -37,7 +37,7 @@
       <property name="enableSubPackages" value="true" />
     </javaClientGenerator>
 
-    <table tableName="clients" domainObjectName="gene.Client"
+    <table tableName="user" domainObjectName="gene.User"
            enableSelectByExample="true"
            enableUpdateByExample="false"
            enableCountByExample="false"

@@ -15,7 +15,6 @@ import org.mybatis.generator.config.*;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
-import org.mybatis.generator.internal.NullProgressCallback;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -162,7 +161,8 @@ public class GeneratorToolWrapper {
         tableConfig.setGeneratedKey(generatedKeyWrapper.createGeneratedKey(tableInfo));
     }
 
-    public static List<String> runWithConfigurationFile(String path, Properties properties) throws IOException, XMLParserException, InvalidConfigurationException, SQLException, InterruptedException {
+    public static List<String> runWithConfigurationFile(String path, Properties properties, ProgressCallback processCallback)
+            throws IOException, XMLParserException, InvalidConfigurationException, SQLException, InterruptedException {
         List<String> warnings = new ArrayList<>();
         ConfigurationParser parser = new ConfigurationParser(warnings);
         Configuration configuration = parser.parseConfiguration(new File(path));
@@ -173,7 +173,6 @@ public class GeneratorToolWrapper {
 
         ShellCallback shellCallback = new CustomShellCallback(true);
         MyBatisGenerator generator = new MyBatisGenerator(configuration, shellCallback, warnings);
-        ProgressCallback processCallback = new NullProgressCallback();
         generator.generate(processCallback);
 
         return warnings;

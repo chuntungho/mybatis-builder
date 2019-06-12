@@ -9,6 +9,7 @@ import com.chuntung.plugin.mybatisbuilder.database.ConnectionUrlBuilder;
 import com.chuntung.plugin.mybatisbuilder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatisbuilder.generator.GeneratorToolWrapper;
 import com.chuntung.plugin.mybatisbuilder.generator.TableInfo;
+import com.chuntung.plugin.mybatisbuilder.generator.callback.IndicatorProcessCallback;
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DatabaseItem;
 import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
@@ -16,6 +17,8 @@ import com.chuntung.plugin.mybatisbuilder.view.MybatisBuilderParametersDialog;
 import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -100,26 +103,33 @@ public class BuildAction extends DumbAwareAction {
             // stash last parameters
             service.stashGeneratorParamWrapper(paramWrapper);
 
-            WriteCommandAction.runWriteCommandAction(project, () -> {
-                        GeneratorToolWrapper toolWrapper = new GeneratorToolWrapper(paramWrapper, null);
-                        try {
-                            toolWrapper.generate();
+            new Task.Backgroundable(project, "Mybatis Builder"){
 
-                            // NOTE: syncRefresh run in background will raise Write-unsafe exception
-                            // therefore not to use SwingUtilities.invokeLater
-                            VirtualFileManager.getInstance().syncRefresh();
+                @Override
+                public void run(@NotNull ProgressIndicator progressIndicator) {
+                    WriteCommandAction.runWriteCommandAction(project, () -> {
+                                IndicatorProcessCallback processCallback = new IndicatorProcessCallback(progressIndicator);
+                                GeneratorToolWrapper toolWrapper = new GeneratorToolWrapper(paramWrapper, processCallback);
+                                try {
+                                    toolWrapper.generate();
 
-                            int cnt = paramWrapper.getSelectedTables().size();
-                            String successMsg = cnt + (cnt > 1 ? " tables were built" : " table was built") + ", sync project folder for details";
-                            Notification success = notificationGroup.createNotification(successMsg, NotificationType.INFORMATION);
-                            Notifications.Bus.notify(success, project);
-                        } catch (Exception e) {
-                            logger.warn("Failed to generate", e);
-                            Notification error = notificationGroup.createNotification(e.getMessage(), NotificationType.ERROR);
-                            Notifications.Bus.notify(error, project);
-                        }
-                    }
-            );
+                                    // NOTE: syncRefresh should run in write-safe thread.
+                                    // AWT event should run in dispatch thread, use notification instead of message dialog.
+                                    VirtualFileManager.getInstance().syncRefresh();
+
+                                    int cnt = paramWrapper.getSelectedTables().size();
+                                    String successMsg = cnt + (cnt > 1 ? " tables were built" : " table was built") + ", sync project folder for details";
+                                    Notification success = notificationGroup.createNotification(successMsg, NotificationType.INFORMATION);
+                                    Notifications.Bus.notify(success, project);
+                                } catch (Exception e) {
+                                    logger.warn("Failed to generate", e);
+                                    Notification error = notificationGroup.createNotification(String.valueOf(e.getMessage()), NotificationType.ERROR);
+                                    Notifications.Bus.notify(error, project);
+                                }
+                            }
+                    );
+                }
+            }.queue();
         }
     }
 

@@ -9,6 +9,7 @@ import com.chuntung.plugin.mybatisbuilder.database.ConnectionUrlBuilder;
 import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import org.junit.Test;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
+import org.mybatis.generator.internal.NullProgressCallback;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -41,8 +42,8 @@ public class GeneratorToolWrapperTest {
         param.getSqlMapConfig().setTargetPackage("sqlmap");
 
         TableInfo tableInfo = new TableInfo();
-        tableInfo.setTableName("actions");
-        tableInfo.setDomainName("gene.Action");
+        tableInfo.setTableName("user");
+        tableInfo.setDomainName("gene.User");
         param.setSelectedTables(Arrays.asList(tableInfo));
 
         GeneratorToolWrapper tool = new GeneratorToolWrapper(param, null);
@@ -56,10 +57,13 @@ public class GeneratorToolWrapperTest {
     @Test
     public void runWithConfigurationFile() {
         try {
+            // init mem db
+            ConnectionInfo connectionInfo = MybatisBuilderServiceTest.getTestConnectionInfo();
+
             Properties properties = new Properties();
             properties.setProperty("PROJECT_DIR", ".");
             properties.setProperty("CURRENT_DIR", "./src/test/resources");
-            GeneratorToolWrapper.runWithConfigurationFile("./src/test/resources/generator-config.xml", properties);
+            GeneratorToolWrapper.runWithConfigurationFile("./src/test/resources/generator-config.xml", properties, null);
         } catch (Exception e) {
             fail(e.getMessage());
         }
