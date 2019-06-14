@@ -11,9 +11,10 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.util.StatusBarProgress;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.ProjectUtil;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlFile;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +31,6 @@ public class RunMybatisGeneratorAction extends AnAction {
     private NotificationGroup notificationGroup = new NotificationGroup(
             "MybatisBuilder.NotificationGroup",
             NotificationDisplayType.BALLOON, true);
-    private ProgressIndicator processIndicator = new StatusBarProgress();
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
@@ -45,21 +45,32 @@ public class RunMybatisGeneratorAction extends AnAction {
                 properties.setProperty("PROJECT_DIR", event.getProject().getBasePath());
             }
 
-            String error = null;
-            try {
-                GeneratorToolWrapper.runWithConfigurationFile(vFile.getPath(), properties, new IndicatorProcessCallback(processIndicator));
-                Notification notification = notificationGroup.createNotification("Generated successfully", NotificationType.INFORMATION);
-                Notifications.Bus.notify(notification, event.getProject());
+            new Task.Backgroundable(event.getProject(), "Mybatis Builder") {
 
-                VirtualFileManager.getInstance().syncRefresh();
-            } catch (Exception e) {
-                error = e.getMessage();
-            }
+                @Override
+                public void run(@NotNull ProgressIndicator progressIndicator) {
+                    String error = null;
+                    try {
+                        GeneratorToolWrapper.runWithConfigurationFile(vFile.getPath(), properties, new IndicatorProcessCallback(progressIndicator));
+                        Notification notification = notificationGroup.createNotification("Generated successfully", NotificationType.INFORMATION);
+                        Notifications.Bus.notify(notification, event.getProject());
 
-            if (error != null) {
-                Notification notification = notificationGroup.createNotification(error, NotificationType.ERROR);
-                Notifications.Bus.notify(notification, event.getProject());
-            }
+                        VirtualFile projectDir = ProjectUtil.guessProjectDir(event.getProject());
+                        if (projectDir != null) {
+                            VfsUtil.markDirtyAndRefresh(true, true, true, projectDir);
+                        }
+                    } catch (Exception e) {
+                        error = e.getMessage();
+                    }
+
+                    if (error != null) {
+                        Notification notification = notificationGroup.createNotification(error, NotificationType.ERROR);
+                        Notifications.Bus.notify(notification, event.getProject());
+                    }
+                }
+            }.queue();
+
+
         }
     }
 
