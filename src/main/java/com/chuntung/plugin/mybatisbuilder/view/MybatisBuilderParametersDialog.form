@@ -49,6 +49,7 @@
                         </constraints>
                         <properties>
                           <text value="Select"/>
+                          <toolTipText value="selectByExample"/>
                         </properties>
                       </component>
                       <component id="7cb8" class="javax.swing.JCheckBox" binding="countByExampleCheckbox">
@@ -57,6 +58,7 @@
                         </constraints>
                         <properties>
                           <text value="Count"/>
+                          <toolTipText value="countByExample"/>
                         </properties>
                       </component>
                       <component id="ebb78" class="javax.swing.JCheckBox" binding="updateByExampleCheckbox">
@@ -65,6 +67,7 @@
                         </constraints>
                         <properties>
                           <text value="Update"/>
+                          <toolTipText value="updateByExample, updateByExampleSelective"/>
                         </properties>
                       </component>
                       <component id="4c8b5" class="javax.swing.JCheckBox" binding="deleteByExampleCheckbox">
@@ -73,6 +76,7 @@
                         </constraints>
                         <properties>
                           <text value="Delete"/>
+                          <toolTipText value="deleteByExample"/>
                         </properties>
                       </component>
                       <component id="a57d5" class="javax.swing.JCheckBox" binding="exampleAllCheckBox" default-binding="true">

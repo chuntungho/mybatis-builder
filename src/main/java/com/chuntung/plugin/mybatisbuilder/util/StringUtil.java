@@ -11,7 +11,21 @@ public class StringUtil {
         return str != null && !str.isEmpty() && !str.trim().isEmpty();
     }
 
-    public static boolean isBlank(String str){
+    public static boolean isBlank(String str) {
         return StringUtils.isBlank(str);
+    }
+
+    /**
+     * Returns {@code toString()} of the object.
+     *
+     * @param object
+     * @return if the argument is {@code null}, then return {@code null}
+     */
+    public static String valueOf(Object object) {
+        if (object == null) {
+            return null;
+        } else {
+            return object.toString();
+        }
     }
 }

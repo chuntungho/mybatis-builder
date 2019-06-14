@@ -11,6 +11,7 @@ import com.chuntung.plugin.mybatisbuilder.generator.plugins.MapperAnnotationPlug
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock.SelectWithLockConfig;
 import com.chuntung.plugin.mybatisbuilder.generator.plugins.selectwithlock.SelectWithLockPlugin;
 import com.chuntung.plugin.mybatisbuilder.model.ObjectTableModel;
+import com.chuntung.plugin.mybatisbuilder.util.ConfigUtil;
 import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import com.chuntung.plugin.mybatisbuilder.util.ViewUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -109,6 +110,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         ViewUtil.initCheckBoxPanel(examplePanel, exampleAllCheckBox);
         ViewUtil.initCheckBoxPanel(basicPanel, basicAllCheckBox);
         ViewUtil.initCheckBoxPanel(lockPanel, lockAllCheckBox);
+        SelectWithLockConfig selectWithLockConfig = settingsHandler.getDefaultParameters().getSelectWithLockConfig();
 
         // rename domain
         replaceButton.addActionListener(new ActionListener() {
@@ -172,9 +174,11 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         databaseRemarkCheckBox.setSelected(data.getTrimStrings());
 
         // plugins
+        DefaultParameters defaultParameters = settingsHandler.getDefaultParameters();
+
         boolean mapperAnnotationEnabled = data.getSelectedPlugins().containsKey(MapperAnnotationPlugin.class.getName());
         mapperAnnotationSupportCheckBox.setSelected(mapperAnnotationEnabled);
-        String customAnnotationType = settingsHandler.getDefaultParameters().getMapperAnnotationConfig().customAnnotationType;
+        String customAnnotationType = defaultParameters.getMapperAnnotationConfig().customAnnotationType;
         mapperAnnotationSupportCheckBox.setToolTipText(customAnnotationType);
 
         boolean lombokEnabled = data.getSelectedPlugins().containsKey(LombokPlugin.class.getName());
@@ -189,6 +193,11 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
             selectByPrimaryKeyWithLockCheckBox.setSelected(selectWithLockConfig.byPrimaryKeyWithLockEnabled);
             selectByExampleWithLockCheckBox.setSelected(selectWithLockConfig.byExampleWithLockEnabled);
         }
+        SelectWithLockConfig selectWithLockConfig = defaultParameters.getSelectWithLockConfig();
+        Object byPrimaryKeyOverride = ConfigUtil.getFieldValueByConfigKey(selectWithLockConfig, SelectWithLockConfig.BY_PRIMARY_KEY_WITH_LOCK_OVERRIDE);
+        Object byExampleOverride = ConfigUtil.getFieldValueByConfigKey(selectWithLockConfig, SelectWithLockConfig.BY_EXAMPLE_WITH_LOCK_OVERRIDE);
+        selectByPrimaryKeyWithLockCheckBox.setToolTipText(StringUtil.valueOf(byPrimaryKeyOverride));
+        selectByExampleWithLockCheckBox.setToolTipText(StringUtil.valueOf(byExampleOverride));
 
         // default table config
         TableConfigurationWrapper defaultTableConfig = data.getDefaultTableConfigWrapper();
