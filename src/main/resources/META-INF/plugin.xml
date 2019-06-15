@@ -37,12 +37,19 @@
     <depends>com.intellij.modules.java</depends>
 
     <actions>
-        <!-- popup menu -->
+        <!-- Run Mybatis Generator popup menu -->
         <group id="ProjectViewPopupMenuMybatisBuilderGroup">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="ProjectViewPopupMenuRunGroup"/>
             <action id="RunMybatisGenerator" text="Run Mybatis Generator" icon="/images/mybatis-icon.png"
                     class="com.chuntung.plugin.mybatisbuilder.action.idea.RunMybatisGeneratorAction" />
         </group>
+
+        <!-- Copy as Normal SQL popup menu -->
+        <action id="CopyAsNormalSQL" text="Copy as Normal SQL"
+                class="com.chuntung.plugin.mybatisbuilder.action.idea.CopyAsNormalSQLAction" >
+            <add-to-group group-id="EditorPopupMenu" anchor="before" relative-to-action="CopyAsPlainText" />
+            <add-to-group group-id="ConsoleEditorPopupMenu" anchor="before" relative-to-action="CopyAsPlainText" />
+        </action>
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">

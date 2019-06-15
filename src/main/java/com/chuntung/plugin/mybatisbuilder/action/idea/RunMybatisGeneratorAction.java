@@ -6,7 +6,6 @@ package com.chuntung.plugin.mybatisbuilder.action.idea;
 
 import com.chuntung.plugin.mybatisbuilder.generator.GeneratorToolWrapper;
 import com.chuntung.plugin.mybatisbuilder.generator.callback.IndicatorProcessCallback;
-import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -28,10 +27,6 @@ import java.util.Properties;
  * @author Tony Ho
  */
 public class RunMybatisGeneratorAction extends AnAction {
-    private NotificationGroup notificationGroup = new NotificationGroup(
-            "MybatisBuilder.NotificationGroup",
-            NotificationDisplayType.BALLOON, true);
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         PsiFile psiFile = (PsiFile) event.getData(CommonDataKeys.PSI_FILE);
@@ -52,20 +47,19 @@ public class RunMybatisGeneratorAction extends AnAction {
                     String error = null;
                     try {
                         GeneratorToolWrapper.runWithConfigurationFile(vFile.getPath(), properties, new IndicatorProcessCallback(progressIndicator));
-                        Notification notification = notificationGroup.createNotification("Generated successfully", NotificationType.INFORMATION);
-                        Notifications.Bus.notify(notification, event.getProject());
+
+                        NotificationHelper.getInstance().notifyInfo("Generated successfully", event.getProject());
 
                         VirtualFile projectDir = ProjectUtil.guessProjectDir(event.getProject());
                         if (projectDir != null) {
                             VfsUtil.markDirtyAndRefresh(true, true, true, projectDir);
                         }
                     } catch (Exception e) {
-                        error = e.getMessage();
+                        error = String.valueOf(e.getMessage());
                     }
 
                     if (error != null) {
-                        Notification notification = notificationGroup.createNotification(error, NotificationType.ERROR);
-                        Notifications.Bus.notify(notification, event.getProject());
+                        NotificationHelper.getInstance().notifyError(error, event.getProject());
                     }
                 }
             }.queue();

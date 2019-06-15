@@ -14,7 +14,6 @@ import com.chuntung.plugin.mybatisbuilder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatisbuilder.model.DatabaseItem;
 import com.chuntung.plugin.mybatisbuilder.util.StringUtil;
 import com.chuntung.plugin.mybatisbuilder.view.MybatisBuilderParametersDialog;
-import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -50,14 +49,10 @@ import java.util.List;
 public class BuildAction extends DumbAwareAction {
     private static final Logger logger = LoggerFactory.getLogger(BuildAction.class);
     private JTree objectTree;
-    private NotificationGroup notificationGroup;
 
     public BuildAction(JTree objectTree) {
         super("Build...", null, IconLoader.getIcon("/images/build.png"));
         this.objectTree = objectTree;
-        this.notificationGroup = new NotificationGroup(
-                "MybatisBuilder.NotificationGroup",
-                NotificationDisplayType.BALLOON, true);
     }
 
     @Override
@@ -120,12 +115,10 @@ public class BuildAction extends DumbAwareAction {
 
                         int cnt = paramWrapper.getSelectedTables().size();
                         String successMsg = cnt + (cnt > 1 ? " tables were built" : " table was built");
-                        Notification success = notificationGroup.createNotification(successMsg, NotificationType.INFORMATION);
-                        Notifications.Bus.notify(success, project);
+                        NotificationHelper.getInstance().notifyInfo(successMsg, project);
                     } catch (Exception e) {
                         logger.warn("Failed to generate", e);
-                        Notification error = notificationGroup.createNotification(String.valueOf(e.getMessage()), NotificationType.ERROR);
-                        Notifications.Bus.notify(error, project);
+                        NotificationHelper.getInstance().notifyError(String.valueOf(e.getMessage()), project);
                     }
                 }
             }.queue();
