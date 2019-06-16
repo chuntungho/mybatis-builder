@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.*;
 
 /**
- * Resolve placeholders of printed SQL on console by Mybatis, put the normal SQL into clipboard.<br>
+ * Resolve placeholders of printed SQL in Mybatis log, copy as executable SQL to clipboard.<br>
  * The selected text should contains two keywords: "{@code Preparing: }", "{@code Parameters: }"
  *
  * @author Tony Ho
  */
-public class CopyAsNormalSQLAction extends DumbAwareAction {
+public class CopyAsExecutableSQLAction extends DumbAwareAction {
 
     private static final String PREPARING = "Preparing: ";
     private static final String PARAMETERS = "Parameters: ";

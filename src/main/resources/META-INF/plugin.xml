@@ -20,6 +20,7 @@
       <li>Unified custom mapper type, example type and SQL file name.</li>
       <li>Custom mapper annotation, default is Spring @Repository.</li>
       <li>Select with lock, which will generate selectByPrimaryKeyWithLock/selectByExampleWithLock.</li>
+      <li>Resolve placeholders of printed SQL in Mybatis log and "Copy as Executable SQL" to clipboard.</li>
     </ul>
     ]]></description>
 
@@ -44,9 +45,9 @@
                     class="com.chuntung.plugin.mybatisbuilder.action.idea.RunMybatisGeneratorAction" />
         </group>
 
-        <!-- Copy as Normal SQL popup menu -->
-        <action id="CopyAsNormalSQL" text="Copy as Normal SQL"
-                class="com.chuntung.plugin.mybatisbuilder.action.idea.CopyAsNormalSQLAction" >
+        <!-- Copy as Executable SQL popup menu -->
+        <action id="CopyAsNormalSQL" text="Copy as Executable SQL"
+                class="com.chuntung.plugin.mybatisbuilder.action.idea.CopyAsExecutableSQLAction" >
             <add-to-group group-id="EditorPopupMenu" anchor="before" relative-to-action="CopyAsPlainText" />
             <add-to-group group-id="ConsoleEditorPopupMenu" anchor="before" relative-to-action="CopyAsPlainText" />
         </action>
