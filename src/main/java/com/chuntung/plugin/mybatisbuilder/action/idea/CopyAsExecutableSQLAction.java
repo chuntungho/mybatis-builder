@@ -46,7 +46,7 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(new StringSelection(sql), null);
 
-        NotificationHelper.getInstance().notifyInfo("Normal SQL copied to clipboard", event.getProject());
+        NotificationHelper.getInstance().notifyInfo("Executable SQL copied to clipboard", event.getProject());
     }
 
     @NotNull
@@ -100,10 +100,12 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
     // only visible for selection
     public void update(@NotNull AnActionEvent event) {
         Editor editor = event.getData(CommonDataKeys.EDITOR);
-        SelectionModel selectionModel = editor.getSelectionModel();
-        String selectedText = selectionModel.getSelectedText();
-        if (StringUtil.stringHasValue(selectedText)) {
-            return;
+        if (editor != null) {
+            SelectionModel selectionModel = editor.getSelectionModel();
+            String selectedText = selectionModel.getSelectedText();
+            if (StringUtil.stringHasValue(selectedText)) {
+                return;
+            }
         }
 
         event.getPresentation().setVisible(false);

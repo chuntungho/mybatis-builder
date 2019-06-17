@@ -6,6 +6,7 @@ package com.chuntung.plugin.mybatisbuilder.generator.callback;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
+import com.github.javaparser.Problem;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
@@ -21,6 +22,7 @@ import org.mybatis.generator.internal.DefaultShellCallback;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -59,9 +61,15 @@ public class CustomShellCallback extends DefaultShellCallback {
         try {
             oldParseResult = new JavaParser().parse(existingFile);
             if (oldParseResult.getProblems().size() > 0) {
-                throw new ShellException(Arrays.toString(oldParseResult.getProblems().toArray()));
+                List<String> problems = new ArrayList<>(oldParseResult.getProblems().size());
+                for (Problem problem : oldParseResult.getProblems()) {
+                    problems.add(problem.getMessage());
+                }
+                StringBuilder sb = new StringBuilder("Failed to parse ").append(existingFile.getCanonicalPath());
+                sb.append("\nProblems:\n").append(String.join("\n", problems));
+                throw new ShellException(sb.toString());
             }
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new ShellException(e.getMessage());
         }
 

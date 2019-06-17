@@ -106,7 +106,7 @@ public class BuildAction extends DumbAwareAction {
                     IndicatorProcessCallback processCallback = new IndicatorProcessCallback(progressIndicator);
                     GeneratorToolWrapper toolWrapper = new GeneratorToolWrapper(paramWrapper, processCallback);
                     try {
-                        toolWrapper.generate();
+                        List<String> warnings = toolWrapper.generate();
 
                         VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
                         if (projectDir != null) {
@@ -114,8 +114,11 @@ public class BuildAction extends DumbAwareAction {
                         }
 
                         int cnt = paramWrapper.getSelectedTables().size();
-                        String successMsg = cnt + (cnt > 1 ? " tables were built" : " table was built");
-                        NotificationHelper.getInstance().notifyInfo(successMsg, project);
+                        String msg = "Generation for " + cnt + (cnt > 1 ? " tables" : " table") + " was done.";
+                        if (!warnings.isEmpty()) {
+                            msg = msg + "\n" + String.join("\n", warnings);
+                        }
+                        NotificationHelper.getInstance().notifyInfo(msg, project);
                     } catch (Exception e) {
                         logger.warn("Failed to generate", e);
                         NotificationHelper.getInstance().notifyError(String.valueOf(e.getMessage()), project);

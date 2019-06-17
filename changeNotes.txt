@@ -1,6 +1,5 @@
 <ul>
-<li>Supported customizable basic statements</li>
-<li>Supported to rename mapper, example and sql file</li>
-<li>Improved select with lock plugin </li>
-<li>Fixed table config persistence issue</li>
+<li>Added "Copy as Executable SQL" popup menu which will resolve placeholders of printed SQL in Mybatis log</li>
+<li>Improved java file merger to remove unused import</li>
+<li>Other minor enhancements</li>
 </ul>

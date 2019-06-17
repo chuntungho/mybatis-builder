@@ -42,14 +42,16 @@
         <group id="ProjectViewPopupMenuMybatisBuilderGroup">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="ProjectViewPopupMenuRunGroup"/>
             <action id="RunMybatisGenerator" text="Run Mybatis Generator" icon="/images/mybatis-icon.png"
+                    description="Run Mybatis Generator with selected configuration file"
                     class="com.chuntung.plugin.mybatisbuilder.action.idea.RunMybatisGeneratorAction" />
         </group>
 
         <!-- Copy as Executable SQL popup menu -->
         <action id="CopyAsNormalSQL" text="Copy as Executable SQL"
+                description="Copy selection in Mybatis log (keywords 'Preparing: ' and 'Parameters: ' are required) as Executable SQL to clipboard"
                 class="com.chuntung.plugin.mybatisbuilder.action.idea.CopyAsExecutableSQLAction" >
-            <add-to-group group-id="EditorPopupMenu" anchor="before" relative-to-action="CopyAsPlainText" />
-            <add-to-group group-id="ConsoleEditorPopupMenu" anchor="before" relative-to-action="CopyAsPlainText" />
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="CopyAsPlainText" />
+            <add-to-group group-id="ConsoleEditorPopupMenu" anchor="after" relative-to-action="CutCopyPasteGroup" />
         </action>
     </actions>
 

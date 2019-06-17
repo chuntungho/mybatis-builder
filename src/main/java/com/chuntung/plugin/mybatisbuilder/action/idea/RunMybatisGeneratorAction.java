@@ -19,6 +19,7 @@ import com.intellij.psi.xml.XmlFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -46,9 +47,12 @@ public class RunMybatisGeneratorAction extends AnAction {
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     String error = null;
                     try {
-                        GeneratorToolWrapper.runWithConfigurationFile(vFile.getPath(), properties, new IndicatorProcessCallback(progressIndicator));
-
-                        NotificationHelper.getInstance().notifyInfo("Generated successfully", event.getProject());
+                        List<String> warnings = GeneratorToolWrapper.runWithConfigurationFile(vFile.getPath(), properties, new IndicatorProcessCallback(progressIndicator));
+                        String msg = "Generation was done.";
+                        if (!warnings.isEmpty()) {
+                            msg = msg + "\n" + String.join("\n", warnings);
+                        }
+                        NotificationHelper.getInstance().notifyInfo(msg, event.getProject());
 
                         VirtualFile projectDir = ProjectUtil.guessProjectDir(event.getProject());
                         if (projectDir != null) {
