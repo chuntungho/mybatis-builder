@@ -15,7 +15,7 @@ apply plugin: 'org.jetbrains.intellij'
 
 intellij {
     version ideaVersion
-    pluginName "MybatisBuilder"
+    pluginName "MyBatisBuilder"
     sameSinceUntilBuild Boolean.valueOf(isEAP)
     patchPluginXml{
         untilBuild customUtilBuild

@@ -1,5 +1,5 @@
 <ul>
-<li>Added "Copy as Executable SQL" popup menu which will resolve placeholders of printed SQL in Mybatis log</li>
+<li>Added "Copy as Executable SQL" popup menu which will resolve placeholders of printed SQL in MyBatis log</li>
 <li>Improved java file merger to remove unused import</li>
 <li>Other minor enhancements</li>
 </ul>

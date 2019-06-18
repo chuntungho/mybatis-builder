@@ -3,13 +3,13 @@
   -->
 <idea-plugin>
     <id>com.chuntung.plugin.mybatisbuilder</id>
-    <name>Mybatis Builder</name>
+    <name>MyBatis Builder</name>
     <version>1.0</version>
     <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">chuntung.com</vendor>
 
     <description><![CDATA[
-    A free GUI tool integrated with Mybatis Generator, compatible with IntelliJ IDEA, Android Studio.
-    Alternatively, it supports to "Run Mybatis Generator" on configuration file popup menu.<br>
+    A free GUI tool integrated with MyBatis Generator, compatible with IntelliJ IDEA, Android Studio.
+    Alternatively, it supports to "Run MyBatis Generator" on configuration file popup menu.<br>
     <br>
     Supported databases: mysql/postgresql/oracle/sqlserver/sqlite/h2.<br>
     <br>
@@ -20,7 +20,7 @@
       <li>Unified custom mapper type, example type and SQL file name.</li>
       <li>Custom mapper annotation, default is Spring @Repository.</li>
       <li>Select with lock, which will generate selectByPrimaryKeyWithLock/selectByExampleWithLock.</li>
-      <li>Resolve placeholders of printed SQL in Mybatis log and "Copy as Executable SQL" to clipboard.</li>
+      <li>Resolve placeholders of printed SQL in MyBatis log and "Copy as Executable SQL" to clipboard.</li>
     </ul>
     ]]></description>
 
@@ -34,39 +34,46 @@
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
-     <!--uncomment to enable plugin in all products-->
+    <!--uncomment to enable plugin in all products-->
     <depends>com.intellij.modules.java</depends>
 
     <actions>
-        <!-- Run Mybatis Generator popup menu -->
-        <group id="ProjectViewPopupMenuMybatisBuilderGroup">
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="ProjectViewPopupMenuRunGroup"/>
-            <action id="RunMybatisGenerator" text="Run Mybatis Generator" icon="/images/mybatis-icon.png"
-                    description="Run Mybatis Generator with selected configuration file"
-                    class="com.chuntung.plugin.mybatisbuilder.action.idea.RunMybatisGeneratorAction" />
+        <!-- Build -->
+        <action id="MyBatisBuilder.Build" text="Build..." icon="/images/build.png"
+                description="Open Building dialog after selecting table(s)"
+                class="com.chuntung.plugin.mybatis.builder.action.idea.BuildAction"/>
+
+        <!-- Run MyBatis Generator popup menu -->
+        <group id="ProjectViewPopupMenuMyBatisBuilderGroup">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="before"
+                          relative-to-action="ProjectViewPopupMenuRunGroup"/>
+            <action id="MyBatisBuilder.RunMyBatisGenerator" text="Run MyBatis Generator" icon="/images/mybatis-icon.png"
+                    description="Run MyBatis Generator with selected configuration file"
+                    class="com.chuntung.plugin.mybatis.builder.action.idea.RunMybatisGeneratorAction"/>
         </group>
 
         <!-- Copy as Executable SQL popup menu -->
-        <action id="CopyAsNormalSQL" text="Copy as Executable SQL"
-                description="Copy selection in Mybatis log (keywords 'Preparing: ' and 'Parameters: ' are required) as Executable SQL to clipboard"
-                class="com.chuntung.plugin.mybatisbuilder.action.idea.CopyAsExecutableSQLAction" >
-            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="CopyAsPlainText" />
-            <add-to-group group-id="ConsoleEditorPopupMenu" anchor="after" relative-to-action="CutCopyPasteGroup" />
+        <action id="MyBatisBuilder.CopyAsExecutableSQL" text="Copy as Executable SQL"
+                description="Copy selection in MyBatis log (keywords 'Preparing: ' and 'Parameters: ' are required) as Executable SQL to clipboard"
+                class="com.chuntung.plugin.mybatis.builder.action.idea.CopyAsExecutableSQLAction">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="CopyAsPlainText"/>
+            <add-to-group group-id="ConsoleEditorPopupMenu" anchor="after" relative-to-action="CutCopyPasteGroup"/>
         </action>
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- tool window -->
-        <toolWindow id="Mybatis Builder" anchor="left" secondary="true" icon="/images/mybatis-icon.png"
-                    factoryClass="com.chuntung.plugin.mybatisbuilder.view.MybatisBuilderToolWindowFactory"/>
+        <toolWindow id="MyBatis Builder" anchor="left" secondary="true" icon="/images/mybatis-icon.png"
+                    factoryClass="com.chuntung.plugin.mybatis.builder.view.MybatisBuilderToolWindowFactory"/>
     </extensions>
 
     <project-components>
         <component>
-            <implementation-class>com.chuntung.plugin.mybatisbuilder.MybatisBuilderSettingsManager</implementation-class>
+            <implementation-class>com.chuntung.plugin.mybatis.builder.MybatisBuilderSettingsManager
+            </implementation-class>
         </component>
         <component>
-            <implementation-class>com.chuntung.plugin.mybatisbuilder.MybatisBuilderService</implementation-class>
+            <implementation-class>com.chuntung.plugin.mybatis.builder.MybatisBuilderService</implementation-class>
         </component>
     </project-components>
 

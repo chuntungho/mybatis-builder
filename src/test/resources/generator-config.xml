@@ -5,7 +5,7 @@
 
 <generatorConfiguration>
   <context id="test" targetRuntime="MyBatis3">
-    <commentGenerator type="com.chuntung.plugin.mybatisbuilder.generator.CustomCommentGenerator">
+    <commentGenerator type="com.chuntung.plugin.mybatis.builder.generator.CustomCommentGenerator">
       <property name="addDatabaseRemark" value="true"/>
     </commentGenerator>
 
@@ -24,7 +24,7 @@
     PROJECT_DIR: the project base path.
     CURRENT_DIR: the configuration file path.
     -->
-	<javaModelGenerator targetPackage="mybatisbuilder.example.model" targetProject="${PROJECT_DIR}/src/test/java">
+	<javaModelGenerator targetPackage="mybatis.builder.example.model" targetProject="${PROJECT_DIR}/src/test/java">
       <property name="enableSubPackages" value="true" />
       <property name="trimStrings" value="true" />
     </javaModelGenerator>
@@ -33,7 +33,7 @@
       <property name="enableSubPackages" value="true" />
     </sqlMapGenerator>
 
-    <javaClientGenerator type="XMLMAPPER" targetPackage="mybatisbuilder.example.mapper" targetProject="${PROJECT_DIR}/src/test/java">
+    <javaClientGenerator type="XMLMAPPER" targetPackage="mybatis.builder.example.mapper" targetProject="${PROJECT_DIR}/src/test/java">
       <property name="enableSubPackages" value="true" />
     </javaClientGenerator>
 
