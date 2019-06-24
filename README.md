@@ -12,5 +12,6 @@ Provides with additional features as below.
 - Unified custom mapper type, example type and SQL file name.
 - Custom mapper annotation, default is Spring @Repository.
 - Select with lock, which will generate selectByPrimaryKeyWithLock/selectByExampleWithLock.
+- Resolve placeholders of printed SQL in MyBatis log and "Copy as Executable SQL" to clipboard.
 
-[Getting started](https://chuntung.com/mybatis-builder/)
+[Getting Started](https://chuntung.com/mybatis-builder/)

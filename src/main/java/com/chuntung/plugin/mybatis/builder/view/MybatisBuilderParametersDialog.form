@@ -434,14 +434,6 @@
                       <text value="Target package"/>
                     </properties>
                   </component>
-                  <component id="79b25" class="javax.swing.JTextField" binding="javaModelPackageText">
-                    <constraints>
-                      <grid row="1" column="1" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="150" height="-1"/>
-                      </grid>
-                    </constraints>
-                    <properties/>
-                  </component>
                   <hspacer id="f1717">
                     <constraints>
                       <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -472,6 +464,14 @@
                       <text value="Database remark"/>
                     </properties>
                   </component>
+                  <component id="2f986" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="javaModelPackageText">
+                    <constraints>
+                      <grid row="1" column="1" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="150" height="-1"/>
+                      </grid>
+                    </constraints>
+                    <properties/>
+                  </component>
                 </children>
               </grid>
               <grid id="2220b" layout-manager="GridLayoutManager" row-count="4" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -490,7 +490,7 @@
                       <text value="Target package"/>
                     </properties>
                   </component>
-                  <component id="9fd38" class="javax.swing.JTextField" binding="javaClientPackageText">
+                  <component id="af287" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="javaClientPackageText">
                     <constraints>
                       <grid row="2" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
@@ -561,7 +561,7 @@
                       <text value="Target package"/>
                     </properties>
                   </component>
-                  <component id="18c64" class="javax.swing.JTextField" binding="sqlMapPackageText">
+                  <component id="4eb91" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="sqlMapPackageText">
                     <constraints>
                       <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>

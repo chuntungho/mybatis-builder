@@ -68,7 +68,7 @@ public class PopupAction extends DumbAwareAction {
             }
         }
 
-        actionGroup.add(new NewConnectionAction());
+        actionGroup.add(ManageAction.getInstance());
     }
 
     private void showBelowComponent(ListPopup popup, Component component) {

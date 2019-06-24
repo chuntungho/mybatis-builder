@@ -39,7 +39,7 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
         }
 
         String selectedText = editor.getSelectionModel().getSelectedText();
-        if (!selectedText.contains(PREPARING) && !selectedText.contains(PARAMETERS)) {
+        if (selectedText == null || !selectedText.contains(PREPARING) && !selectedText.contains(PARAMETERS)) {
             String error = "Keywords \"" + PREPARING + "\" and \"" + PARAMETERS + "\" are required";
             HintManager.getInstance().showErrorHint(editor, error);
             return;

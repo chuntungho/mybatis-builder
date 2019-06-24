@@ -22,6 +22,7 @@
       <li>Select with lock, which will generate selectByPrimaryKeyWithLock/selectByExampleWithLock.</li>
       <li>Resolve placeholders of printed SQL in MyBatis log and "Copy as Executable SQL" to clipboard.</li>
     </ul>
+    <a href="https://chuntung.com/mybatis-builder">Getting Started</a>
     ]]></description>
 
     <change-notes><![CDATA[
@@ -38,6 +39,11 @@
     <depends>com.intellij.modules.java</depends>
 
     <actions>
+        <!-- Manage -->
+        <action id="MyBatisBuilder.Manage" text="Manage..." icon="/images/new.png"
+                description="Manage connetions, default settings and etc."
+                class="com.chuntung.plugin.mybatis.builder.action.idea.ManageAction"/>
+
         <!-- Build -->
         <action id="MyBatisBuilder.Build" text="Build..." icon="/images/build.png"
                 description="Open Building dialog after selecting table(s)"

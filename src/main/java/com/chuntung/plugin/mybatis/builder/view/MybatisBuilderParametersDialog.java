@@ -14,11 +14,14 @@ import com.chuntung.plugin.mybatis.builder.model.ObjectTableModel;
 import com.chuntung.plugin.mybatis.builder.util.ConfigUtil;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
+import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.psi.PsiPackage;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
@@ -38,15 +41,15 @@ import java.io.File;
 public class MybatisBuilderParametersDialog extends DialogWrapper {
     private static final FileChooserDescriptor FOLDER_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false);
     private JPanel mainPanel;
-    private JTextField javaModelPackageText;
+    private TextFieldWithBrowseButton javaModelPackageText;
     private TextFieldWithBrowseButton javaModelProjectText;
     private JCheckBox trimStringsCheckBox;
     private JPanel sqlMapGeneratorPanel;
-    private JTextField sqlMapPackageText;
+    private TextFieldWithBrowseButton sqlMapPackageText;
     private TextFieldWithBrowseButton sqlMapProjectText;
-    private JTextField javaClientPackageText;
-    private JComboBox javaClientTypeComboBox;
+    private TextFieldWithBrowseButton javaClientPackageText;
     private TextFieldWithBrowseButton javaClientProjectText;
+    private JComboBox javaClientTypeComboBox;
     private JCheckBox countByExampleCheckbox;
     private JCheckBox updateByExampleCheckbox;
     private JCheckBox deleteByExampleCheckbox;
@@ -156,6 +159,24 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         javaModelProjectText.addBrowseFolderListener("Choose Target Project", "", null, FOLDER_DESCRIPTOR);
         javaClientProjectText.addBrowseFolderListener("Choose Target Project", "", null, FOLDER_DESCRIPTOR);
         sqlMapProjectText.addBrowseFolderListener("Choose Target Project", "", null, FOLDER_DESCRIPTOR);
+
+        // package chooser
+        javaModelPackageText.addActionListener(getPackageActionListener(project, javaModelPackageText));
+        javaClientPackageText.addActionListener(getPackageActionListener(project, javaClientPackageText));
+        sqlMapPackageText.addActionListener(getPackageActionListener(project, sqlMapPackageText));
+    }
+
+    @NotNull
+    private ActionListener getPackageActionListener(Project project, TextFieldWithBrowseButton textField) {
+        return e -> {
+            PackageChooserDialog chooser = new PackageChooserDialog("Choose target package", project);
+            chooser.selectPackage(textField.getText());
+            chooser.show();
+            PsiPackage selectedPackage = chooser.getSelectedPackage();
+            if (selectedPackage != null) {
+                textField.setText(selectedPackage.getQualifiedName());
+            }
+        };
     }
 
     @Nullable

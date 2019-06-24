@@ -5,15 +5,19 @@
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
 import com.chuntung.plugin.mybatis.builder.view.MybatisBuilderSettingsDialog;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NotNull;
 
-public class NewConnectionAction extends DumbAwareAction {
-    public NewConnectionAction() {
-        super("Manage...", "Create new connection", IconLoader.getIcon("/images/new.png"));
+public class ManageAction extends DumbAwareAction {
+    private static final String ACTION_ID = "MyBatisBuilder.Manage";
+
+    public static AnAction getInstance() {
+        return ActionManager.getInstance().getAction(ACTION_ID);
     }
 
     @Override
