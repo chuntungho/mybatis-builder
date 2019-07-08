@@ -6,7 +6,7 @@ package com.chuntung.plugin.mybatis.builder;
 
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.model.MybatisBuilderSettings;
-import com.chuntung.plugin.mybatis.builder.generator.TableInfo;
+import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;

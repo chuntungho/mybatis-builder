@@ -41,7 +41,7 @@
     <actions>
         <!-- Manage -->
         <action id="MyBatisBuilder.Manage" text="Manage..." icon="/images/new.png"
-                description="Manage connetions, default settings and etc."
+                description="Manage connections, default settings, etc."
                 class="com.chuntung.plugin.mybatis.builder.action.idea.ManageAction"/>
 
         <!-- Build -->

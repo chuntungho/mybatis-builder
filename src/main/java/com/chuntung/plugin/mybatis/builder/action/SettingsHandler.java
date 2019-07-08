@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class SettingsHandler {
-    private Project project;
     private final MybatisBuilderService service;
 
     public static SettingsHandler getInstance(Project project) {
@@ -23,7 +22,6 @@ public class SettingsHandler {
     }
 
     public SettingsHandler(Project project) {
-        this.project = project;
         this.service = MybatisBuilderService.getInstance(project);
     }
 

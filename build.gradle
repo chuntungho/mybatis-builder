@@ -41,7 +41,7 @@ repositories {
 sourceSets {
     test {
         java {
-            exclude 'mybatisbuilder/*'
+            exclude '**/example'
         }
     }
 }

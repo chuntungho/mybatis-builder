@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.generator;
 
+import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.intellij.util.xmlb.annotations.Transient;
 import org.mybatis.generator.config.*;
 

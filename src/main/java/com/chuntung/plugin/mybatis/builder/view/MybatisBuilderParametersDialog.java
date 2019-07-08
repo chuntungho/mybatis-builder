@@ -11,6 +11,7 @@ import com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlu
 import com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.SelectWithLockConfig;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.SelectWithLockPlugin;
 import com.chuntung.plugin.mybatis.builder.model.ObjectTableModel;
+import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.ConfigUtil;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
@@ -31,6 +32,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -87,17 +89,56 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private String[] javaClientTypes = {"XMLMAPPER", "ANNOTATEDMAPPER", "MIXEDMAPPER"};
     private String[] keyTypes = {"", "pre", "post"};
 
-    private String[] fieldNames = new String[]{"tableName", "domainName", "keyColumn"};
-    private String[] editableFieldNames = new String[]{"domainName", "keyColumn"};
-    private String[] columnNames = new String[]{"Table name", "Domain name", "Key column"};
+    private String[] fieldNames = new String[]{"tableName", "domainName", "keyColumn", ""};
+    private String[] editableFieldNames = new String[]{"domainName", "keyColumn", ""};
+    private String[] columnNames = new String[]{"Table name", "Domain name", "Key column", "Columns setting"};
 
-    private final SettingsHandler settingsHandler;
+    private Project project;
+    private String connectionId;
     private GeneratorParamWrapper paramWrapper;
+    private final SettingsHandler settingsHandler;
 
-    public MybatisBuilderParametersDialog(@Nullable Project project, GeneratorParamWrapper paramWrapper) {
+    private class TableButtonRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
+        JPanel panel = new JPanel();
+
+        TableButtonRenderer() {
+            JButton button = new JButton(new AbstractAction("Open") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    TableButtonRenderer.this.fireEditingCanceled();
+                    ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>) selectedTables.getModel();
+                    int selected = selectedTables.getSelectedRow();
+                    TableInfo tableInfo = model.getItems().get(selected);
+                    new ColumnsSettingDialog(connectionId, tableInfo, project).show();
+                }
+            });
+            panel.setLayout(new BorderLayout());
+            panel.add(button);
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return null;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            return panel;
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            panel.setBackground(table.getSelectionBackground());
+            return panel;
+        }
+    }
+
+    public MybatisBuilderParametersDialog(Project project, GeneratorParamWrapper paramWrapper, String connectionId) {
         super(project);
-        this.settingsHandler = SettingsHandler.getInstance(project);
+        this.project = project;
         this.paramWrapper = paramWrapper;
+        this.connectionId = connectionId;
+        this.settingsHandler = SettingsHandler.getInstance(project);
 
         initGUI(project);
         setData(paramWrapper);
@@ -113,14 +154,20 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         ViewUtil.initCheckBoxPanel(examplePanel, exampleAllCheckBox);
         ViewUtil.initCheckBoxPanel(basicPanel, basicAllCheckBox);
         ViewUtil.initCheckBoxPanel(lockPanel, lockAllCheckBox);
-        SelectWithLockConfig selectWithLockConfig = settingsHandler.getDefaultParameters().getSelectWithLockConfig();
+
+        // generated key
+        identityCheckBox.setCursor(hand);
+        DefaultComboBoxModel statementModel = new DefaultComboBoxModel(DatabaseDialects.values());
+        statementModel.insertElementAt("JDBC", 0);
+        statementComboBox.setModel(statementModel);
+        keyTypeComboBox.setModel(new DefaultComboBoxModel(keyTypes));
 
         // rename domain
         replaceButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String regex = domainSearchText.getText(), replace = domainReplaceText.getText();
-                ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>)selectedTables.getModel();
+                ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>) selectedTables.getModel();
                 for (TableInfo item : model.getItems()) {
                     if (item.getDomainName() != null && !item.getDomainName().isEmpty()) {
                         item.setDomainName(item.getDomainName().replaceAll(regex, replace));
@@ -132,7 +179,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         resetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>)selectedTables.getModel();
+                ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>) selectedTables.getModel();
                 for (TableInfo item : model.getItems()) {
                     item.setDomainName(JavaBeansUtil.getCamelCaseString(item.getTableName(), true));
                 }
@@ -147,13 +194,6 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
                 sqlMapGeneratorPanel.setVisible(!"ANNOTATEDMAPPER".equals(e.getItem()));
             }
         });
-
-        // generated key
-        identityCheckBox.setCursor(hand);
-        DefaultComboBoxModel statementModel = new DefaultComboBoxModel(DatabaseDialects.values());
-        statementModel.insertElementAt("JDBC", 0);
-        statementComboBox.setModel(statementModel);
-        keyTypeComboBox.setModel(new DefaultComboBoxModel(keyTypes));
 
         // directory chooser
         javaModelProjectText.addBrowseFolderListener("Choose Target Project", "", null, FOLDER_DESCRIPTOR);
@@ -252,13 +292,19 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         ViewUtil.renderAllCheckBox(lockPanel, lockAllCheckBox);
 
         // selected tables
-        TitledBorder border = (TitledBorder)selectedTablePanel.getBorder();
+        TitledBorder border = (TitledBorder) selectedTablePanel.getBorder();
         border.setTitle(border.getTitle() + ": " + data.getSelectedTables().size());
 
         ObjectTableModel<TableInfo> tableModel = new ObjectTableModel(data.getSelectedTables(), fieldNames, columnNames);
         tableModel.setEditableFieldNames(editableFieldNames);
         selectedTables.setModel(tableModel);
         selectedTables.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
+        // set table button after data binding
+        TableColumn column = selectedTables.getColumnModel().getColumn(3);
+        TableButtonRenderer btnRenderer = new TableButtonRenderer();
+        column.setCellRenderer(btnRenderer);
+        column.setCellEditor(btnRenderer);
 
         // model
         JavaModelGeneratorConfiguration modelConfig = data.getJavaModelConfig();
@@ -398,7 +444,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     };
 
     @Override
-    protected Action[] createLeftSideActions(){
+    protected Action[] createLeftSideActions() {
         return new Action[]{stashAction};
     }
 

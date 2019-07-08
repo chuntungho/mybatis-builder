@@ -6,7 +6,6 @@ package com.chuntung.plugin.mybatis.builder.model;
 
 import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
-import com.chuntung.plugin.mybatis.builder.generator.TableInfo;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

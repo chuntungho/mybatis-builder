@@ -26,9 +26,11 @@ import static org.mybatis.generator.internal.util.StringUtility.isTrue;
  */
 public class CustomCommentGenerator implements CommentGenerator {
     public static final String ADD_DATABASE_REMARK = "addDatabaseRemark";
+    public static final String GENERATED_COMMENT = "generatedComment";
 
     private Properties properties = new Properties();
     private boolean addDatabaseRemark = true;
+    private String generatedComment;
 
     public CustomCommentGenerator() {
     }
@@ -37,6 +39,7 @@ public class CustomCommentGenerator implements CommentGenerator {
     public void addConfigurationProperties(Properties properties) {
         this.properties.putAll(properties);
         addDatabaseRemark = isTrue(properties.getProperty(ADD_DATABASE_REMARK));
+        generatedComment = properties.getProperty(GENERATED_COMMENT);
     }
 
     @Override
@@ -106,12 +109,13 @@ public class CustomCommentGenerator implements CommentGenerator {
 
     @Override
     public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
-        method.addJavaDocLine("/**");
-
+        method.addJavaDocLine("/** ");
         StringBuilder sb = new StringBuilder(" * ");
-        sb.append(MergeConstants.NEW_ELEMENT_TAG).append(" generated automatically, do not modify!");
+        sb.append(MergeConstants.NEW_ELEMENT_TAG);
+        if (StringUtil.stringHasValue(generatedComment)) {
+            sb.append(' ').append(generatedComment);
+        }
         method.addJavaDocLine(sb.toString());
-
         method.addJavaDocLine(" */");
     }
 
@@ -125,7 +129,9 @@ public class CustomCommentGenerator implements CommentGenerator {
         StringBuilder sb = new StringBuilder();
         sb.append("<!-- ");
         sb.append(MergeConstants.NEW_ELEMENT_TAG);
-        sb.append(": generated automatically, do not modify!");
+        if (StringUtil.stringHasValue(generatedComment)) {
+            sb.append(": ").append(generatedComment);
+        }
         sb.append(" -->");
 
         xmlElement.addElement(new TextElement(sb.toString()));

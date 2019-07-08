@@ -5,11 +5,12 @@
 package com.chuntung.plugin.mybatis.builder;
 
 import com.chuntung.plugin.mybatis.builder.database.SimpleDataSourceFactory;
+import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
 import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
-import com.chuntung.plugin.mybatis.builder.generator.TableInfo;
+import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
@@ -168,9 +169,31 @@ public class MybatisBuilderService implements ProjectComponent {
                 schema = database;
             }
 
-            ResultSet tables = meta.getTables(catalog, schema, null, new String[]{"TABLE"});
-            while (tables.next()) {
-                list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.TABLE, tables.getString("TABLE_NAME")));
+            ResultSet tableRS = meta.getTables(catalog, schema, null, new String[]{"TABLE"});
+            while (tableRS.next()) {
+                list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.TABLE, tableRS.getString("TABLE_NAME")));
+            }
+        } finally {
+            close(connection);
+        }
+        return list;
+    }
+
+    public List<ColumnInfo> fetchColumns(ConnectionInfo connectionInfo, TableInfo tableInfo) throws SQLException {
+        List<ColumnInfo> list = new ArrayList<>();
+        DataSource dataSource = SimpleDataSourceFactory.getInstance().getDataSource(connectionInfo);
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            DatabaseMetaData meta = connection.getMetaData();
+            String schema = isOracle(connection) ? tableInfo.getDatabase() : null;
+            ResultSet columnRS = meta.getColumns(tableInfo.getDatabase(), schema, tableInfo.getTableName(), null);
+            while (columnRS.next()) {
+                ColumnInfo columnInfo = new ColumnInfo();
+                columnInfo.setColumnName(columnRS.getString("COLUMN_NAME"));
+                columnInfo.setColumnType(columnRS.getString("TYPE_NAME"));
+                columnInfo.setComment(columnRS.getString("REMARKS"));
+                list.add(columnInfo);
             }
         } finally {
             close(connection);

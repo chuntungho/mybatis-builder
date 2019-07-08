@@ -13,6 +13,7 @@ public class DefaultParameters {
     private String targetRuntime = "MyBatis3";
     private ModelType defaultModelType = ModelType.FLAT;
     private String javaFileEncoding = "UTF-8";
+    private String generatedComment = "generated automatically, do not modify!";
 
     private MapperAnnotationPlugin.Config mapperAnnotationConfig
             = new MapperAnnotationPlugin.Config("org.springframework.stereotype.Repository");
@@ -43,6 +44,14 @@ public class DefaultParameters {
 
     public void setJavaFileEncoding(String javaFileEncoding) {
         this.javaFileEncoding = javaFileEncoding;
+    }
+
+    public String getGeneratedComment() {
+        return generatedComment;
+    }
+
+    public void setGeneratedComment(String generatedComment) {
+        this.generatedComment = generatedComment;
     }
 
     public MapperAnnotationPlugin.Config getMapperAnnotationConfig() {

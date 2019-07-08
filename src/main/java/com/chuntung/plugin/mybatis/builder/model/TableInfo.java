@@ -2,7 +2,9 @@
  * Copyright (c) 2019 Tony Ho. Some rights reserved.
  */
 
-package com.chuntung.plugin.mybatis.builder.generator;
+package com.chuntung.plugin.mybatis.builder.model;
+
+import java.util.List;
 
 // table info
 public class TableInfo {
@@ -10,6 +12,8 @@ public class TableInfo {
     private String tableName;
     private String domainName;
     private String keyColumn;
+
+    private List<ColumnInfo> customColumns;
 
     public TableInfo() {
     }
@@ -49,5 +53,13 @@ public class TableInfo {
 
     public void setKeyColumn(String keyColumn) {
         this.keyColumn = keyColumn;
+    }
+
+    public List<ColumnInfo> getCustomColumns() {
+        return customColumns;
+    }
+
+    public void setCustomColumns(List<ColumnInfo> customColumns) {
+        this.customColumns = customColumns;
     }
 }

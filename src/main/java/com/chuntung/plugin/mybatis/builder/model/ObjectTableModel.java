@@ -4,9 +4,14 @@
 
 package com.chuntung.plugin.mybatis.builder.model;
 
+import com.chuntung.plugin.mybatis.builder.util.StringUtil;
+
 import javax.swing.table.AbstractTableModel;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Simple Object table model.
@@ -17,7 +22,7 @@ public class ObjectTableModel<T> extends AbstractTableModel {
     private List<T> items;
     private String[] fieldNames;
     private String[] columnNames;
-    private String[] editableFieldNames;
+    private Set<String> editableFieldNames = new HashSet<>();
 
     public ObjectTableModel(List<T> items, String[] fieldNames, String[] columnNames) {
         this.items = items;
@@ -43,20 +48,16 @@ public class ObjectTableModel<T> extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         Object item = items.get(rowIndex);
         String fieldName = fieldNames[columnIndex];
-
-        return getProperty(item, fieldName);
+        if (StringUtil.stringHasValue(fieldName)) {
+            return getProperty(item, fieldName);
+        } else {
+            return null;
+        }
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         String fieldName = fieldNames[columnIndex];
-        if (editableFieldNames != null) {
-            for (String editableField : editableFieldNames) {
-                if (editableField.equals(fieldName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return editableFieldNames.contains(fieldName);
     }
 
     @Override
@@ -72,7 +73,9 @@ public class ObjectTableModel<T> extends AbstractTableModel {
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         Object item = items.get(rowIndex);
         String fieldName = fieldNames[columnIndex];
-        setProperty(item, fieldName, aValue);
+        if (StringUtil.stringHasValue(fieldName)) {
+            setProperty(item, fieldName, aValue);
+        }
     }
 
     private void setProperty(Object bean, String fieldName, Object val) {
@@ -96,6 +99,7 @@ public class ObjectTableModel<T> extends AbstractTableModel {
     }
 
     public void setEditableFieldNames(String[] editableFieldNames) {
-        this.editableFieldNames = editableFieldNames;
+        this.editableFieldNames.clear();
+        this.editableFieldNames.addAll(Arrays.asList(editableFieldNames));
     }
 }

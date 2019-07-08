@@ -11,7 +11,7 @@ import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
 import com.chuntung.plugin.mybatis.builder.database.ConnectionUrlBuilder;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorToolWrapper;
-import com.chuntung.plugin.mybatis.builder.generator.TableInfo;
+import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.chuntung.plugin.mybatis.builder.view.MybatisBuilderParametersDialog;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -108,7 +108,7 @@ public class BuildAction extends DumbAwareAction {
         // populate project and package
         populateProjectAndPackage(paramWrapper, project);
 
-        MybatisBuilderParametersDialog dialog = new MybatisBuilderParametersDialog(project, paramWrapper);
+        MybatisBuilderParametersDialog dialog = new MybatisBuilderParametersDialog(project, paramWrapper, connectionInfo.getId());
 
         if (dialog.showAndGet()) {
             // stash last parameters

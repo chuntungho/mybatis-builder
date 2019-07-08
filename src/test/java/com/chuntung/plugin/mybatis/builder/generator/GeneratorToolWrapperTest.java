@@ -7,6 +7,7 @@ package com.chuntung.plugin.mybatis.builder.generator;
 import com.chuntung.plugin.mybatis.builder.MybatisBuilderServiceTest;
 import com.chuntung.plugin.mybatis.builder.database.ConnectionUrlBuilder;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
+import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import org.junit.Test;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
 

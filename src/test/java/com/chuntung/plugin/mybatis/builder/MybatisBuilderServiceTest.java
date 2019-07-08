@@ -5,6 +5,8 @@
 package com.chuntung.plugin.mybatis.builder;
 
 import com.chuntung.plugin.mybatis.builder.database.SimpleDataSourceFactory;
+import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
+import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.intellij.testFramework.IdeaTestCase;
 import org.junit.Assert;
@@ -70,6 +72,12 @@ public class MybatisBuilderServiceTest extends IdeaTestCase {
     public void testFetchTables() throws SQLException {
         List<?> tables = service.fetchTables(getTestConnectionInfo().getId(), "TEST");
         Assert.assertTrue(tables.size() > 0);
+    }
+
+    @Test
+    public void testFetchColumns() throws SQLException {
+        List<ColumnInfo> columns = service.fetchColumns(getTestConnectionInfo().getId(), new TableInfo("TEST", "USER"));
+        Assert.assertTrue(columns.size() > 0);
     }
 
 }

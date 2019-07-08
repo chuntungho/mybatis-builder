@@ -7,6 +7,9 @@ package com.chuntung.plugin.mybatis.builder.generator;
 import com.chuntung.plugin.mybatis.builder.generator.annotation.PluginConfig;
 import com.chuntung.plugin.mybatis.builder.generator.callback.CustomShellCallback;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.RenamePlugin;
+import com.chuntung.plugin.mybatis.builder.model.ColumnActionEnum;
+import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
+import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ProgressCallback;
@@ -101,6 +104,7 @@ public class GeneratorToolWrapper {
         CommentGeneratorConfiguration commentConfig = new CommentGeneratorConfiguration();
         commentConfig.setConfigurationType(CustomCommentGenerator.class.getName());
         commentConfig.addProperty(CustomCommentGenerator.ADD_DATABASE_REMARK, paramWrapper.getDatabaseRemark().toString());
+        commentConfig.addProperty(CustomCommentGenerator.GENERATED_COMMENT, paramWrapper.getDefaultParameters().getGeneratedComment() );
         context.setCommentGeneratorConfiguration(commentConfig);
     }
 
@@ -159,6 +163,20 @@ public class GeneratorToolWrapper {
 
         GeneratedKeyWrapper generatedKeyWrapper = paramWrapper.getDefaultTableConfigWrapper().getGeneratedKeyWrapper();
         tableConfig.setGeneratedKey(generatedKeyWrapper.createGeneratedKey(tableInfo));
+
+        // column setting
+        if (tableInfo.getCustomColumns() != null) {
+            for (ColumnInfo customColumn : tableInfo.getCustomColumns()) {
+                if (ColumnActionEnum.OVERRIDE.equals(customColumn.getAction())) {
+                    ColumnOverride columnOverride = new ColumnOverride(customColumn.getColumnName());
+                    columnOverride.setJavaType(customColumn.getJavaType());
+                    columnOverride.setJavaProperty(customColumn.getJavaProperty());
+                    tableConfig.addColumnOverride(columnOverride);
+                } else if (ColumnActionEnum.IGNORE.equals(customColumn.getAction())) {
+                    tableConfig.addIgnoredColumn(new IgnoredColumn(customColumn.getColumnName()));
+                }
+            }
+        }
     }
 
     public static List<String> runWithConfigurationFile(String path, Properties properties, ProgressCallback processCallback)

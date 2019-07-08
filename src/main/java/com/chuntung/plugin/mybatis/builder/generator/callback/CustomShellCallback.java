@@ -21,7 +21,6 @@ import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -33,6 +32,7 @@ import java.util.*;
 public class CustomShellCallback extends DefaultShellCallback {
 
     private static final String JAVA_PREFIX = "java.";
+    private static final String NEWLINE = System.getProperty("line.separator", "\n");
 
     /**
      * Instantiates a new default shell callback.
@@ -126,7 +126,11 @@ public class CustomShellCallback extends DefaultShellCallback {
             });
         }
 
-        return newCompilationUnit.toString();
+        String sourceCode = newCompilationUnit.toString();
+        if (sourceCode.endsWith(NEWLINE)) {
+            sourceCode = sourceCode.substring(0, sourceCode.length() - NEWLINE.length());
+        }
+        return sourceCode;
     }
 
     // check the method to find out used imports from delta imports

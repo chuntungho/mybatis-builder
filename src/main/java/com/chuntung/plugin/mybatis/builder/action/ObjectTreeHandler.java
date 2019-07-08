@@ -27,12 +27,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class ObjectTreeHandler {
+    private MybatisBuilderService service;
+
     // icons
     private Icon connectionIcon = IconLoader.getIcon("/images/connection.png");
     private Icon databaseIcon = IconLoader.getIcon("/images/database.png");
     private Icon tableIcon = IconLoader.getIcon("/images/table.png");
 
-    private Project project;
     private JTree objectTree;
     private TreePath currentTreePath;
 
@@ -65,7 +66,7 @@ public class ObjectTreeHandler {
     private final ActionGroup tablePopupActionGroup;
 
     public ObjectTreeHandler(JTree objectTree, Project project) {
-        this.project = project;
+        service = MybatisBuilderService.getInstance(project);
         this.objectTree = objectTree;
 
         connectionPopupActionGroup = new DefaultActionGroup(
@@ -87,7 +88,6 @@ public class ObjectTreeHandler {
 
     // load active connection on start
     public void initConnectionNodes() {
-        MybatisBuilderService service = MybatisBuilderService.getInstance(project);
         List<ConnectionInfo> connectionInfoList = service.loadConnectionInfoList();
         if (connectionInfoList != null && connectionInfoList.size() > 0) {
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) objectTree.getModel().getRoot();
@@ -106,8 +106,6 @@ public class ObjectTreeHandler {
     private void loadSubNodes(DefaultMutableTreeNode node, boolean forced) {
         int count = node.getChildCount();
         if (forced || count == 0) {
-            MybatisBuilderService service = MybatisBuilderService.getInstance(project);
-
             node.removeAllChildren();
 
             try {
