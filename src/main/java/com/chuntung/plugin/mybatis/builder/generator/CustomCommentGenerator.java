@@ -109,7 +109,7 @@ public class CustomCommentGenerator implements CommentGenerator {
 
     @Override
     public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
-        method.addJavaDocLine("/** ");
+        method.addJavaDocLine("/**");
         StringBuilder sb = new StringBuilder(" * ");
         sb.append(MergeConstants.NEW_ELEMENT_TAG);
         if (StringUtil.stringHasValue(generatedComment)) {
