@@ -76,7 +76,7 @@ public class MybatisBuilderServiceTest extends IdeaTestCase {
 
     @Test
     public void testFetchColumns() throws SQLException {
-        List<ColumnInfo> columns = service.fetchColumns(getTestConnectionInfo().getId(), new TableInfo("TEST", "USER"));
+        List<ColumnInfo> columns = service.fetchColumns(getTestConnectionInfo(), new TableInfo("TEST", "USER"));
         Assert.assertTrue(columns.size() > 0);
     }
 
