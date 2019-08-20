@@ -7,6 +7,7 @@ package com.chuntung.plugin.mybatis.builder;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.model.MybatisBuilderSettings;
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
+import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
@@ -19,6 +20,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -94,4 +96,30 @@ public class MybatisBuilderSettingsManager implements ProjectComponent, Persiste
         XmlSerializerUtil.copyBean(settings, this.settings);
     }
 
+    public void clearHistory() {
+        settings.getHistoryMap().clear();
+    }
+
+    public void addHistory(String category, String value) {
+        if (StringUtil.isBlank(value)) {
+            return;
+        }
+
+        List<String> histories = settings.getHistoryMap().get(category);
+        if (histories == null) {
+            histories = new ArrayList<>();
+            settings.getHistoryMap().put(category, histories);
+        }
+
+        // insert at first
+        histories.remove(value);
+        histories.add(0, value);
+        resize(histories, settings.getDefaultParameters().getHistorySize());
+    }
+
+    private void resize(List<?> list, int fixedSize) {
+        while (list.size() > fixedSize) {
+            list.remove(list.size() - 1);
+        }
+    }
 }

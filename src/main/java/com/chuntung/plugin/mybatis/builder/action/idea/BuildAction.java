@@ -80,6 +80,7 @@ public class BuildAction extends DumbAwareAction {
 
         // load default parameters
         paramWrapper.setDefaultParameters(service.getDefaultParameters());
+        paramWrapper.setHistoryMap(service.getHistoryMap());
 
         // enable sub packages by default
         enableSubPackages(paramWrapper.getJavaModelConfig(), paramWrapper.getJavaClientConfig(), paramWrapper.getSqlMapConfig());

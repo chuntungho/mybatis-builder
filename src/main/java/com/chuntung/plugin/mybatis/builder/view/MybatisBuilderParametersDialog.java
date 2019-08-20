@@ -10,6 +10,7 @@ import com.chuntung.plugin.mybatis.builder.generator.plugins.LombokPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.SelectWithLockConfig;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.SelectWithLockPlugin;
+import com.chuntung.plugin.mybatis.builder.model.HistoryCategoryEnum;
 import com.chuntung.plugin.mybatis.builder.model.ObjectTableModel;
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.ConfigUtil;
@@ -22,6 +23,8 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.psi.PsiPackage;
+import com.intellij.ui.TextFieldWithHistory;
+import com.intellij.ui.TextFieldWithHistoryWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
@@ -39,17 +42,18 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.List;
 
 public class MybatisBuilderParametersDialog extends DialogWrapper {
     private static final FileChooserDescriptor FOLDER_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false);
     private JPanel mainPanel;
-    private TextFieldWithBrowseButton javaModelPackageText;
+    private TextFieldWithHistoryWithBrowseButton javaModelPackageText;
     private TextFieldWithBrowseButton javaModelProjectText;
     private JCheckBox trimStringsCheckBox;
     private JPanel sqlMapGeneratorPanel;
-    private TextFieldWithBrowseButton sqlMapPackageText;
+    private TextFieldWithHistoryWithBrowseButton sqlMapPackageText;
     private TextFieldWithBrowseButton sqlMapProjectText;
-    private TextFieldWithBrowseButton javaClientPackageText;
+    private TextFieldWithHistoryWithBrowseButton javaClientPackageText;
     private TextFieldWithBrowseButton javaClientProjectText;
     private JComboBox javaClientTypeComboBox;
     private JCheckBox countByExampleCheckbox;
@@ -207,14 +211,14 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     }
 
     @NotNull
-    private ActionListener getPackageActionListener(Project project, TextFieldWithBrowseButton textField) {
+    private ActionListener getPackageActionListener(Project project, TextFieldWithHistoryWithBrowseButton textField) {
         return e -> {
             PackageChooserDialog chooser = new PackageChooserDialog("Choose target package", project);
             chooser.selectPackage(textField.getText());
             chooser.show();
             PsiPackage selectedPackage = chooser.getSelectedPackage();
             if (selectedPackage != null) {
-                textField.setText(selectedPackage.getQualifiedName());
+                textField.setTextAndAddToHistory(selectedPackage.getQualifiedName());
             }
         };
     }
@@ -306,9 +310,15 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         column.setCellRenderer(btnRenderer);
         column.setCellEditor(btnRenderer);
 
+        List<String> history = null;
         // model
         JavaModelGeneratorConfiguration modelConfig = data.getJavaModelConfig();
         javaModelProjectText.setText(modelConfig.getTargetProject());
+
+        history = paramWrapper.getHistoryMap().get(HistoryCategoryEnum.JAVA_MODEL_PACKAGE.toString());
+        if (history != null) {
+            javaModelPackageText.getChildComponent().setHistory(history);
+        }
         javaModelPackageText.setText(modelConfig.getTargetPackage());
 
         // client
@@ -319,11 +329,21 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
             javaClientTypeComboBox.setSelectedItem(javaClientConfig.getConfigurationType());
         }
         javaClientProjectText.setText(javaClientConfig.getTargetProject());
+
+        history = paramWrapper.getHistoryMap().get(HistoryCategoryEnum.JAVA_CLIENT_PACKAGE.toString());
+        if (history != null) {
+            javaClientPackageText.getChildComponent().setHistory(history);
+        }
         javaClientPackageText.setText(javaClientConfig.getTargetPackage());
 
         // sqlmap
         SqlMapGeneratorConfiguration sqlMapConfig = data.getSqlMapConfig();
         sqlMapProjectText.setText(sqlMapConfig.getTargetProject());
+
+        history = paramWrapper.getHistoryMap().get(HistoryCategoryEnum.SQL_MAP_PACKAGE.toString());
+        if (history != null) {
+            sqlMapPackageText.getChildComponent().setHistory(history);
+        }
         sqlMapPackageText.setText(sqlMapConfig.getTargetPackage());
     }
 

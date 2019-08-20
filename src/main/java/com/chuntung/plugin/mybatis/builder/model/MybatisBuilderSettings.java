@@ -7,10 +7,7 @@ package com.chuntung.plugin.mybatis.builder.model;
 import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The global project settings.
@@ -22,6 +19,7 @@ public class MybatisBuilderSettings {
     private DefaultParameters defaultParameters = new DefaultParameters();
     private GeneratorParamWrapper lastGeneratorParamWrapper = new GeneratorParamWrapper();
     private Map<String, TableInfo> tableInfoMap = new LinkedHashMap<>();
+    private Map<String, List<String>> historyMap = new HashMap<>();
 
     public List<ConnectionInfo> getConnectionInfoList() {
         return connectionInfoList;
@@ -55,4 +53,11 @@ public class MybatisBuilderSettings {
         this.tableInfoMap = tableInfoMap;
     }
 
+    public Map<String, List<String>> getHistoryMap() {
+        return historyMap;
+    }
+
+    public void setHistoryMap(Map<String, List<String>> historyMap) {
+        this.historyMap = historyMap;
+    }
 }

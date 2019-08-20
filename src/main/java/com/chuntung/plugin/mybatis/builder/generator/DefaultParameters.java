@@ -13,7 +13,11 @@ public class DefaultParameters {
     private String targetRuntime = "MyBatis3";
     private ModelType defaultModelType = ModelType.FLAT;
     private String javaFileEncoding = "UTF-8";
+    private Boolean forceBigDecimals = true;
     private String generatedComment = "generated automatically, do not modify!";
+    private Integer historySize = 10;
+
+    // plugin configs
 
     private MapperAnnotationPlugin.Config mapperAnnotationConfig
             = new MapperAnnotationPlugin.Config("org.springframework.stereotype.Repository");
@@ -21,6 +25,7 @@ public class DefaultParameters {
     private SelectWithLockConfig selectWithLockConfig = new SelectWithLockConfig();
 
     private RenamePlugin.Config renameConfig = new RenamePlugin.Config();
+
 
     public String getTargetRuntime() {
         return targetRuntime;
@@ -52,6 +57,22 @@ public class DefaultParameters {
 
     public void setGeneratedComment(String generatedComment) {
         this.generatedComment = generatedComment;
+    }
+
+    public Boolean getForceBigDecimals() {
+        return forceBigDecimals;
+    }
+
+    public void setForceBigDecimals(Boolean forceBigDecimals) {
+        this.forceBigDecimals = forceBigDecimals;
+    }
+
+    public Integer getHistorySize() {
+        return historySize;
+    }
+
+    public void setHistorySize(Integer historySize) {
+        this.historySize = historySize;
     }
 
     public MapperAnnotationPlugin.Config getMapperAnnotationConfig() {

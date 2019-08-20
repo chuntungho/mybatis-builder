@@ -6,7 +6,7 @@ package com.chuntung.plugin.mybatis.builder.model;
 
 public interface PluginInfo {
     String PLUGIN_NAME = "MyBatis Builder";
-    String PLUGIN_VERSION = "1.0.6";
+    String PLUGIN_VERSION = "1.0.7";
 
     String AUTHOR = "Tony Ho";
 

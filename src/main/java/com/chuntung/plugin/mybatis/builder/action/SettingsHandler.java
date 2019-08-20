@@ -51,4 +51,7 @@ public class SettingsHandler {
         service.stashGeneratorParamWrapper(paramWrapper);
     }
 
+    public void clearHistory() {
+        service.clearHistory();
+    }
 }

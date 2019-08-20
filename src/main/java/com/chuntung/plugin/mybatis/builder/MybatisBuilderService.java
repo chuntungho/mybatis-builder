@@ -5,12 +5,9 @@
 package com.chuntung.plugin.mybatis.builder;
 
 import com.chuntung.plugin.mybatis.builder.database.SimpleDataSourceFactory;
-import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
-import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
-import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
 import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
-import com.chuntung.plugin.mybatis.builder.model.TableInfo;
+import com.chuntung.plugin.mybatis.builder.model.*;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
@@ -25,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The unified plugin service.
@@ -204,6 +202,11 @@ public class MybatisBuilderService implements ProjectComponent {
     public void stashGeneratorParamWrapper(GeneratorParamWrapper paramWrapper) {
         manager.getSettings().setLastGeneratorParamWrapper(paramWrapper);
         manager.saveTableInfo(paramWrapper.getSelectedTables());
+
+        // add history
+        manager.addHistory(HistoryCategoryEnum.JAVA_MODEL_PACKAGE.toString(), paramWrapper.getJavaModelConfig().getTargetPackage());
+        manager.addHistory(HistoryCategoryEnum.JAVA_CLIENT_PACKAGE.toString(), paramWrapper.getJavaClientConfig().getTargetPackage());
+        manager.addHistory(HistoryCategoryEnum.SQL_MAP_PACKAGE.toString(), paramWrapper.getSqlMapConfig().getTargetPackage());
     }
 
     public GeneratorParamWrapper getLastGeneratorParamWrapper() {
@@ -224,4 +227,13 @@ public class MybatisBuilderService implements ProjectComponent {
     public void saveDefaultParameters(DefaultParameters defaultParameters) {
         manager.getSettings().setDefaultParameters(defaultParameters);
     }
+
+    public Map<String, List<String>> getHistoryMap() {
+        return manager.getSettings().getHistoryMap();
+    }
+
+    public void clearHistory() {
+        manager.clearHistory();
+    }
+
 }

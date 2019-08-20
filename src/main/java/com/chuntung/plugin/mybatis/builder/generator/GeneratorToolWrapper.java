@@ -59,6 +59,11 @@ public class GeneratorToolWrapper {
         context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, paramWrapper.getBeginningDelimiter());
         context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, paramWrapper.getEndingDelimiter());
 
+        // java type resolver, force big decimals
+        JavaTypeResolverConfiguration javaTypeResolverConfig = new JavaTypeResolverConfiguration();
+        javaTypeResolverConfig.addProperty(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, defaultParameters.getForceBigDecimals().toString());
+        context.setJavaTypeResolverConfiguration(javaTypeResolverConfig);
+
         // JDBC config
         context.setJdbcConnectionConfiguration(paramWrapper.getJdbcConfig());
 

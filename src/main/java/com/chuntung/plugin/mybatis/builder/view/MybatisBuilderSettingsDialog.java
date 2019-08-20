@@ -67,6 +67,9 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JTextField exampleTypePatternText;
     private JTextField sqlFileNamePatternText;
     private JTextField generatedCommentText;
+    private JCheckBox forceBigDecimalsCheckbox;
+    private JSpinner historySizeSpinner;
+    private JButton clearAllButton;
 
     private final SettingsHandler settingsHandler;
     private Project project;
@@ -126,14 +129,11 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         portSpinner.setEditor(new JSpinner.NumberEditor(portSpinner, "#"));
 
         driverTypeComboBox.setModel(new DefaultComboBoxModel(DriverTypeEnum.values()));
-        driverTypeComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                DriverTypeEnum item = (DriverTypeEnum) e.getItem();
-                driverPanel.setVisible(DriverTypeEnum.Custom.equals(item));
-                hostPanel.setVisible(!DriverTypeEnum.Custom.equals(item));
-                portSpinner.setValue(item.getDefaultPort());
-            }
+        driverTypeComboBox.addItemListener(e -> {
+            DriverTypeEnum item = (DriverTypeEnum) e.getItem();
+            driverPanel.setVisible(DriverTypeEnum.Custom.equals(item));
+            hostPanel.setVisible(!DriverTypeEnum.Custom.equals(item));
+            portSpinner.setValue(item.getDefaultPort());
         });
         driverTypeComboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
@@ -148,42 +148,20 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         });
 
         // test connection button
-        testConnectionButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                doTest();
-            }
-        });
+        testConnectionButton.addActionListener(e -> doTest());
 
         // add button
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                doAdd(connectionList);
-            }
-        });
+        addButton.addActionListener(e -> doAdd(connectionList));
 
         // remove button
-        removeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                doRemove(connectionList);
-            }
-        });
+        removeButton.addActionListener(e -> doRemove(connectionList));
 
-        upButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                doMove(connectionList, -1);
-            }
-        });
+        upButton.addActionListener(e -> doMove(connectionList, -1));
 
-        downButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                doMove(connectionList, 1);
-            }
-        });
+        downButton.addActionListener(e -> doMove(connectionList, 1));
+
+        // clear all history
+        clearAllButton.addActionListener(e-> settingsHandler.clearHistory());
     }
 
     private void initDefaultParameterPane() {
@@ -341,6 +319,10 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
         generatedCommentText.setText(defaultParameters.getGeneratedComment());
 
+        forceBigDecimalsCheckbox.setSelected(defaultParameters.getForceBigDecimals());
+
+        historySizeSpinner.setValue(defaultParameters.getHistorySize());
+
         // plugins
         customAnnotationTypeText.setText(defaultParameters.getMapperAnnotationConfig().customAnnotationType);
 
@@ -359,6 +341,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         defaultParameters.setDefaultModelType((ModelType) defaultModelTypeComboBox.getSelectedItem());
         defaultParameters.setJavaFileEncoding(javaFileEncodingText.getText());
         defaultParameters.setGeneratedComment(generatedCommentText.getText());
+        defaultParameters.setForceBigDecimals(forceBigDecimalsCheckbox.isSelected());
+        defaultParameters.setHistorySize((Integer)historySizeSpinner.getValue());
 
         // plugins
         defaultParameters.getMapperAnnotationConfig().customAnnotationType = customAnnotationTypeText.getText();

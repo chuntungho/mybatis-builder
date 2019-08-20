@@ -6,7 +6,10 @@ package com.chuntung.plugin.mybatis.builder.generator;
 
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.intellij.util.xmlb.annotations.Transient;
-import org.mybatis.generator.config.*;
+import org.mybatis.generator.config.JDBCConnectionConfiguration;
+import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
+import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
+import org.mybatis.generator.config.SqlMapGeneratorConfiguration;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,6 +17,8 @@ import java.util.Map;
 
 public class GeneratorParamWrapper implements Cloneable {
     private DefaultParameters defaultParameters;
+    private Map<String, ? extends List<String>> historyMap;
+
     private String driverLibrary;
 
     private String beginningDelimiter = "`";
@@ -42,6 +47,15 @@ public class GeneratorParamWrapper implements Cloneable {
 
     public void setDefaultParameters(DefaultParameters defaultParameters) {
         this.defaultParameters = defaultParameters;
+    }
+
+    @Transient
+    public Map<String, ? extends List<String>> getHistoryMap() {
+        return historyMap;
+    }
+
+    public void setHistoryMap(Map<String, ? extends List<String>> historyMap) {
+        this.historyMap = historyMap;
     }
 
     @Transient

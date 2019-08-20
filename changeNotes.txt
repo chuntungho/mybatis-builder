@@ -1,4 +1,3 @@
 <ul>
-<li>Supported to override or ignore column
-<li>Supported custom generated comment
+<li>GUI optimization: save target package histories.
 </ul>
