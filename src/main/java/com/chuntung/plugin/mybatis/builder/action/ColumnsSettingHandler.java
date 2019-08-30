@@ -18,7 +18,7 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ColumnSettingsHandler {
+public class ColumnsSettingHandler {
     private MybatisBuilderService service;
 
     private String[] FIELD_NAMES = {"action", "columnName", "columnType", "javaType", "javaProperty"};
@@ -26,11 +26,11 @@ public class ColumnSettingsHandler {
     private String[] COLUMN_NAMES = {"Action", "Column name", "Column type", "Java type", "Java property"};
 
 
-    public static ColumnSettingsHandler getInstance(Project project) {
-        return new ColumnSettingsHandler(project);
+    public static ColumnsSettingHandler getInstance(Project project) {
+        return new ColumnsSettingHandler(project);
     }
 
-    ColumnSettingsHandler(Project project) {
+    ColumnsSettingHandler(Project project) {
         service = MybatisBuilderService.getInstance(project);
     }
 

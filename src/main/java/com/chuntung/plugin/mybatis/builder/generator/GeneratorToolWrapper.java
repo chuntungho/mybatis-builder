@@ -11,6 +11,7 @@ import com.chuntung.plugin.mybatis.builder.model.ColumnActionEnum;
 import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
+import org.apache.commons.io.FileUtils;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.ShellCallback;
@@ -43,8 +44,31 @@ public class GeneratorToolWrapper {
     }
 
     public List<String> generate() throws InvalidConfigurationException, InterruptedException, SQLException, IOException {
-        DefaultParameters defaultParameters = paramWrapper.getDefaultParameters();
         Configuration configuration = new Configuration();
+        populateConfiguration(configuration);
+
+        // start invocation
+        ShellCallback shellCallback = new CustomShellCallback(true);
+
+        List<String> warnings = new ArrayList<>();
+        Set<String> fullyQualifiedTables = new HashSet<>();
+        Set<String> contexts = new HashSet<>();
+
+        MyBatisGenerator myBatisGenerator = new MyBatisGenerator(configuration, shellCallback, warnings);
+        myBatisGenerator.generate(progressCallback, contexts, fullyQualifiedTables);
+
+        return warnings;
+    }
+
+    public void export(File file) throws IOException {
+        Configuration configuration = new Configuration();
+        populateConfiguration(configuration);
+        String content = configuration.toDocument().getFormattedContent();
+        FileUtils.write(file, content, "UTF-8");
+    }
+
+    private void populateConfiguration(Configuration configuration) {
+        DefaultParameters defaultParameters = paramWrapper.getDefaultParameters();
         if (StringUtil.stringHasValue(paramWrapper.getDriverLibrary())) {
             configuration.addClasspathEntry(paramWrapper.getDriverLibrary());
         }
@@ -91,18 +115,6 @@ public class GeneratorToolWrapper {
 
         // custom plugin
         populatePlugins(context);
-
-        // start invocation
-        ShellCallback shellCallback = new CustomShellCallback(true);
-
-        List<String> warnings = new ArrayList<>();
-        Set<String> fullyQualifiedTables = new HashSet<>();
-        Set<String> contexts = new HashSet<>();
-
-        MyBatisGenerator myBatisGenerator = new MyBatisGenerator(configuration, shellCallback, warnings);
-        myBatisGenerator.generate(progressCallback, contexts, fullyQualifiedTables);
-
-        return warnings;
     }
 
     private void populateCommentConfig(Context context) {

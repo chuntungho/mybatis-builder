@@ -4,7 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.view;
 
-import com.chuntung.plugin.mybatis.builder.action.ColumnSettingsHandler;
+import com.chuntung.plugin.mybatis.builder.action.ColumnsSettingHandler;
 import com.chuntung.plugin.mybatis.builder.model.ColumnActionEnum;
 import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
 import com.chuntung.plugin.mybatis.builder.model.ObjectTableModel;
@@ -27,13 +27,13 @@ public class ColumnsSettingDialog extends DialogWrapper {
     private JScrollPane columnsPanel;
     private String connectionId;
     private TableInfo tableInfo;
-    private ColumnSettingsHandler handler;
+    private ColumnsSettingHandler handler;
 
     public ColumnsSettingDialog(String connectionId, TableInfo tableInfo, Project project) {
         super(project, false);
         this.connectionId = connectionId;
         this.tableInfo = tableInfo;
-        handler = ColumnSettingsHandler.getInstance(project);
+        handler = ColumnsSettingHandler.getInstance(project);
 
         this.setTitle("MyBatis Builder - Columns setting");
 

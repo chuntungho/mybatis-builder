@@ -47,10 +47,6 @@ public class SettingsHandler {
         service.saveDefaultParameters(defaultParameters);
     }
 
-    public void stashGeneratorParamWrapper(GeneratorParamWrapper paramWrapper){
-        service.stashGeneratorParamWrapper(paramWrapper);
-    }
-
     public void clearHistory() {
         service.clearHistory();
     }

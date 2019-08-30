@@ -4,7 +4,9 @@
 
 package com.chuntung.plugin.mybatis.builder.view;
 
+import com.chuntung.plugin.mybatis.builder.action.ParametersHandler;
 import com.chuntung.plugin.mybatis.builder.action.SettingsHandler;
+import com.chuntung.plugin.mybatis.builder.action.idea.NotificationHelper;
 import com.chuntung.plugin.mybatis.builder.generator.*;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.LombokPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin;
@@ -18,12 +20,17 @@ import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
 import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserFactory;
+import com.intellij.openapi.fileChooser.FileSaverDescriptor;
+import com.intellij.openapi.fileChooser.FileSaverDialog;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.psi.PsiPackage;
-import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.TextFieldWithHistoryWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,13 +42,16 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.table.*;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class MybatisBuilderParametersDialog extends DialogWrapper {
@@ -101,6 +111,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private String connectionId;
     private GeneratorParamWrapper paramWrapper;
     private final SettingsHandler settingsHandler;
+    private final ParametersHandler parametersHandler;
 
     private class TableButtonRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
         JPanel panel = new JPanel();
@@ -143,6 +154,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         this.paramWrapper = paramWrapper;
         this.connectionId = connectionId;
         this.settingsHandler = SettingsHandler.getInstance(project);
+        this.parametersHandler = ParametersHandler.getInstance(project);
 
         initGUI(project);
         setData(paramWrapper);
@@ -458,14 +470,34 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         @Override
         public void actionPerformed(ActionEvent e) {
             getData(paramWrapper);
-            settingsHandler.stashGeneratorParamWrapper(paramWrapper);
+            parametersHandler.stashGeneratorParamWrapper(paramWrapper);
             close(CLOSE_EXIT_CODE);
+        }
+    };
+
+    private Action exportAction = new AbstractAction("Export...") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            FileSaverDialog saver = FileChooserFactory.getInstance()
+                    .createSaveFileDialog(new FileSaverDescriptor("Export configuration", "Export to", "xml"), project);
+            VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
+            VirtualFileWrapper target = saver.save(projectDir, "mybatis-generator.xml");
+            if (target != null) {
+                File file = target.getFile();
+                getData(paramWrapper);
+                try {
+                    parametersHandler.exportConfiguration(paramWrapper, file);
+                    NotificationHelper.getInstance().notifyInfo("Exported to " + file.getAbsolutePath(), project);
+                } catch (IOException ex) {
+                    NotificationHelper.getInstance().notifyError(ex.getMessage(), project);
+                }
+            }
         }
     };
 
     @Override
     protected Action[] createLeftSideActions() {
-        return new Action[]{stashAction};
+        return new Action[]{stashAction, exportAction};
     }
 
 }
