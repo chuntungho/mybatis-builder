@@ -2,7 +2,7 @@
   ~ Copyright (c) 2019 Tony Ho. Some rights reserved.
   -->
 <idea-plugin>
-    <id>com.chuntung.plugin.mybatis.builder</id>
+    <id>com.chuntung.plugin.mybatisbuilder</id>
     <name>MyBatis Builder</name>
     <version>1.0</version>
     <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">chuntung.com</vendor>

@@ -5,7 +5,7 @@
 package com.chuntung.plugin.mybatis.builder.model;
 
 public interface PluginInfo {
-    String PLUGIN_ID = "com.chuntung.plugin.mybatis.builder";
+    String PLUGIN_ID = "com.chuntung.plugin.mybatisbuilder";
     String PLUGIN_NAME = "MyBatis Builder";
 
     String AUTHOR = "Tony Ho";
