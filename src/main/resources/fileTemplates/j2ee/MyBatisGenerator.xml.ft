@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+  <context defaultModelType="flat" id="mybatis-builder" targetRuntime="MyBatis3">
+    <property name="endingDelimiter" value="`" />
+    <property name="beginningDelimiter" value="`" />
+    <property name="javaFileEncoding" value="UTF-8" />
+    <property name="autoDelimitKeywords" value="true" />
+
+    <!-- uncomment to enable rename plugin -->
+    <!--
+    <plugin type="com.chuntung.plugin.mybatis.builder.generator.plugins.RenamePlugin">
+      <property name="type" value="com.chuntung.plugin.mybatis.builder.generator.plugins.RenamePlugin" />
+      <property name="mapperTypePattern" value="\${domainName}Mapper" />
+      <property name="exampleTypePattern" value="\${domainName}Example" />
+      <property name="sqlFileNamePattern" value="\${domainName}Mapper.xml" />
+    </plugin>
+    -->
+
+    <!-- uncomment to enable mapper annotation plugin -->
+    <!--
+    <plugin type="com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin">
+      <property name="type" value="com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin" />
+      <property name="customAnnotationType" value="org.springframework.stereotype.Repository" />
+    </plugin>
+    -->
+
+    <!-- uncomment to enable Lombok plugin -->
+    <!--
+    <plugin type="com.chuntung.plugin.mybatis.builder.generator.plugins.LombokPlugin">
+      <property name="type" value="com.chuntung.plugin.mybatis.builder.generator.plugins.LombokPlugin" />
+    </plugin>
+    -->
+
+    <!-- uncomment to enable select with lock plugin -->
+    <!--
+    <plugin type="com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.SelectWithLockPlugin">
+      <property name="type" value="com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.SelectWithLockPlugin" />
+      <property name="byPrimaryKeyWithLockEnabled" value="true" />
+      <property name="byExampleWithLockEnabled" value="false" />
+      <property name="byPrimaryKeyWithLockOverride" value="selectByPrimaryKeyWithLock" />
+      <property name="byExampleWithLockOverride" value="selectByExampleWithLock" />
+    </plugin>
+    -->
+
+    <!-- custom comment generator is required for auto merger -->
+    <commentGenerator type="com.chuntung.plugin.mybatis.builder.generator.CustomCommentGenerator">
+      <property name="addDatabaseRemark" value="true" />
+      <property name="generatedComment" value="generated automatically, do not modify!" />
+    </commentGenerator>
+
+    <!-- TODO define connection here -->
+    <jdbcConnection connectionURL="jdbc:mysql://localhost:3306/blog" driverClass="com.mysql.jdbc.Driver" password="123456" userId="root" />
+
+    <javaTypeResolver>
+      <property name="forceBigDecimals" value="true" />
+    </javaTypeResolver>
+
+    <!--
+    support below variables which should be wrapped with ${}.
+    PROJECT_DIR: the project base path.
+    CURRENT_DIR: the configuration file path.
+    -->
+    <javaModelGenerator targetPackage="model" targetProject="\${PROJECT_DIR}/src">
+      <property name="trimStrings" value="true" />
+      <property name="enableSubPackages" value="true" />
+    </javaModelGenerator>
+
+    <sqlMapGenerator targetPackage="sqlmap" targetProject="\${PROJECT_DIR}/src">
+      <property name="enableSubPackages" value="true" />
+    </sqlMapGenerator>
+
+    <javaClientGenerator targetPackage="mapper" targetProject="\${PROJECT_DIR}/src" type="XMLMAPPER">
+      <property name="enableSubPackages" value="true" />
+    </javaClientGenerator>
+
+    <!-- TODO define tables here -->
+    <table domainObjectName="Action" enableDeleteByExample="false" enableUpdateByExample="false" tableName="actions">
+      <generatedKey column="id" identity="true" sqlStatement="JDBC" />
+    </table>
+
+  </context>
+</generatorConfiguration>

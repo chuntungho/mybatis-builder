@@ -6,6 +6,8 @@ package com.chuntung.plugin.mybatis.builder.view;
 
 import com.chuntung.plugin.mybatis.builder.model.PluginInfo;
 import com.intellij.ide.BrowserUtil;
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +33,8 @@ public class AboutDialog extends DialogWrapper {
 
         Cursor hand = new Cursor(Cursor.HAND_CURSOR);
 
-        pluginLabel.setText(PluginInfo.PLUGIN_NAME + " v" + PluginInfo.PLUGIN_VERSION);
+        String pluginVersion = PluginManager.getPlugin(PluginId.getId(PluginInfo.PLUGIN_ID)).getVersion();
+        pluginLabel.setText(PluginInfo.PLUGIN_NAME + " v" + pluginVersion);
 
         authorLabel.setCursor(hand);
         authorLabel.setText(PluginInfo.AUTHOR);

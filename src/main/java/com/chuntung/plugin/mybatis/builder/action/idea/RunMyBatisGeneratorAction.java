@@ -27,7 +27,7 @@ import java.util.Properties;
  *
  * @author Tony Ho
  */
-public class RunMybatisGeneratorAction extends AnAction {
+public class RunMyBatisGeneratorAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         PsiFile psiFile = (PsiFile) event.getData(CommonDataKeys.PSI_FILE);

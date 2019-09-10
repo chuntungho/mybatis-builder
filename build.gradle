@@ -6,7 +6,7 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.8"
+    id "org.jetbrains.intellij" version "0.4.9"
 }
 
 apply plugin: 'java'
@@ -42,6 +42,12 @@ sourceSets {
     test {
         java {
             exclude '**/example'
+        }
+    }
+
+    main {
+        java {
+            exclude '**/support'
         }
     }
 }

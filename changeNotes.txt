@@ -1,3 +1,3 @@
 <ul>
-<li>GUI optimization: save target package histories.
+<li>Added new features to support creating or exporting MyBatis Generator configuration
 </ul>

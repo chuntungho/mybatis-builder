@@ -2,7 +2,7 @@
   ~ Copyright (c) 2019 Tony Ho. Some rights reserved.
   -->
 <idea-plugin>
-    <id>com.chuntung.plugin.mybatisbuilder</id>
+    <id>com.chuntung.plugin.mybatis.builder</id>
     <name>MyBatis Builder</name>
     <version>1.0</version>
     <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">chuntung.com</vendor>
@@ -11,7 +11,7 @@
     A free GUI tool integrated with MyBatis Generator, compatible with IntelliJ IDEA, Android Studio.
     Alternatively, it supports to "Run MyBatis Generator" on configuration file popup menu.<br>
     <br>
-    Supported databases: mysql/postgresql/oracle/sqlserver/sqlite/h2.<br>
+    Supported databases: mysql/postgresql/mariadb/oracle/sqlserver/sqlite/h2.<br>
     <br>
     Provides with additional features as below.<br>
     <ul>
@@ -49,13 +49,18 @@
                 description="Open Building dialog after selecting table(s)"
                 class="com.chuntung.plugin.mybatis.builder.action.idea.BuildAction"/>
 
+        <!-- New MyBatis Generator Config-->
+        <action id="MyBatisBuilder.NewConfiguration" class="com.chuntung.plugin.mybatis.builder.action.idea.NewMyBatisGeneratorConfigAction">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
+        </action>
+
         <!-- Run MyBatis Generator popup menu -->
         <group id="ProjectViewPopupMenuMyBatisBuilderGroup">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="before"
                           relative-to-action="ProjectViewPopupMenuRunGroup"/>
             <action id="MyBatisBuilder.RunMyBatisGenerator" text="Run MyBatis Generator" icon="/images/mybatis-icon.png"
                     description="Run MyBatis Generator with selected configuration file"
-                    class="com.chuntung.plugin.mybatis.builder.action.idea.RunMybatisGeneratorAction"/>
+                    class="com.chuntung.plugin.mybatis.builder.action.idea.RunMyBatisGeneratorAction"/>
         </group>
 
         <!-- Copy as Executable SQL popup menu -->
@@ -71,6 +76,9 @@
         <!-- tool window -->
         <toolWindow id="MyBatis Builder" anchor="left" secondary="true" icon="/images/mybatis-icon.png"
                     factoryClass="com.chuntung.plugin.mybatis.builder.view.MybatisBuilderToolWindowFactory"/>
+
+        <!-- file template provider -->
+        <fileTemplateGroup implementation="com.chuntung.plugin.mybatis.builder.MyBatisBuilderFileTemplateProvider"/>
     </extensions>
 
     <project-components>
