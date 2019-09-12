@@ -5,7 +5,7 @@
     <id>com.chuntung.plugin.mybatisbuilder</id>
     <name>MyBatis Builder</name>
     <version>1.0</version>
-    <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">chuntung.com</vendor>
+    <vendor email="ho@chuntung.com" url="https://chuntung.com/mybatis-builder">Tony Ho</vendor>
 
     <description><![CDATA[
     A free GUI tool integrated with MyBatis Generator, compatible with IntelliJ IDEA, Android Studio.
@@ -51,7 +51,7 @@
 
         <!-- New MyBatis Generator Config-->
         <action id="MyBatisBuilder.NewConfiguration" class="com.chuntung.plugin.mybatis.builder.action.idea.NewMyBatisGeneratorConfigAction">
-            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
+            <add-to-group group-id="NewGroup" relative-to-action="NewFromTemplate" anchor="after"/>
         </action>
 
         <!-- Run MyBatis Generator popup menu -->

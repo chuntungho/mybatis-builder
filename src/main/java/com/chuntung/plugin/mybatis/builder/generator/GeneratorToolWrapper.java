@@ -201,6 +201,7 @@ public class GeneratorToolWrapper {
         List<String> warnings = new ArrayList<>();
         ConfigurationParser parser = new ConfigurationParser(warnings);
         Configuration configuration = parser.parseConfiguration(new File(path));
+        validateClassPath(configuration.getClassPathEntries(), properties);
 
         Context context = configuration.getContexts().get(0);
         context.getProperties().putAll(properties);
@@ -211,6 +212,21 @@ public class GeneratorToolWrapper {
         generator.generate(processCallback);
 
         return warnings;
+    }
+
+    private static void validateClassPath(List<String> classPathEntries, Properties properties) throws IOException {
+        if (classPathEntries != null) {
+            List<String> resolved = new ArrayList<>();
+            for (String classPath : classPathEntries) {
+                String resolvedPath = resolve(classPath, properties);
+                if (!new File(resolvedPath).exists()) {
+                    throw new FileNotFoundException("Class path not found: " + resolvedPath);
+                }
+                resolved.add(resolvedPath);
+            }
+            classPathEntries.clear();
+            classPathEntries.addAll(resolved);
+        }
     }
 
     private static void validateTargetProject(Context context) throws IOException {

@@ -4,28 +4,21 @@
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
-import com.chuntung.plugin.mybatis.builder.generator.callback.IndicatorProcessCallback;
-import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
-import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
 import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
 import com.chuntung.plugin.mybatis.builder.database.ConnectionUrlBuilder;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
-import com.chuntung.plugin.mybatis.builder.generator.GeneratorToolWrapper;
+import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
+import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.chuntung.plugin.mybatis.builder.view.MybatisBuilderParametersDialog;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
@@ -109,39 +102,8 @@ public class BuildAction extends DumbAwareAction {
         // populate project and package
         populateProjectAndPackage(paramWrapper, project);
 
-        MybatisBuilderParametersDialog dialog = new MybatisBuilderParametersDialog(project, paramWrapper, connectionInfo.getId());
-
-        if (dialog.showAndGet()) {
-            // stash last parameters
-            service.stashGeneratorParamWrapper(paramWrapper);
-
-            new Task.Backgroundable(project, "MyBatis Builder") {
-
-                @Override
-                public void run(@NotNull ProgressIndicator progressIndicator) {
-                    IndicatorProcessCallback processCallback = new IndicatorProcessCallback(progressIndicator);
-                    GeneratorToolWrapper toolWrapper = new GeneratorToolWrapper(paramWrapper, processCallback);
-                    try {
-                        List<String> warnings = toolWrapper.generate();
-
-                        VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
-                        if (projectDir != null) {
-                            VfsUtil.markDirtyAndRefresh(true, true, true, projectDir);
-                        }
-
-                        int cnt = paramWrapper.getSelectedTables().size();
-                        String msg = "Generation for " + cnt + (cnt > 1 ? " tables" : " table") + " was done.";
-                        if (!warnings.isEmpty()) {
-                            msg = msg + "\n" + String.join("\n", warnings);
-                        }
-                        NotificationHelper.getInstance().notifyInfo(msg, project);
-                    } catch (Exception e) {
-                        logger.warn("Failed to generate", e);
-                        NotificationHelper.getInstance().notifyError(String.valueOf(e.getMessage()), project);
-                    }
-                }
-            }.queue();
-        }
+        // show dialog
+        new MybatisBuilderParametersDialog(project, paramWrapper, connectionInfo.getId()).show();
     }
 
     private String populateSelectedTables(MybatisBuilderService service, GeneratorParamWrapper paramWrapper,
@@ -215,6 +177,8 @@ public class BuildAction extends DumbAwareAction {
         // dynamic library
         if (StringUtil.stringHasValue(connectionInfo.getDriverLibrary())) {
             paramWrapper.setDriverLibrary(connectionInfo.getDriverLibrary());
+        } else {
+            paramWrapper.setDriverLibrary(null);
         }
 
         JDBCConnectionConfiguration jdbcConfig = paramWrapper.getJdbcConfig();

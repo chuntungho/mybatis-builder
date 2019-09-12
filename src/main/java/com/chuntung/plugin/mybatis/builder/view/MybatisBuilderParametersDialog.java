@@ -6,7 +6,6 @@ package com.chuntung.plugin.mybatis.builder.view;
 
 import com.chuntung.plugin.mybatis.builder.action.ParametersHandler;
 import com.chuntung.plugin.mybatis.builder.action.SettingsHandler;
-import com.chuntung.plugin.mybatis.builder.action.idea.NotificationHelper;
 import com.chuntung.plugin.mybatis.builder.generator.*;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.LombokPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin;
@@ -51,7 +50,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 public class MybatisBuilderParametersDialog extends DialogWrapper {
@@ -430,6 +428,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     }
 
     // validate before pressing OK button
+    @Override
     protected ValidationInfo doValidate() {
         ValidationInfo info = checkTargetProjects(javaModelProjectText, javaClientProjectText,
                 (sqlMapGeneratorPanel.isVisible() ? sqlMapProjectText : null));
@@ -444,6 +443,12 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         }
 
         return info;
+    }
+
+    @Override
+    protected void doOKAction() {
+        parametersHandler.generate(paramWrapper, project);
+        super.doOKAction();
     }
 
     private ValidationInfo checkTargetProjects(TextFieldWithBrowseButton... textFields) {
@@ -485,12 +490,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
             if (target != null) {
                 File file = target.getFile();
                 getData(paramWrapper);
-                try {
-                    parametersHandler.exportConfiguration(paramWrapper, file);
-                    NotificationHelper.getInstance().notifyInfo("Exported to " + file.getAbsolutePath(), project);
-                } catch (IOException ex) {
-                    NotificationHelper.getInstance().notifyError(ex.getMessage(), project);
-                }
+                parametersHandler.exportConfiguration(paramWrapper, file, project);
             }
         }
     };

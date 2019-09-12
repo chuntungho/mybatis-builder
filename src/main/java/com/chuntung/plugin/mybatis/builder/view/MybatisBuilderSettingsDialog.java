@@ -22,6 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import org.mybatis.generator.config.ModelType;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
@@ -159,6 +161,11 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         upButton.addActionListener(e -> doMove(connectionList, -1));
 
         downButton.addActionListener(e -> doMove(connectionList, 1));
+
+        // history size
+        SpinnerNumberModel model = (SpinnerNumberModel) historySizeSpinner.getModel();
+        model.setMinimum(0);
+        model.setMaximum(100);
 
         // clear all history
         clearAllButton.addActionListener(e-> settingsHandler.clearHistory());
