@@ -86,6 +86,7 @@ public class GeneratorToolWrapper {
         // java type resolver, force big decimals
         JavaTypeResolverConfiguration javaTypeResolverConfig = new JavaTypeResolverConfiguration();
         javaTypeResolverConfig.addProperty(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, defaultParameters.getForceBigDecimals().toString());
+        javaTypeResolverConfig.addProperty(PropertyRegistry.TYPE_RESOLVER_USE_JSR310_TYPES, defaultParameters.getUseJSR310Types().toString());
         context.setJavaTypeResolverConfiguration(javaTypeResolverConfig);
 
         // JDBC config

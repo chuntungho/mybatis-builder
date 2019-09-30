@@ -72,6 +72,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JCheckBox forceBigDecimalsCheckbox;
     private JSpinner historySizeSpinner;
     private JButton clearAllButton;
+    private JCheckBox useJSR310TypesCheckBox;
 
     private final SettingsHandler settingsHandler;
     private Project project;
@@ -327,6 +328,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         generatedCommentText.setText(defaultParameters.getGeneratedComment());
 
         forceBigDecimalsCheckbox.setSelected(defaultParameters.getForceBigDecimals());
+        useJSR310TypesCheckBox.setSelected(defaultParameters.getUseJSR310Types());
 
         historySizeSpinner.setValue(defaultParameters.getHistorySize());
 
@@ -349,6 +351,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         defaultParameters.setJavaFileEncoding(javaFileEncodingText.getText());
         defaultParameters.setGeneratedComment(generatedCommentText.getText());
         defaultParameters.setForceBigDecimals(forceBigDecimalsCheckbox.isSelected());
+        defaultParameters.setUseJSR310Types(useJSR310TypesCheckBox.isSelected());
         defaultParameters.setHistorySize((Integer)historySizeSpinner.getValue());
 
         // plugins

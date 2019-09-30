@@ -14,6 +14,7 @@ public class DefaultParameters {
     private ModelType defaultModelType = ModelType.FLAT;
     private String javaFileEncoding = "UTF-8";
     private Boolean forceBigDecimals = true;
+    private Boolean useJSR310Types = false;
     private String generatedComment = "generated automatically, do not modify!";
     private Integer historySize = 10;
 
@@ -65,6 +66,14 @@ public class DefaultParameters {
 
     public void setForceBigDecimals(Boolean forceBigDecimals) {
         this.forceBigDecimals = forceBigDecimals;
+    }
+
+    public Boolean getUseJSR310Types() {
+        return useJSR310Types;
+    }
+
+    public void setUseJSR310Types(Boolean useJSR310Types) {
+        this.useJSR310Types = useJSR310Types;
     }
 
     public Integer getHistorySize() {

@@ -50,7 +50,8 @@
                 class="com.chuntung.plugin.mybatis.builder.action.idea.BuildAction"/>
 
         <!-- New MyBatis Generator Config-->
-        <action id="MyBatisBuilder.NewConfiguration" class="com.chuntung.plugin.mybatis.builder.action.idea.NewMyBatisGeneratorConfigAction">
+        <action id="MyBatisBuilder.NewConfiguration"
+                class="com.chuntung.plugin.mybatis.builder.action.idea.NewMyBatisGeneratorConfigAction">
             <add-to-group group-id="NewGroup" relative-to-action="NewFromTemplate" anchor="after"/>
         </action>
 
@@ -81,9 +82,16 @@
         <fileTemplateGroup implementation="com.chuntung.plugin.mybatis.builder.MyBatisBuilderFileTemplateProvider"/>
     </extensions>
 
+    <application-components>
+        <component>
+            <implementation-class>com.chuntung.plugin.mybatis.builder.MyBatisBuilderConfigManager</implementation-class>
+        </component>
+    </application-components>
+
     <project-components>
         <component>
-            <implementation-class>com.chuntung.plugin.mybatis.builder.MybatisBuilderSettingsManager
+            <implementation-class>
+                com.chuntung.plugin.mybatis.builder.MybatisBuilderSettingsManager
             </implementation-class>
         </component>
         <component>

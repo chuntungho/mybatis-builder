@@ -1,3 +1,4 @@
 <ul>
-<li>Added new features to support creating or exporting MyBatis Generator configuration
+<li>Refined MyBatis Generator configuration template
+<li>Supported JSR310 Types
 </ul>
