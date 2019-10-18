@@ -59,6 +59,7 @@
 
     <javaTypeResolver>
       <property name="forceBigDecimals" value="true" />
+      <property name="useJSR310Types" value="false" />
     </javaTypeResolver>
 
     <!--

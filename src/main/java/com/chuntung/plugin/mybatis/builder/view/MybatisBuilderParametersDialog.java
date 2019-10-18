@@ -239,14 +239,14 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         return mainPanel;
     }
 
-    public void setData(GeneratorParamWrapper data) {
+    private void setData(GeneratorParamWrapper data) {
         // context
         beginningDelimiterText.setText(data.getBeginningDelimiter());
         endingDelimiterText.setText(data.getEndingDelimiter());
 
         // model property
         trimStringsCheckBox.setSelected(data.getTrimStrings());
-        databaseRemarkCheckBox.setSelected(data.getTrimStrings());
+        databaseRemarkCheckBox.setSelected(data.getDatabaseRemark());
 
         // plugins
         DefaultParameters defaultParameters = settingsHandler.getDefaultParameters();
@@ -357,7 +357,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         sqlMapPackageText.setText(sqlMapConfig.getTargetPackage());
     }
 
-    public void getData(GeneratorParamWrapper data) {
+    private void getData(GeneratorParamWrapper data) {
         // context
         data.setBeginningDelimiter(beginningDelimiterText.getText());
         data.setEndingDelimiter(endingDelimiterText.getText());
