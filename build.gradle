@@ -26,6 +26,7 @@ intellij {
 
 group 'com.chuntung.plugin'
 version "${version}"
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 publishPlugin {
     username System.properties['plugin.publish.username']

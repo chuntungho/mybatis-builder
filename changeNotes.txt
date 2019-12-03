@@ -1,4 +1,3 @@
 <ul>
-<li>Refined MyBatis Generator configuration template
-<li>Supported JSR310 Types
+<li>Fixed minor issues.
 </ul>
