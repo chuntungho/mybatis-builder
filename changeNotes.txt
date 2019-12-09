@@ -1,3 +1,4 @@
 <ul>
 <li>Fixed minor issues.
+<li>Compatible with latest IDEA.
 </ul>
