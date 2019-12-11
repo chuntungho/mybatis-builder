@@ -26,6 +26,7 @@ public class SimpleDataSourceFactory {
             dataSource.setUser(connectionInfo.getUserName());
             dataSource.setPassword(connectionInfo.getPassword());
             dataSource.setDatabaseName(connectionInfo.getDatabase());
+            dataSource.setUseSSL(false);
             return dataSource;
         } else if (DriverTypeEnum.PostgreSQL.equals(connectionInfo.getDriverType())) {
             PGSimpleDataSource dataSource = new PGSimpleDataSource();

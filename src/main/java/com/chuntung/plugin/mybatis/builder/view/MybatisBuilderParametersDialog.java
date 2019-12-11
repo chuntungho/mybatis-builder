@@ -7,6 +7,7 @@ package com.chuntung.plugin.mybatis.builder.view;
 import com.chuntung.plugin.mybatis.builder.action.ParametersHandler;
 import com.chuntung.plugin.mybatis.builder.action.SettingsHandler;
 import com.chuntung.plugin.mybatis.builder.generator.*;
+import com.chuntung.plugin.mybatis.builder.generator.plugins.ExampleRowBoundsPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.LombokPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.SelectWithLockConfig;
@@ -68,6 +69,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JCheckBox updateByExampleCheckbox;
     private JCheckBox deleteByExampleCheckbox;
     private JCheckBox selectByExampleCheckbox;
+    private JCheckBox withRowBoundsCheckBox;
     private JTable selectedTables;
     private JTextField endingDelimiterText;
     private JTextField beginningDelimiterText;
@@ -96,6 +98,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JTextField domainReplaceText;
     private JButton replaceButton;
     private JButton resetButton;
+
     private boolean morePanelVisible = false;
 
     private String[] javaClientTypes = {"XMLMAPPER", "ANNOTATEDMAPPER", "MIXEDMAPPER"};
@@ -168,6 +171,24 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         ViewUtil.initCheckBoxPanel(examplePanel, exampleAllCheckBox);
         ViewUtil.initCheckBoxPanel(basicPanel, basicAllCheckBox);
         ViewUtil.initCheckBoxPanel(lockPanel, lockAllCheckBox);
+
+        // withRowBounds, selectByExampleWithLock depends on selectByExample
+        selectByExampleCheckbox.addActionListener(e -> {
+            if (!((JCheckBox) e.getSource()).isSelected()) {
+                withRowBoundsCheckBox.setSelected(false);
+                selectByExampleWithLockCheckBox.setSelected(false);
+            }
+        });
+        withRowBoundsCheckBox.addActionListener(e -> {
+            if (((JCheckBox) e.getSource()).isSelected()) {
+                selectByExampleCheckbox.setSelected(true);
+            }
+        });
+        selectByExampleWithLockCheckBox.addActionListener(e -> {
+            if (((JCheckBox) e.getSource()).isSelected()) {
+                selectByExampleCheckbox.setSelected(true);
+            }
+        });
 
         // generated key
         identityCheckBox.setCursor(hand);
@@ -250,6 +271,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
 
         // plugins
         DefaultParameters defaultParameters = settingsHandler.getDefaultParameters();
+        boolean rowBoundsEnabled = data.getSelectedPlugins().containsKey(ExampleRowBoundsPlugin.class.getName());
+        withRowBoundsCheckBox.setSelected(rowBoundsEnabled);
 
         boolean mapperAnnotationEnabled = data.getSelectedPlugins().containsKey(MapperAnnotationPlugin.class.getName());
         mapperAnnotationSupportCheckBox.setSelected(mapperAnnotationEnabled);
@@ -369,6 +392,9 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         // plugins
         data.getSelectedPlugins().clear();
         DefaultParameters defaultParameters = settingsHandler.getDefaultParameters();
+        if (withRowBoundsCheckBox.isSelected()) {
+            data.getSelectedPlugins().putIfAbsent(ExampleRowBoundsPlugin.class.getName(), null);
+        }
         if (mapperAnnotationSupportCheckBox.isSelected()) {
             data.getSelectedPlugins().put(MapperAnnotationPlugin.class.getName()
                     , new PluginConfigWrapper(defaultParameters.getMapperAnnotationConfig()));

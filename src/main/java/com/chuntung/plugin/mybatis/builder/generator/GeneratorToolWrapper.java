@@ -63,6 +63,12 @@ public class GeneratorToolWrapper {
     public void export(File file) throws IOException {
         Configuration configuration = new Configuration();
         populateConfiguration(configuration);
+
+        // NOTE: hard code to fix the issue that url property contains '&';
+        JDBCConnectionConfiguration jdbcConfig = configuration.getContexts().get(0).getJdbcConnectionConfiguration();
+        String url = jdbcConfig.getConnectionURL().replace("&", "&amp;");
+        jdbcConfig.setConnectionURL(url);
+
         String content = configuration.toDocument().getFormattedContent();
         FileUtils.write(file, content, "UTF-8");
     }
@@ -122,7 +128,7 @@ public class GeneratorToolWrapper {
         CommentGeneratorConfiguration commentConfig = new CommentGeneratorConfiguration();
         commentConfig.setConfigurationType(CustomCommentGenerator.class.getName());
         commentConfig.addProperty(CustomCommentGenerator.ADD_DATABASE_REMARK, paramWrapper.getDatabaseRemark().toString());
-        commentConfig.addProperty(CustomCommentGenerator.GENERATED_COMMENT, paramWrapper.getDefaultParameters().getGeneratedComment() );
+        commentConfig.addProperty(CustomCommentGenerator.GENERATED_COMMENT, paramWrapper.getDefaultParameters().getGeneratedComment());
         context.setCommentGeneratorConfiguration(commentConfig);
     }
 
