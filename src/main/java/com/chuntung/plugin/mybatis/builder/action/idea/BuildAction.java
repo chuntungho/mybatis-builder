@@ -12,13 +12,16 @@ import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.chuntung.plugin.mybatis.builder.view.MybatisBuilderParametersDialog;
+import com.chuntung.plugin.mybatis.builder.view.MybatisBuilderToolWindowPanel;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Key;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.content.Content;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
@@ -47,26 +50,20 @@ public class BuildAction extends DumbAwareAction {
     // NOTE: action id should be consistent with plugin.xml
     private static final String ACTION_ID = "MyBatisBuilder.Build";
 
-    private static final Key<TreeSelectionModel> SELECTION_MODEL_KEY = new Key<>(ACTION_ID);
-
     public static AnAction getInstance(Project project) {
         return ActionManager.getInstance().getAction(ACTION_ID);
-    }
-
-    // put selection model in project scope for build action
-    public static void registerSelectionModel(Project project, TreeSelectionModel model) {
-        project.putUserData(SELECTION_MODEL_KEY, model);
-    }
-
-    private static TreeSelectionModel getSelectionModel(Project project) {
-        return project.getUserData(SELECTION_MODEL_KEY);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
         Project project = anActionEvent.getProject();
         MybatisBuilderService service = MybatisBuilderService.getInstance(project);
-        TreeSelectionModel selectionModel = BuildAction.getSelectionModel(project);
+
+        // find out tool window panel
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
+        ToolWindow toolWindow = toolWindowManager.getToolWindow(MybatisBuilderToolWindowPanel.WINDOW_ID);
+        Content content = toolWindow.getContentManager().getSelectedContent();
+        MybatisBuilderToolWindowPanel windowPanel = (MybatisBuilderToolWindowPanel) content.getComponent();
 
         // load the last parameters
         GeneratorParamWrapper paramWrapper = service.getLastGeneratorParamWrapper();
@@ -80,7 +77,7 @@ public class BuildAction extends DumbAwareAction {
 
         // populate selected tables
         ConnectionInfo connectionInfo = new ConnectionInfo();
-        String msg = populateSelectedTables(service, paramWrapper, connectionInfo, selectionModel);
+        String msg = populateSelectedTables(service, paramWrapper, connectionInfo, windowPanel.getTree().getSelectionModel());
         if (msg != null) {
             Messages.showWarningDialog(msg, "Building Failed");
             return;

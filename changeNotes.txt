@@ -1,4 +1,5 @@
 <ul>
-<li>Fixed minor issues.
-<li>Compatible with latest IDEA.
+<li>Improved tool window that makes searching easier.</li>
+<li>Improved select with lock plugin</li>
+<li>Supported RowBounds on selectByExample</li>
 </ul>

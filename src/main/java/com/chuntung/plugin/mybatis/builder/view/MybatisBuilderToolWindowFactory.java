@@ -15,9 +15,9 @@ import org.jetbrains.annotations.NotNull;
 public class MybatisBuilderToolWindowFactory implements ToolWindowFactory, DumbAware {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        MybatisBuilderToolWindow mybatisBuilderWindow = new MybatisBuilderToolWindow(project);
+        MybatisBuilderToolWindowPanel mybatisBuilderWindow = new MybatisBuilderToolWindowPanel(project);
 
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        ContentFactory contentFactory = toolWindow.getContentManager().getFactory();
         Content content = contentFactory.createContent(mybatisBuilderWindow.getComponent(), "", false);
         toolWindow.getContentManager().addContent(content);
     }

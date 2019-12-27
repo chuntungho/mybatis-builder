@@ -4,11 +4,12 @@
 
 package com.chuntung.plugin.mybatis.builder.action;
 
-import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
 import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
 import com.chuntung.plugin.mybatis.builder.action.idea.BuildAction;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
+import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -44,7 +45,6 @@ public class ObjectTreeHandler {
             if (currentTreePath != null) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) currentTreePath.getLastPathComponent();
                 loadSubNodes(node, true);
-                objectTree.updateUI();
             }
         }
     };
@@ -67,6 +67,7 @@ public class ObjectTreeHandler {
 
     public ObjectTreeHandler(JTree objectTree, Project project) {
         service = MybatisBuilderService.getInstance(project);
+
         this.objectTree = objectTree;
 
         connectionPopupActionGroup = new DefaultActionGroup(
@@ -87,7 +88,13 @@ public class ObjectTreeHandler {
     }
 
     // load active connection on start
-    public void initConnectionNodes() {
+    public void initData() {
+        ApplicationManager.getApplication().invokeLater(
+                () -> loadConnectionNodes()
+        );
+    }
+
+    private synchronized void loadConnectionNodes() {
         List<ConnectionInfo> connectionInfoList = service.loadConnectionInfoList();
         if (connectionInfoList != null && connectionInfoList.size() > 0) {
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) objectTree.getModel().getRoot();
@@ -103,14 +110,14 @@ public class ObjectTreeHandler {
     }
 
     // load sub nodes for connection or database
-    private void loadSubNodes(DefaultMutableTreeNode node, boolean forced) {
+    private synchronized void loadSubNodes(DefaultMutableTreeNode node, boolean forced) {
         int count = node.getChildCount();
         if (forced || count == 0) {
             node.removeAllChildren();
 
             try {
                 DatabaseItem item = (DatabaseItem) node.getUserObject();
-                
+
                 if (DatabaseItem.ItemTypeEnum.CONNECTION.equals(item.getType())) {
                     TreePath toPath = null;
                     ConnectionInfo connectionInfo = service.getConnectionInfoWithPassword(item.getId());
@@ -139,6 +146,8 @@ public class ObjectTreeHandler {
                 }
             } catch (SQLException e) {
                 Messages.showErrorDialog(e.getMessage(), "Database Error");
+            } finally {
+                objectTree.updateUI();
             }
         }
     }
@@ -149,7 +158,9 @@ public class ObjectTreeHandler {
             public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
                 if (node.getUserObject() instanceof DatabaseItem) {
-                    loadSubNodes(node, false);
+                    ApplicationManager.getApplication().invokeLater(() ->
+                            loadSubNodes(node, false)
+                    );
                 }
             }
 

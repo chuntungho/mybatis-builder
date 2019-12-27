@@ -75,7 +75,12 @@ public class MybatisBuilderService implements ProjectComponent {
     }
 
     private void populatePassword(ConnectionInfo connectionInfo) {
-        String password = manager.getConnectionPassword(connectionInfo);
+        String password = null;
+        try {
+            password = manager.getConnectionPassword(connectionInfo);
+        } catch (RuntimeException e) {
+            logger.warn("Failed to get password", e);
+        }
         if (password != null) {
             connectionInfo.setPassword(password);
         }
@@ -163,7 +168,7 @@ public class MybatisBuilderService implements ProjectComponent {
             String catalog = database, schema = null;
 
             // oracle should specify schema
-            if(isOracle(connection)) {
+            if (isOracle(connection)) {
                 schema = database;
             }
 
@@ -236,4 +241,8 @@ public class MybatisBuilderService implements ProjectComponent {
         manager.clearHistory();
     }
 
+    @Override
+    public void projectOpened() {
+
+    }
 }

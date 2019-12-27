@@ -10,6 +10,7 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
 public class SimpleDataSourceFactory {
     private static SimpleDataSourceFactory instance = new SimpleDataSourceFactory();
@@ -26,6 +27,11 @@ public class SimpleDataSourceFactory {
             dataSource.setUser(connectionInfo.getUserName());
             dataSource.setPassword(connectionInfo.getPassword());
             dataSource.setDatabaseName(connectionInfo.getDatabase());
+            try {
+                dataSource.setAllowPublicKeyRetrieval(true);
+            } catch (SQLException e) {
+                // NOOP
+            }
             dataSource.setUseSSL(false);
             return dataSource;
         } else if (DriverTypeEnum.PostgreSQL.equals(connectionInfo.getDriverType())) {
