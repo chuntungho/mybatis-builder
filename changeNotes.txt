@@ -1,5 +1,5 @@
 <ul>
-<li>Improved tool window that makes searching easier.</li>
+<li>Improved tool window that makes searching easier</li>
 <li>Improved select with lock plugin</li>
 <li>Supported RowBounds on selectByExample</li>
 </ul>

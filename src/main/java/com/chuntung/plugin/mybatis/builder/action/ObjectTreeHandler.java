@@ -14,6 +14,7 @@ import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.ui.ColoredTreeCellRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -30,10 +31,30 @@ import java.util.List;
 public class ObjectTreeHandler {
     private MybatisBuilderService service;
 
-    // icons
-    private Icon connectionIcon = IconLoader.getIcon("/images/connection.png");
-    private Icon databaseIcon = IconLoader.getIcon("/images/database.png");
-    private Icon tableIcon = IconLoader.getIcon("/images/table.png");
+    // custom tree cell renderer
+    private static class CustomTreeCellRenderer extends ColoredTreeCellRenderer {
+        private Icon connectionIcon = IconLoader.getIcon("/images/connection.png");
+        private Icon databaseIcon = IconLoader.getIcon("/images/database.png");
+        private Icon tableIcon = IconLoader.getIcon("/images/table.png");
+
+        @Override
+        public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            if (value instanceof DefaultMutableTreeNode) {
+                Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
+                if (userObject instanceof DatabaseItem) {
+                    DatabaseItem item = (DatabaseItem) userObject;
+                    if (DatabaseItem.ItemTypeEnum.CONNECTION.equals(item.getType())) {
+                        setIcon(connectionIcon);
+                    } else if (DatabaseItem.ItemTypeEnum.DATABASE.equals(item.getType())) {
+                        setIcon(databaseIcon);
+                    } else if (DatabaseItem.ItemTypeEnum.TABLE.equals(item.getType())) {
+                        setIcon(tableIcon);
+                    }
+                    append(item.toString());
+                }
+            }
+        }
+    }
 
     private JTree objectTree;
     private TreePath currentTreePath;
@@ -225,32 +246,6 @@ public class ObjectTreeHandler {
     }
 
     public TreeCellRenderer getTreeCellRenderer() {
-        TreeCellRenderer renderer = new DefaultTreeCellRenderer() {
-            @Override
-            public Component getTreeCellRendererComponent(JTree tree, Object value,
-                                                          boolean sel, boolean expanded,
-                                                          boolean leaf,
-                                                          int row, boolean hasFocus) {
-                if (value instanceof DefaultMutableTreeNode) {
-                    Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-                    if (userObject instanceof DatabaseItem) {
-                        DatabaseItem item = (DatabaseItem) userObject;
-                        if (DatabaseItem.ItemTypeEnum.CONNECTION.equals(item.getType())) {
-                            setOpenIcon(connectionIcon);
-                            setClosedIcon(connectionIcon);
-                        } else if (DatabaseItem.ItemTypeEnum.DATABASE.equals(item.getType())) {
-                            setOpenIcon(databaseIcon);
-                            setClosedIcon(databaseIcon);
-                        } else if (DatabaseItem.ItemTypeEnum.TABLE.equals(item.getType())) {
-                            setLeafIcon(tableIcon);
-                        }
-                    }
-                }
-
-                return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-            }
-        };
-
-        return renderer;
+        return new CustomTreeCellRenderer();
     }
 }
