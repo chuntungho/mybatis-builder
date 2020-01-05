@@ -10,6 +10,8 @@ import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.components.labels.LinkLabel;
+import com.intellij.util.Url;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -25,6 +27,19 @@ public class AboutDialog extends DialogWrapper {
     private JLabel paypalLabel;
     private JLabel alipayLabel;
 
+    class UrlRunnable implements Runnable {
+        private String url;
+
+        UrlRunnable(String url) {
+            this.url = url;
+        }
+
+        @Override
+        public void run() {
+            BrowserUtil.browse(url);
+        }
+    }
+
     public AboutDialog(Project project) {
         super(project, false);
         setOKButtonText("Close");
@@ -35,40 +50,6 @@ public class AboutDialog extends DialogWrapper {
 
         String pluginVersion = PluginManager.getPlugin(PluginId.getId(PluginInfo.PLUGIN_ID)).getVersion();
         pluginLabel.setText(PluginInfo.PLUGIN_NAME + " v" + pluginVersion);
-
-        authorLabel.setCursor(hand);
-        authorLabel.setText(PluginInfo.AUTHOR);
-        authorLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                BrowserUtil.browse(PluginInfo.GITHUB);
-            }
-        });
-
-        homeLabel.setCursor(hand);
-        homeLabel.setText(PluginInfo.HOME_PAGE);
-        homeLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                BrowserUtil.browse(PluginInfo.HOME_PAGE);
-            }
-        });
-
-        paypalLabel.setCursor(hand);
-        paypalLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                BrowserUtil.browse(PluginInfo.PAYPAL_LINK);
-            }
-        });
-
-        alipayLabel.setCursor(hand);
-        alipayLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                BrowserUtil.browse(PluginInfo.ALIPAY_LINK);
-            }
-        });
 
         init();
     }
@@ -82,5 +63,12 @@ public class AboutDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         return contentPanel;
+    }
+
+    private void createUIComponents() {
+        authorLabel = LinkLabel.create(PluginInfo.AUTHOR, new UrlRunnable(PluginInfo.GITHUB));
+        homeLabel = LinkLabel.create(PluginInfo.HOME_PAGE, new UrlRunnable(PluginInfo.HOME_PAGE));
+        paypalLabel = LinkLabel.create("Paypal", new UrlRunnable(PluginInfo.PAYPAL_LINK));
+        alipayLabel = LinkLabel.create("Alipay", new UrlRunnable(PluginInfo.ALIPAY_LINK));
     }
 }

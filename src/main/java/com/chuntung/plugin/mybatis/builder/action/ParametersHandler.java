@@ -45,6 +45,7 @@ public class ParametersHandler {
             new GeneratorToolWrapper(paramWrapper, null).export(file);
             NotificationHelper.getInstance().notifyInfo("Exported to " + file.getAbsolutePath(), project);
         } catch (IOException ex) {
+            logger.warn("Failed to export configuration.");
             NotificationHelper.getInstance().notifyError(ex.getMessage(), project);
         }
     }
@@ -74,11 +75,10 @@ public class ParametersHandler {
                     }
                     NotificationHelper.getInstance().notifyInfo(msg, project);
                 } catch (Exception e) {
-                    logger.warn("Failed to generate", e);
+                    logger.warn("Failed to generate MyBatis files.", e);
                     NotificationHelper.getInstance().notifyError(String.valueOf(e.getMessage()), project);
                 }
             }
         }.queue();
     }
-
 }

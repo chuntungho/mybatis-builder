@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.ui.PopupHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -195,50 +196,35 @@ public class ObjectTreeHandler {
     }
 
     public MouseListener getMouseListener() {
-        MouseListener mouseListener = new MouseAdapter() {
-            private void checkForPopup(MouseEvent e) {
-                if (e.getSource() instanceof JTree && e.isPopupTrigger()) {
-                    JTree source = (JTree) e.getSource();
-                    Point point = e.getPoint();
-                    TreePath path = source.getPathForLocation(point.x, point.y);
+        MouseListener mouseListener = new PopupHandler() {
+            @Override
+            public void invokePopup(Component comp, int x, int y) {
+                JTree source = (JTree) comp;
+                TreePath path = source.getPathForLocation(x, y);
 
-                    // save current tree path for popup action
-                    currentTreePath = path;
-                    if (path == null) {
-                        e.consume();
-                        return;
-                    }
-
-                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-                    DatabaseItem item = (DatabaseItem) node.getUserObject();
-
-                    ActionGroup popupActionGroup = null;
-                    if (DatabaseItem.ItemTypeEnum.CONNECTION.equals(item.getType())) {
-                        popupActionGroup = connectionPopupActionGroup;
-                    } else if (DatabaseItem.ItemTypeEnum.DATABASE.equals(item.getType())) {
-                        popupActionGroup = databasePopupActionGroup;
-                    } else if (DatabaseItem.ItemTypeEnum.TABLE.equals(item.getType())) {
-                        popupActionGroup = tablePopupActionGroup;
-                    }
-
-                    if (popupActionGroup != null) {
-                        ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu("", popupActionGroup);
-                        JPopupMenu popupMenu = actionPopupMenu.getComponent();
-                        popupMenu.show(source, point.x, point.y);
-                    }
+                // save current tree path for popup action
+                currentTreePath = path;
+                if (path == null) {
+                    return;
                 }
-            }
 
-            public void mousePressed(MouseEvent e) {
-                checkForPopup(e);
-            }
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                DatabaseItem item = (DatabaseItem) node.getUserObject();
 
-            public void mouseReleased(MouseEvent e) {
-                checkForPopup(e);
-            }
+                ActionGroup popupActionGroup = null;
+                if (DatabaseItem.ItemTypeEnum.CONNECTION.equals(item.getType())) {
+                    popupActionGroup = connectionPopupActionGroup;
+                } else if (DatabaseItem.ItemTypeEnum.DATABASE.equals(item.getType())) {
+                    popupActionGroup = databasePopupActionGroup;
+                } else if (DatabaseItem.ItemTypeEnum.TABLE.equals(item.getType())) {
+                    popupActionGroup = tablePopupActionGroup;
+                }
 
-            public void mouseClicked(MouseEvent e) {
-                checkForPopup(e);
+                if (popupActionGroup != null) {
+                    ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu("", popupActionGroup);
+                    JPopupMenu popupMenu = actionPopupMenu.getComponent();
+                    popupMenu.show(source, x, y);
+                }
             }
         };
 

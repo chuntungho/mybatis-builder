@@ -80,23 +80,15 @@
 
         <!-- file template provider -->
         <fileTemplateGroup implementation="com.chuntung.plugin.mybatis.builder.MyBatisBuilderFileTemplateProvider"/>
+
+        <!-- application state -->
+        <applicationService serviceImplementation="com.chuntung.plugin.mybatis.builder.MyBatisBuilderConfigManager"/>
+
+        <!-- project state -->
+        <projectService serviceImplementation="com.chuntung.plugin.mybatis.builder.MybatisBuilderSettingsManager"/>
+
+        <!-- core project service -->
+        <projectService serviceImplementation="com.chuntung.plugin.mybatis.builder.MybatisBuilderService" />
     </extensions>
-
-    <application-components>
-        <component>
-            <implementation-class>com.chuntung.plugin.mybatis.builder.MyBatisBuilderConfigManager</implementation-class>
-        </component>
-    </application-components>
-
-    <project-components>
-        <component>
-            <implementation-class>
-                com.chuntung.plugin.mybatis.builder.MybatisBuilderSettingsManager
-            </implementation-class>
-        </component>
-        <component>
-            <implementation-class>com.chuntung.plugin.mybatis.builder.MybatisBuilderService</implementation-class>
-        </component>
-    </project-components>
 
 </idea-plugin>

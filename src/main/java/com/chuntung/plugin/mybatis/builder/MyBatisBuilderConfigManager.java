@@ -7,6 +7,7 @@ package com.chuntung.plugin.mybatis.builder;
 import com.chuntung.plugin.mybatis.builder.model.MyBatisBuilderConfig;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -21,6 +22,10 @@ public class MyBatisBuilderConfigManager implements PersistentStateComponent<MyB
     static final String STORAGE_FILE = "mybatisbuilder.xml";
 
     private MyBatisBuilderConfig config = new MyBatisBuilderConfig();
+
+    public static MyBatisBuilderConfigManager getInstance() {
+        return ServiceManager.getService(MyBatisBuilderConfigManager.class);
+    }
 
     @Nullable
     @Override

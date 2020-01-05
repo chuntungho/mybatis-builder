@@ -11,10 +11,7 @@ import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +36,7 @@ public class MybatisBuilderSettingsManager implements ProjectComponent, Persiste
     private MybatisBuilderSettings settings = new MybatisBuilderSettings();
 
     public static MybatisBuilderSettingsManager getInstance(Project project) {
-        return project.getComponent(MybatisBuilderSettingsManager.class);
+        return ServiceManager.getService(project, MybatisBuilderSettingsManager.class);
     }
 
     public MybatisBuilderSettings getSettings() {

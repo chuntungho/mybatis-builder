@@ -9,7 +9,7 @@ import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatis.builder.model.*;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.slf4j.Logger;
@@ -29,18 +29,18 @@ import java.util.Map;
  *
  * @author Tony Ho
  */
-public class MybatisBuilderService implements ProjectComponent {
+public class MybatisBuilderService {
     private static final Logger logger = LoggerFactory.getLogger(MybatisBuilderService.class);
 
     private MybatisBuilderSettingsManager manager;
 
     public static MybatisBuilderService getInstance(Project project) {
-        return project.getComponent(MybatisBuilderService.class);
+        return ServiceManager.getService(project, MybatisBuilderService.class);
     }
 
     public MybatisBuilderService(Project project) {
         if (project != null) {
-            this.manager = project.getComponent(MybatisBuilderSettingsManager.class);
+            this.manager = MybatisBuilderSettingsManager.getInstance(project);
         }
     }
 
@@ -239,10 +239,5 @@ public class MybatisBuilderService implements ProjectComponent {
 
     public void clearHistory() {
         manager.clearHistory();
-    }
-
-    @Override
-    public void projectOpened() {
-
     }
 }

@@ -169,7 +169,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         model.setMaximum(100);
 
         // clear all history
-        clearAllButton.addActionListener(e-> settingsHandler.clearHistory());
+        clearAllButton.addActionListener(e -> settingsHandler.clearHistory());
     }
 
     private void initDefaultParameterPane() {
@@ -352,7 +352,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         defaultParameters.setGeneratedComment(generatedCommentText.getText());
         defaultParameters.setForceBigDecimals(forceBigDecimalsCheckbox.isSelected());
         defaultParameters.setUseJSR310Types(useJSR310TypesCheckBox.isSelected());
-        defaultParameters.setHistorySize((Integer)historySizeSpinner.getValue());
+        defaultParameters.setHistorySize((Integer) historySizeSpinner.getValue());
 
         // plugins
         defaultParameters.getMapperAnnotationConfig().customAnnotationType = customAnnotationTypeText.getText();
@@ -450,5 +450,10 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         }
 
         return info;
+    }
+
+    @Override // remember window position and size
+    protected String getDimensionServiceKey() {
+        return "MyBatisBuilder.SettingsDialog";
     }
 }

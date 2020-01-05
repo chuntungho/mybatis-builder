@@ -526,4 +526,9 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         return new Action[]{stashAction, exportAction};
     }
 
+    @Override // remember window position and size
+    protected String getDimensionServiceKey() {
+        return "MyBatisBuilder.ParametersDialog";
+    }
+
 }

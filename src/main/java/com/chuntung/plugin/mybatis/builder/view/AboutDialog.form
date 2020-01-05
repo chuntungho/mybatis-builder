@@ -41,7 +41,7 @@
           <text value="Home:"/>
         </properties>
       </component>
-      <component id="59a11" class="javax.swing.JLabel" binding="paypalLabel">
+      <component id="59a11" class="javax.swing.JLabel" binding="paypalLabel" custom-create="true">
         <constraints>
           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -50,7 +50,7 @@
           <text value="Paypal"/>
         </properties>
       </component>
-      <component id="9415d" class="javax.swing.JLabel" binding="alipayLabel">
+      <component id="9415d" class="javax.swing.JLabel" binding="alipayLabel" custom-create="true">
         <constraints>
           <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
         </constraints>
@@ -59,22 +59,20 @@
           <text value="Alipay"/>
         </properties>
       </component>
-      <component id="1997d" class="javax.swing.JLabel" binding="authorLabel">
+      <component id="1997d" class="javax.swing.JLabel" binding="authorLabel" custom-create="true">
         <constraints>
           <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <foreground color="-16776961"/>
-          <text value="author"/>
         </properties>
       </component>
-      <component id="17b82" class="javax.swing.JLabel" binding="homeLabel">
+      <component id="17b82" class="javax.swing.JLabel" binding="homeLabel" custom-create="true">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <foreground color="-16776961"/>
-          <text value="home"/>
         </properties>
       </component>
       <hspacer id="3edea">

@@ -22,7 +22,6 @@ import java.awt.event.InputEvent;
 import java.util.List;
 
 public class PopupAction extends DumbAwareAction {
-
     private JTree objectTree;
 
     public PopupAction(JTree objectTree) {
