@@ -46,7 +46,6 @@
           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <foreground color="-16776961"/>
           <text value="Paypal"/>
         </properties>
       </component>
@@ -55,7 +54,6 @@
           <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <foreground color="-16776961"/>
           <text value="Alipay"/>
         </properties>
       </component>
@@ -63,17 +61,13 @@
         <constraints>
           <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <foreground color="-16776961"/>
-        </properties>
+        <properties/>
       </component>
       <component id="17b82" class="javax.swing.JLabel" binding="homeLabel" custom-create="true">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <foreground color="-16776961"/>
-        </properties>
+        <properties/>
       </component>
       <hspacer id="3edea">
         <constraints>

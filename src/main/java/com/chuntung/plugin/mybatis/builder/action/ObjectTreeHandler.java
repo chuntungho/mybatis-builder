@@ -200,7 +200,7 @@ public class ObjectTreeHandler {
             @Override
             public void invokePopup(Component comp, int x, int y) {
                 JTree source = (JTree) comp;
-                TreePath path = source.getPathForLocation(x, y);
+                TreePath path = source.getClosestPathForLocation(x, y);
 
                 // save current tree path for popup action
                 currentTreePath = path;

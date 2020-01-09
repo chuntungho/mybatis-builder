@@ -11,18 +11,15 @@ import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.labels.LinkLabel;
-import com.intellij.util.Url;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class AboutDialog extends DialogWrapper {
     private JPanel contentPanel;
-    private JLabel authorLabel;
     private JLabel pluginLabel;
+    private JLabel authorLabel;
     private JLabel homeLabel;
     private JLabel paypalLabel;
     private JLabel alipayLabel;
