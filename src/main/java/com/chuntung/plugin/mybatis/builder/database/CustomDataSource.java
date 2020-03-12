@@ -90,6 +90,7 @@ public class CustomDataSource implements DataSource {
         if (StringUtil.stringHasValue(password)) {
             props.put("password", password);
         }
+        props.setProperty("remarks", "true");
         Connection connection = getDriver().connect(url, props);
         return connection;
     }

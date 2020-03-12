@@ -10,6 +10,7 @@ import java.util.List;
 public class TableInfo {
     private String database;
     private String tableName;
+    private String tableComment;
     private String domainName;
     private String keyColumn;
 
@@ -18,9 +19,10 @@ public class TableInfo {
     public TableInfo() {
     }
 
-    public TableInfo(String database, String tableName) {
+    public TableInfo(String database, String tableName, String tableComment) {
         this.database = database;
         this.tableName = tableName;
+        this.tableComment = tableComment;
     }
 
     public String getDatabase() {
@@ -37,6 +39,14 @@ public class TableInfo {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
+    }
+
+    public String getTableComment() {
+        return tableComment;
+    }
+
+    public void setTableComment(String tableComment) {
+        this.tableComment = tableComment;
     }
 
     public String getDomainName() {

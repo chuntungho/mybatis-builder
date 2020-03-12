@@ -32,7 +32,7 @@ public class ConnectionAction extends DumbAwareAction{
         for (int i = 0; i < root.getChildCount(); i++) {
             DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
             DatabaseItem item = (DatabaseItem) child.getUserObject();
-            if (item.getId().equals(connectionInfo.getId())) {
+            if (item.getConnId().equals(connectionInfo.getId())) {
                 // select and expand
                 TreePath toPath = new TreePath(child.getPath());
                 objectTree.setSelectionPath(toPath);
@@ -43,7 +43,7 @@ public class ConnectionAction extends DumbAwareAction{
         }
 
         DatabaseItem item = DatabaseItem.of(DatabaseItem.ItemTypeEnum.CONNECTION,
-                connectionInfo.getName(), connectionInfo.getId());
+                connectionInfo.getName(),null, connectionInfo.getId());
         root.add(new DefaultMutableTreeNode(item));
         // expand immediately
         TreePath toPath = new TreePath(root.getPath()).pathByAddingChild(root.getLastChild());

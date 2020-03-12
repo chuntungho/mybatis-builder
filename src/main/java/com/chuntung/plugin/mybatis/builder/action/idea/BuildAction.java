@@ -120,7 +120,7 @@ public class BuildAction extends DumbAwareAction {
                 if (DatabaseItem.ItemTypeEnum.TABLE.equals(item.getType())) {
                     // only support tables in the same database
                     DefaultMutableTreeNode databaseNode = (DefaultMutableTreeNode) node.getParent();
-                    String database = databaseNode.getUserObject().toString();
+                    String database = ((DatabaseItem) databaseNode.getUserObject()).getName();
                     if (!database.equals(info.getDatabase())) {
                         if (info.getDatabase() == null) {
                             info.setDatabase(database);
@@ -132,7 +132,7 @@ public class BuildAction extends DumbAwareAction {
 
                     // only support tables in the same connection
                     DefaultMutableTreeNode connectionNode = (DefaultMutableTreeNode) databaseNode.getParent();
-                    String connectionId = ((DatabaseItem) connectionNode.getUserObject()).getId();
+                    String connectionId = ((DatabaseItem) connectionNode.getUserObject()).getConnId();
                     if (!connectionId.equals(info.getId())) {
                         if (info.getId() == null) {
                             info.setId(connectionId);
@@ -142,12 +142,12 @@ public class BuildAction extends DumbAwareAction {
                         }
                     }
 
-                    TableInfo tableInfo = new TableInfo(info.getDatabase(), item.getName());
+                    TableInfo tableInfo = new TableInfo(info.getDatabase(), item.getName(), item.getComment());
                     TableInfo lastTableInfo = service.getLastTableInfo(tableInfo);
                     if (lastTableInfo != null) {
-                        XmlSerializerUtil.copyBean(lastTableInfo, tableInfo);
-                        // fix v1.0.1 upgrade issue: reset since old version use a different name
-                        tableInfo.setDatabase(database);
+                        tableInfo.setDomainName(lastTableInfo.getDomainName());
+                        tableInfo.setKeyColumn(lastTableInfo.getKeyColumn());
+                        tableInfo.setCustomColumns(lastTableInfo.getCustomColumns());
                     }
 
                     // pre-gen domain name for reference

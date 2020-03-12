@@ -1,5 +1,4 @@
 <ul>
-<li>Improved tool window that makes searching easier</li>
-<li>Improved select with lock plugin</li>
-<li>Supported RowBounds on selectByExample</li>
+<li>Supported latest version of IDE</li>
+<li>Display table/column comment while moving mouse over it</li>
 </ul>

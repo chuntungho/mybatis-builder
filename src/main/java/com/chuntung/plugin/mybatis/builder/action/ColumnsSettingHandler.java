@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ColumnsSettingHandler {
         ConnectionInfo connectionInfo = null;
         try {
             connectionInfo = service.getConnectionInfoWithPassword(connectionId);
-            List<ColumnInfo> list = service.fetchColumns(connectionInfo, new TableInfo(database, tableName));
+            List<ColumnInfo> list = service.fetchColumns(connectionInfo, new TableInfo(database, tableName, null));
             return list;
         } catch (SQLException e) {
             Messages.showErrorDialog("Failed to fetch columns, error: " + e.getMessage(), "Database Error");
@@ -46,7 +47,19 @@ public class ColumnsSettingHandler {
         }
     }
 
-    public ObjectTableModel<ColumnInfo> getObjectTableModel(List<ColumnInfo> items) {
+    public void initTable(JTable table, List<ColumnInfo> data) {
+        table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        table.setModel(createTableModel(data));
+
+        // set combo box editor after binding
+        TableColumn column = table.getColumnModel().getColumn(0);
+        column.setCellEditor(getActionCellEditor());
+        column.setCellRenderer(getActionCellRenderer());
+
+        table.getColumnModel().getColumn(1).setCellRenderer(getColumnCellRenderer());
+    }
+
+    private ObjectTableModel<ColumnInfo> createTableModel(List<ColumnInfo> items) {
         ObjectTableModel<ColumnInfo> tableModel = new ObjectTableModel<ColumnInfo>(items, FIELD_NAMES, COLUMN_NAMES) {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 if (columnIndex == 0) {
@@ -66,8 +79,7 @@ public class ColumnsSettingHandler {
         return tableModel;
     }
 
-
-    public TableCellEditor getActionCellEditor() {
+    private TableCellEditor getActionCellEditor() {
         DefaultComboBoxModel comboBoxModel = new DefaultComboBoxModel(ColumnActionEnum.values());
         ComboBox comboBox = new ComboBox(comboBoxModel);
         // display label for action editor
@@ -90,7 +102,7 @@ public class ColumnsSettingHandler {
         return new DefaultCellEditor(comboBox);
     }
 
-    public TableCellRenderer getActionCellRenderer() {
+    private TableCellRenderer getActionCellRenderer() {
         // display label for action
         DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
             public Component getTableCellRendererComponent(JTable table, Object value,
@@ -106,4 +118,18 @@ public class ColumnsSettingHandler {
         cellRenderer.setHorizontalAlignment(JLabel.CENTER);
         return cellRenderer;
     }
+
+    private TableCellRenderer getColumnCellRenderer() {
+        return new DefaultTableCellRenderer() {
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                Component label = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                // display column comment
+                String comment = ((ObjectTableModel<ColumnInfo>) table.getModel()).getRow(row).getComment();
+                ((JLabel) label).setToolTipText(comment);
+                return label;
+            }
+        };
+    }
+
 }

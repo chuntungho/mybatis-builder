@@ -34,6 +34,10 @@ public class ObjectTableModel<T> extends AbstractTableModel {
         return items;
     }
 
+    public T getRow(int i) {
+        return items.get(i);
+    }
+
     @Override
     public int getRowCount() {
         return items.size();

@@ -14,26 +14,28 @@ public class DatabaseItem {
         CONNECTION, DATABASE, TABLE
     }
 
-    private String id;
+    private String connId;
     private String name;
+    private String comment;
     private ItemTypeEnum type;
 
     public static DatabaseItem of(ItemTypeEnum type, String name) {
-        return new DatabaseItem(type, name, null);
+        return new DatabaseItem(type, name, null, null);
     }
 
-    public static DatabaseItem of(ItemTypeEnum type, String name, String id) {
-        return new DatabaseItem(type, name, id);
+    public static DatabaseItem of(ItemTypeEnum type, String name, String comment, String id) {
+        return new DatabaseItem(type, name, comment, id);
     }
 
-    private DatabaseItem(ItemTypeEnum type, String name, String id) {
+    private DatabaseItem(ItemTypeEnum type, String name, String comment, String connId) {
         this.type = type;
         this.name = name;
-        this.id = id;
+        this.comment = comment;
+        this.connId = connId;
     }
 
-    public String getId() {
-        return this.id;
+    public String getConnId() {
+        return this.connId;
     }
 
     public String getName() {
@@ -44,9 +46,7 @@ public class DatabaseItem {
         return this.type;
     }
 
-    // used for tree node
-    public String toString() {
-        return this.name;
+    public String getComment() {
+        return comment;
     }
-
 }

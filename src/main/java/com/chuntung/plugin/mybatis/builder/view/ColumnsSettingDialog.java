@@ -67,13 +67,7 @@ public class ColumnsSettingDialog extends DialogWrapper {
             }
         }
 
-        columnsTable.setModel(handler.getObjectTableModel(columns));
-        columnsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-
-        // set combo box editor after binding
-        TableColumn column = columnsTable.getColumnModel().getColumn(0);
-        column.setCellEditor(handler.getActionCellEditor());
-        column.setCellRenderer(handler.getActionCellRenderer());
+        handler.initTable(columnsTable, columns);
     }
 
     private void getData(TableInfo tableInfo) {

@@ -174,7 +174,8 @@ public class MybatisBuilderService {
 
             ResultSet tableRS = meta.getTables(catalog, schema, null, new String[]{"TABLE"});
             while (tableRS.next()) {
-                list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.TABLE, tableRS.getString("TABLE_NAME")));
+                list.add(DatabaseItem.of(DatabaseItem.ItemTypeEnum.TABLE,
+                        tableRS.getString("TABLE_NAME"), tableRS.getString("REMARKS"), null));
             }
         } finally {
             close(connection);

@@ -23,8 +23,6 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.SQLException;
 import java.util.List;
@@ -50,8 +48,9 @@ public class ObjectTreeHandler {
                         setIcon(databaseIcon);
                     } else if (DatabaseItem.ItemTypeEnum.TABLE.equals(item.getType())) {
                         setIcon(tableIcon);
+                        setToolTipText(item.getComment());
                     }
-                    append(item.toString());
+                    append(item.getName());
                 }
             }
         }
@@ -123,7 +122,7 @@ public class ObjectTreeHandler {
             for (ConnectionInfo connectionInfo : connectionInfoList) {
                 if (Boolean.TRUE.equals(connectionInfo.getActive())) {
                     DatabaseItem item = DatabaseItem.of(DatabaseItem.ItemTypeEnum.CONNECTION,
-                            connectionInfo.getName(), connectionInfo.getId());
+                            connectionInfo.getName(), null, connectionInfo.getId());
                     root.add(new DefaultMutableTreeNode(item, true));
                 }
             }
@@ -142,10 +141,10 @@ public class ObjectTreeHandler {
 
                 if (DatabaseItem.ItemTypeEnum.CONNECTION.equals(item.getType())) {
                     TreePath toPath = null;
-                    ConnectionInfo connectionInfo = service.getConnectionInfoWithPassword(item.getId());
+                    ConnectionInfo connectionInfo = service.getConnectionInfoWithPassword(item.getConnId());
                     String defaultDatabase = connectionInfo.getDatabase();
 
-                    List<DatabaseItem> databaseItems = service.fetchDatabases(item.getId());
+                    List<DatabaseItem> databaseItems = service.fetchDatabases(item.getConnId());
                     for (DatabaseItem dbItem : databaseItems) {
                         node.add(new DefaultMutableTreeNode(dbItem, true));
                         if (dbItem.getName().equals(defaultDatabase)) {
@@ -160,7 +159,7 @@ public class ObjectTreeHandler {
                     }
                 } else if (DatabaseItem.ItemTypeEnum.DATABASE.equals(item.getType())) {
                     DefaultMutableTreeNode connNode = (DefaultMutableTreeNode) node.getParent();
-                    String connectionId = ((DatabaseItem) connNode.getUserObject()).getId();
+                    String connectionId = ((DatabaseItem) connNode.getUserObject()).getConnId();
                     List<DatabaseItem> databaseItems = service.fetchTables(connectionId, item.getName());
                     for (DatabaseItem dbItem : databaseItems) {
                         node.add(new DefaultMutableTreeNode(dbItem, false));

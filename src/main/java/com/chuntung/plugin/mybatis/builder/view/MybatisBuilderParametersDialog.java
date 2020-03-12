@@ -42,6 +42,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -114,14 +115,25 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private final SettingsHandler settingsHandler;
     private final ParametersHandler parametersHandler;
 
-    private class TableButtonRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
+    private class NameCellRenderer extends DefaultTableCellRenderer {
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+            Component label = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            // display comment
+            String comment = ((ObjectTableModel<TableInfo>) table.getModel()).getRow(row).getTableComment();
+            ((JLabel) label).setToolTipText(comment);
+            return label;
+        }
+    }
+
+    private class ButtonCellRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
         JPanel panel = new JPanel();
 
-        TableButtonRenderer() {
+        ButtonCellRenderer() {
             JButton button = new JButton(new AbstractAction("Open") {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    TableButtonRenderer.this.fireEditingCanceled();
+                    ButtonCellRenderer.this.fireEditingCanceled();
                     ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>) selectedTables.getModel();
                     int selected = selectedTables.getSelectedRow();
                     TableInfo tableInfo = model.getItems().get(selected);
@@ -337,9 +349,12 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         selectedTables.setModel(tableModel);
         selectedTables.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
+        // display comment
+        selectedTables.getColumnModel().getColumn(0).setCellRenderer(new NameCellRenderer());
+
         // set table button after data binding
         TableColumn column = selectedTables.getColumnModel().getColumn(3);
-        TableButtonRenderer btnRenderer = new TableButtonRenderer();
+        ButtonCellRenderer btnRenderer = new ButtonCellRenderer();
         column.setCellRenderer(btnRenderer);
         column.setCellEditor(btnRenderer);
 

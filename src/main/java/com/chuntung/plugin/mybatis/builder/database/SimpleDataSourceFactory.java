@@ -32,6 +32,7 @@ public class SimpleDataSourceFactory {
             } catch (SQLException e) {
                 // NOOP
             }
+            dataSource.setUseInformationSchema(true);
             dataSource.setUseSSL(false);
             return dataSource;
         } else if (DriverTypeEnum.PostgreSQL.equals(connectionInfo.getDriverType())) {
