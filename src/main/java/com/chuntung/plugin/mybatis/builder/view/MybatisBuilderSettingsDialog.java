@@ -12,25 +12,22 @@ import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
 import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.SelectWithLockConfig;
+import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.ui.components.labels.LinkLabel;
 import org.jetbrains.annotations.Nullable;
 import org.mybatis.generator.config.ModelType;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -73,6 +70,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JSpinner historySizeSpinner;
     private JButton clearAllButton;
     private JCheckBox useJSR310TypesCheckBox;
+    private JLabel urlLabel;
 
     private final SettingsHandler settingsHandler;
     private Project project;
@@ -287,7 +285,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         return new Action[]{
                 getCancelAction(),
                 getApplyAction(),
-                getOKAction()
+                getOKAction(),
+                getHelpAction()
         };
     }
 
@@ -415,17 +414,6 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         data.setActive(activeCheckBox.isSelected());
     }
 
-    protected Action[] createLeftSideActions() {
-        return new Action[]{
-                new AbstractAction(null, IconLoader.getIcon("/images/about.png")) {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        new AboutDialog(project).show();
-                    }
-                }
-        };
-    }
-
     protected ValidationInfo doValidate() {
         ValidationInfo info = renameValidate(mapperTypePatternText, exampleTypePatternText, sqlFileNamePatternText);
 
@@ -455,5 +443,23 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     @Override // remember window position and size
     protected String getDimensionServiceKey() {
         return "MyBatisBuilder.SettingsDialog";
+    }
+
+    @Override
+    protected String getHelpId() {
+        return "https://mybatis.chuntung.com";
+    }
+
+    @Override
+    protected void doHelpAction() {
+        if (myHelpAction.isEnabled()) {
+            BrowserUtil.browse(getHelpId());
+        }
+    }
+
+    private void createUIComponents() {
+        // place custom component creation code here
+        urlLabel = LinkLabel.create("URL", () -> BrowserUtil.browse("https://chuntung.com/jdbc-url"));
+        urlLabel.setToolTipText("Click to view URL syntax for common databases");
     }
 }

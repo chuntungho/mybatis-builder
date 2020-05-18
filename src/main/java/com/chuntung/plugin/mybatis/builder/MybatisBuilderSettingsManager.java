@@ -11,7 +11,10 @@ import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +32,7 @@ import java.util.List;
         name = MybatisBuilderSettingsManager.STATE_NAME,
         storages = @Storage(MybatisBuilderSettingsManager.STORAGE_FILE)
 )
-public class MybatisBuilderSettingsManager implements ProjectComponent, PersistentStateComponent<MybatisBuilderSettings> {
+public class MybatisBuilderSettingsManager implements PersistentStateComponent<MybatisBuilderSettings> {
     static final String STATE_NAME = "MybatisBuilder.project.settings";
     static final String STORAGE_FILE = "mybatisbuilder.xml";
 

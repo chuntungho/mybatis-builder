@@ -13,6 +13,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 
@@ -60,8 +61,7 @@ public class MybatisBuilderToolWindowPanel extends SimpleToolWindowPanel {
         objectTree.addMouseListener(treeHandler.getMouseListener());
 
         objectTree.setCellRenderer(treeHandler.getTreeCellRenderer());
-
-        JBScrollPane scrollPane = new JBScrollPane(objectTree);
+        JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(objectTree, true);
         setContent(scrollPane);
     }
 }

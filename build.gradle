@@ -1,10 +1,12 @@
 plugins {
+    id "java"
     id "org.jetbrains.intellij" version "0.4.15"
 }
 
 intellij {
     version ideaVersion
     pluginName "MyBatisBuilder"
+//    plugins = ['java'] only for 201
     sameSinceUntilBuild Boolean.valueOf(isEAP)
     patchPluginXml{
         untilBuild customUtilBuild

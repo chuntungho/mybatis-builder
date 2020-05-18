@@ -11,20 +11,29 @@ public class CopyAsExecutableSQLActionTest {
 
     @Test
     public void resolve() {
-        String text = "Preparing: select * from test where a=? and b=? \nParameters: 1(Integer), 2(String)";
+        String text1 = "Preparing: select * from test where a=? and b=? \nParameters: 1(Integer), 2(String)";
 
-        System.out.println(text);
-        String sql = CopyAsExecutableSQLAction.resolve(text);
+        System.out.println(text1);
+        String sql = CopyAsExecutableSQLAction.resolve(text1);
         Assert.assertEquals("select * from test where a=1 and b='2'", sql);
 
-        text = "Preparing: select * from test where a=?\nParameters: null";
-        System.out.println(text);
-        sql = CopyAsExecutableSQLAction.resolve(text);
+        String text2 = "Preparing: select * from test where a=?\nParameters: null";
+        System.out.println(text2);
+        sql = CopyAsExecutableSQLAction.resolve(text2);
         Assert.assertEquals("select * from test where a=null", sql);
 
-        text = "Preparing: select * from test where 1=2\nParameters: ";
-        System.out.println(text);
-        sql = CopyAsExecutableSQLAction.resolve(text);
+        String text3 = "Preparing: select * from test where 1=2\nParameters: ";
+        System.out.println(text3);
+        sql = CopyAsExecutableSQLAction.resolve(text3);
         Assert.assertEquals("select * from test where 1=2", sql);
+
+        String noParamText = "Preparing: select * from test where a=?";
+        sql = CopyAsExecutableSQLAction.resolve(noParamText);
+        Assert.assertTrue(sql.isEmpty());
+
+        String multipleText = String.join("\n", text1, text2, text3, noParamText);
+        System.out.println(multipleText);
+        sql = CopyAsExecutableSQLAction.resolve(multipleText);
+        System.out.println(sql);
     }
 }

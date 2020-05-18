@@ -56,22 +56,41 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
 
     @NotNull
     public static String resolve(String selectedText) {
-        String statementText = extractLine(selectedText, PREPARING);
-        String parametersText = extractLine(selectedText, PARAMETERS);
-        List<String> parameters = parseParameters(parametersText);
-
-        StringTokenizer tokenizer = new StringTokenizer(statementText, "?");
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        while (tokenizer.hasMoreTokens()) {
-            sb.append(tokenizer.nextToken());
-            if (i < parameters.size()) {
-                sb.append(parameters.get(i));
+        // support multiple sql
+        int fromIndex = 0, nextIndex;
+        List<String> sqlList = new ArrayList<>();
+        while ((nextIndex = selectedText.indexOf(PREPARING, fromIndex)) >= 0) {
+            String statement = extractLine(selectedText, PREPARING, fromIndex);
+            if (selectedText.indexOf(PARAMETERS, nextIndex) == -1) {
+                // has no parameters for current statement, break it
+                break;
             }
-            i++;
+            String parametersText = extractLine(selectedText, PARAMETERS, nextIndex);
+            List<String> parameters = parseParameters(parametersText);
+
+            StringTokenizer tokenizer = new StringTokenizer(statement, "?");
+            StringBuilder sb = new StringBuilder();
+            int i = 0;
+            while (tokenizer.hasMoreTokens()) {
+                sb.append(tokenizer.nextToken());
+                if (i < parameters.size()) {
+                    sb.append(parameters.get(i));
+                }
+                i++;
+            }
+
+            sqlList.add(sb.toString().trim());
+
+            fromIndex = nextIndex + PREPARING.length();
         }
 
-        return sb.toString().trim();
+        if (sqlList.size() == 0) {
+            return "";
+        } else if (sqlList.size() == 1) {
+            return sqlList.get(0);
+        } else {
+            return String.join(";" + System.lineSeparator(), sqlList) + ";";
+        }
     }
 
     private static List<String> parseParameters(String parametersText) {
@@ -95,9 +114,9 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
         return parameters;
     }
 
-    private static String extractLine(String str, String keyword) {
-        int start = str.indexOf(keyword) + keyword.length();
-        int end = str.indexOf('\n', start);
+    private static String extractLine(String str, String keyword, int fromIndex) {
+        int start = str.indexOf(keyword, fromIndex) + keyword.length();
+        int end = str.indexOf(System.lineSeparator(), start);
 
         return str.substring(start, end > -1 ? end : str.length());
     }

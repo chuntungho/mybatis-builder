@@ -1,4 +1,3 @@
 <ul>
-<li>Supported latest version of IDE</li>
-<li>Display table/column comment while moving mouse over it</li>
+<li>Resolve multiple SQL from MyBatis Log</li>
 </ul>
