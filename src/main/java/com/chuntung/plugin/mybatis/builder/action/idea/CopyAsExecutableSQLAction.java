@@ -62,7 +62,8 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
         while ((nextIndex = selectedText.indexOf(PREPARING, fromIndex)) >= 0) {
             String statement = extractLine(selectedText, PREPARING, fromIndex);
             if (selectedText.indexOf(PARAMETERS, nextIndex) == -1) {
-                // has no parameters for current statement, break it
+                // has no parameters for current statement, return the statement
+                sqlList.add(statement);
                 break;
             }
             String parametersText = extractLine(selectedText, PARAMETERS, nextIndex);
@@ -116,7 +117,7 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
 
     private static String extractLine(String str, String keyword, int fromIndex) {
         int start = str.indexOf(keyword, fromIndex) + keyword.length();
-        int end = str.indexOf(System.lineSeparator(), start);
+        int end = str.indexOf('\n', start);
 
         return str.substring(start, end > -1 ? end : str.length());
     }
