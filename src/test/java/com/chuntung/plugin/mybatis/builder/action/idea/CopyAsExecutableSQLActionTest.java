@@ -29,7 +29,7 @@ public class CopyAsExecutableSQLActionTest {
 
         String noParamText = "Preparing: select * from test where a=?";
         sql = CopyAsExecutableSQLAction.resolve(noParamText);
-        Assert.assertTrue(sql.isEmpty());
+        Assert.assertFalse(sql.isEmpty());
 
         String multipleText = String.join("\n", text1, text2, text3, noParamText);
         System.out.println(multipleText);
