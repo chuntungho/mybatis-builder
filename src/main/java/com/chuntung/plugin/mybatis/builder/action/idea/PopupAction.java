@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
@@ -72,7 +72,7 @@ public class PopupAction extends DumbAwareAction {
 
     private void showBelowComponent(ListPopup popup, Component component) {
         Point locationOnScreen = component.getLocationOnScreen();
-        Point location = new Point((int) (locationOnScreen.getX() + 10),
+        Point location = new Point((int) (locationOnScreen.getX()),
                 (int) locationOnScreen.getY() + component.getHeight());
         popup.showInScreenCoordinates(component, location);
     }

@@ -1,25 +1,17 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.generator.plugins;
 
-import com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.SelectWithLockConfig;
-import com.chuntung.plugin.mybatis.builder.util.ConfigUtil;
-import com.chuntung.plugin.mybatis.builder.util.StringUtil;
-import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.xml.Attribute;
-import org.mybatis.generator.api.dom.xml.Document;
-import org.mybatis.generator.api.dom.xml.TextElement;
-import org.mybatis.generator.api.dom.xml.XmlElement;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * Add new methods with same name, which are appended with a RowBounds parameter.

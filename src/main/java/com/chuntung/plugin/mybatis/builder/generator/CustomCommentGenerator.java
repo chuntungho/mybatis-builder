@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.generator;
@@ -65,7 +65,7 @@ public class CustomCommentGenerator implements CommentGenerator {
 
     @Override
     public void addFieldComment(Field field, IntrospectedTable introspectedTable) {
-
+        addJavaDocComment(field);
     }
 
     @Override
@@ -109,14 +109,18 @@ public class CustomCommentGenerator implements CommentGenerator {
 
     @Override
     public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
-        method.addJavaDocLine("/**");
+        addJavaDocComment(method);
+    }
+
+    private void addJavaDocComment(JavaElement el) {
+        el.addJavaDocLine("/**");
         StringBuilder sb = new StringBuilder(" * ");
         sb.append(MergeConstants.NEW_ELEMENT_TAG);
         if (StringUtil.stringHasValue(generatedComment)) {
             sb.append(' ').append(generatedComment);
         }
-        method.addJavaDocLine(sb.toString());
-        method.addJavaDocLine(" */");
+        el.addJavaDocLine(sb.toString());
+        el.addJavaDocLine(" */");
     }
 
     @Override

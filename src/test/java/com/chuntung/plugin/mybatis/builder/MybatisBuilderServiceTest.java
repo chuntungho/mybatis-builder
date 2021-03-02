@@ -43,7 +43,7 @@ public class MybatisBuilderServiceTest extends IdeaTestCase {
 
         DataSource dataSource = SimpleDataSourceFactory.getInstance().getDataSource(info);
         try {
-            dataSource.getConnection().createStatement().execute("create table user(id int, name varchar(30), sex varchar(1));");
+            dataSource.getConnection().createStatement().execute("create table user(id int PRIMARY KEY, name varchar(30), sex varchar(1));");
         } catch (SQLException e) {
             fail(e.getMessage());
         }

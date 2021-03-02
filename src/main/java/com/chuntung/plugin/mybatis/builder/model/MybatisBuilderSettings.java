@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.model;
@@ -15,10 +15,17 @@ import java.util.*;
  * @author Tony Ho
  */
 public class MybatisBuilderSettings {
+    // connection repo
     private List<ConnectionInfo> connectionInfoList = new ArrayList<>();
+    // default config repo
     private DefaultParameters defaultParameters = new DefaultParameters();
+    // last param repo
     private GeneratorParamWrapper lastGeneratorParamWrapper = new GeneratorParamWrapper();
+    // stash history repo
+    private Map<String, GeneratorParamWrapper> stashMap = new LinkedHashMap<>(16, 0.75f, true);
+    // table info repo
     private Map<String, TableInfo> tableInfoMap = new LinkedHashMap<>();
+    // package dropdown history repo
     private Map<String, List<String>> historyMap = new HashMap<>();
 
     public List<ConnectionInfo> getConnectionInfoList() {
@@ -43,6 +50,14 @@ public class MybatisBuilderSettings {
 
     public void setLastGeneratorParamWrapper(GeneratorParamWrapper lastGeneratorParamWrapper) {
         this.lastGeneratorParamWrapper = lastGeneratorParamWrapper;
+    }
+
+    public Map<String, GeneratorParamWrapper> getStashMap() {
+        return stashMap;
+    }
+
+    public void setStashMap(Map<String, GeneratorParamWrapper> stashMap) {
+        this.stashMap = stashMap;
     }
 
     public Map<String, TableInfo> getTableInfoMap() {

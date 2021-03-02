@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.generator;
@@ -10,7 +10,10 @@ import com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.Sele
 import org.mybatis.generator.config.ModelType;
 
 public class DefaultParameters {
-    private String targetRuntime = "MyBatis3";
+
+    public static final String MY_BATIS_3_DYNAMIC_SQL = "MyBatis3DynamicSql";
+
+    private String targetRuntime = MY_BATIS_3_DYNAMIC_SQL;
     private ModelType defaultModelType = ModelType.FLAT;
     private String javaFileEncoding = "UTF-8";
     private Boolean forceBigDecimals = true;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.action;
@@ -40,15 +40,15 @@ public class ParametersHandler {
         service.stashGeneratorParamWrapper(paramWrapper);
     }
 
-    public void exportConfiguration(GeneratorParamWrapper paramWrapper, File file, Project project) {
-        try {
-            new GeneratorToolWrapper(paramWrapper, null).export(file);
-            NotificationHelper.getInstance().notifyInfo("Exported to " + file.getAbsolutePath(), project);
-        } catch (IOException ex) {
-            logger.warn("Failed to export configuration.");
-            NotificationHelper.getInstance().notifyError(ex.getMessage(), project);
-        }
-    }
+//    public void exportConfiguration(GeneratorParamWrapper paramWrapper, File file, Project project) {
+//        try {
+//            new GeneratorToolWrapper(paramWrapper, null).export(file);
+//            NotificationHelper.getInstance().notifyInfo("Exported to " + file.getAbsolutePath(), project);
+//        } catch (IOException ex) {
+//            logger.warn("Failed to export configuration.");
+//            NotificationHelper.getInstance().notifyError(ex.getMessage(), project);
+//        }
+//    }
 
     public void generate(GeneratorParamWrapper paramWrapper, Project project) {
         // stash last parameters

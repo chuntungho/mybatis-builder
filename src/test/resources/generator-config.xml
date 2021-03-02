@@ -4,9 +4,19 @@
   "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 
 <generatorConfiguration>
-  <context id="test" targetRuntime="MyBatis3">
+  <context id="test" targetRuntime="MyBatis3DynamicSql">
+    <plugin type="com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin">
+      <property name="customAnnotationType" value="org.apache.ibatis.annotations.Mapper" />
+      <property name="type" value="com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin" />
+    </plugin>
+
+    <plugin type="com.chuntung.plugin.mybatis.builder.generator.plugins.DynamicRuntimePatchPlugin">
+      <property name="type" value="com.chuntung.plugin.mybatis.builder.generator.plugins.DynamicRuntimePatchPlugin" />
+    </plugin>
+
     <commentGenerator type="com.chuntung.plugin.mybatis.builder.generator.CustomCommentGenerator">
       <property name="addDatabaseRemark" value="true"/>
+      <property name="generatedComment" value="do not modify"/>
     </commentGenerator>
 
     <jdbcConnection driverClass="org.h2.Driver"
@@ -38,7 +48,7 @@
     </javaClientGenerator>
 
     <table tableName="user" domainObjectName="gene.User"
-           enableSelectByExample="true"
+           enableSelectByExample="false"
            enableUpdateByExample="false"
            enableCountByExample="false"
            enableDeleteByExample="false" />

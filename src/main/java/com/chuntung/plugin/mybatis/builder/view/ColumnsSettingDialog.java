@@ -9,13 +9,17 @@ import com.chuntung.plugin.mybatis.builder.model.ColumnActionEnum;
 import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
 import com.chuntung.plugin.mybatis.builder.model.ObjectTableModel;
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
+import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
+import org.mybatis.generator.config.ColumnRenamingRule;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.table.TableColumn;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +29,10 @@ public class ColumnsSettingDialog extends DialogWrapper {
     private JPanel contentPane;
     private JTable columnsTable;
     private JScrollPane columnsPanel;
+    private JTextField searchText;
+    private JTextField replaceText;
+    private JButton replaceButton;
+    private JButton resetButton;
     private String connectionId;
     private TableInfo tableInfo;
     private ColumnsSettingHandler handler;
@@ -41,6 +49,44 @@ public class ColumnsSettingDialog extends DialogWrapper {
         border.setTitle("Columns setting for " + tableInfo.getTableName());
 
         setData(tableInfo);
+
+        // TODO save to column rename rule??
+
+        // rename field
+        replaceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String regex = searchText.getText(), replace = replaceText.getText();
+                ObjectTableModel<ColumnInfo> model = (ObjectTableModel<ColumnInfo>) columnsTable.getModel();
+                for (ColumnInfo item : model.getItems()) {
+                    if (!ColumnActionEnum.IGNORE.equals(item.getAction())) {
+                        String fieldName = JavaBeansUtil.getCamelCaseString(item.getColumnName(), false);
+                        String newFiledName = fieldName.replaceAll(regex, replace);
+                        if (!fieldName.equals(newFiledName)) {
+                            item.setAction(ColumnActionEnum.OVERRIDE);
+                            item.setJavaProperty(newFiledName);
+                        }
+                    }
+                }
+                model.fireTableDataChanged();
+            }
+        });
+
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ObjectTableModel<ColumnInfo> model = (ObjectTableModel<ColumnInfo>) columnsTable.getModel();
+                for (ColumnInfo item : model.getItems()) {
+                    if (!ColumnActionEnum.IGNORE.equals(item.getAction())) {
+                        item.setJavaProperty(null);
+                        if (!StringUtil.stringHasValue(item.getJavaType())) {
+                            item.setAction(ColumnActionEnum.DEFAULT);
+                        }
+                    }
+                }
+                model.fireTableDataChanged();
+            }
+        });
 
         init();
     }
@@ -68,6 +114,12 @@ public class ColumnsSettingDialog extends DialogWrapper {
         }
 
         handler.initTable(columnsTable, columns);
+
+        ColumnRenamingRule columnRenamingRule = tableInfo.getColumnRenamingRule();
+        if (columnRenamingRule != null) {
+            searchText.setText(columnRenamingRule.getSearchString());
+            replaceText.setText(columnRenamingRule.getReplaceString());
+        }
     }
 
     private void getData(TableInfo tableInfo) {
@@ -79,6 +131,13 @@ public class ColumnsSettingDialog extends DialogWrapper {
             }
         }
         tableInfo.setCustomColumns(customColumns);
+
+        if (StringUtil.stringHasValue(searchText.getText())) {
+            ColumnRenamingRule rule = new ColumnRenamingRule();
+            rule.setSearchString(searchText.getText());
+            rule.setReplaceString(replaceText.getText() == null ? "" : replaceText.getText());
+            tableInfo.setColumnRenamingRule(rule);
+        }
     }
 
     protected void doOKAction() {

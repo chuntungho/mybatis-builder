@@ -1,0 +1,47 @@
+/*
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
+ */
+
+package com.chuntung.plugin.mybatis.builder.generator.plugins;
+
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.PluginAdapter;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.Method;
+
+import java.util.List;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+
+public class DynamicRuntimePatchPlugin extends PluginAdapter {
+    @Override
+    public boolean validate(List<String> warnings) {
+        return "MyBatis3DynamicSql".equals(context.getTargetRuntime());
+    }
+
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
+        // enable sub package for support type
+        if (stringHasValue(introspectedTable.getFullyQualifiedTable().getDomainObjectSubPackage())) {
+            String supportType = introspectedTable.getMyBatisDynamicSqlSupportType();
+            StringBuilder sb = new StringBuilder();
+            int idx = supportType.lastIndexOf('.');
+            sb.append(supportType.substring(0, idx + 1));
+            sb.append(introspectedTable.getFullyQualifiedTable().getDomainObjectSubPackage());
+            sb.append('.');
+            sb.append(supportType.substring(idx + 1));
+            introspectedTable.setMyBatisDynamicSqlSupportType(sb.toString());
+        }
+    }
+
+    @Override
+    public boolean clientGenerated(Interface interfaze,
+                                   IntrospectedTable introspectedTable) {
+        // add generated comment to mapper method
+        for (Method method : interfaze.getMethods()) {
+            context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
+        }
+
+        return true;
+    }
+}

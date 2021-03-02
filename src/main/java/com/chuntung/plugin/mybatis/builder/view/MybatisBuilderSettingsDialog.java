@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.view;
@@ -77,7 +77,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private ConnectionInfo current;
     private Action applyAction;
 
-    private static final String[] targetRuntimes = {"MyBatis3", "MyBatis3Simple"};
+    private static final String[] targetRuntimes = {"MyBatis3DynamicSql", "MyBatis3", "MyBatis3Simple"};
 
     public MybatisBuilderSettingsDialog(@Nullable Project project) {
         super(project);

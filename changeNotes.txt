@@ -1,3 +1,4 @@
 <ul>
-<li>Resolve multiple SQL from MyBatis Log</li>
+<li>Upgrade <a href="http://mybatis.org/generator/">MyBatis Generator</a> library to 1.4.1-SNAPSHOT</li>
+<li>Support Dynamic SQL Runtime, refer to <a href="https://github.com/mybatis/mybatis-dynamic-sql">mybatis-dynamic-sql</a></li>
 </ul>

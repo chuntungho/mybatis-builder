@@ -16,3 +16,4 @@ gradle-app.setting
 src/test/java/mybatis/builder
 src/test/resources/sqlmap
 src/main/java/com/chuntung/plugin/mybatis/support
+.idea/

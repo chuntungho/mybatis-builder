@@ -1,17 +1,18 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.generator;
 
 import com.chuntung.plugin.mybatis.builder.generator.annotation.PluginConfig;
-import com.chuntung.plugin.mybatis.builder.generator.callback.CustomShellCallback;
+import com.chuntung.plugin.mybatis.builder.generator.callback.ShellCallbackFactory;
+import com.chuntung.plugin.mybatis.builder.generator.plugins.DynamicRuntimePatchPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.RenamePlugin;
 import com.chuntung.plugin.mybatis.builder.model.ColumnActionEnum;
 import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
-import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.ShellCallback;
@@ -19,6 +20,9 @@ import org.mybatis.generator.config.*;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
+import org.mybatis.generator.plugins.dsql.DisableDeletePlugin;
+import org.mybatis.generator.plugins.dsql.DisableInsertPlugin;
+import org.mybatis.generator.plugins.dsql.DisableUpdatePlugin;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -48,7 +52,7 @@ public class GeneratorToolWrapper {
         populateConfiguration(configuration);
 
         // start invocation
-        ShellCallback shellCallback = new CustomShellCallback(true);
+        ShellCallback shellCallback = ShellCallbackFactory.createInstance(configuration.getContexts().get(0).getTargetRuntime());
 
         List<String> warnings = new ArrayList<>();
         Set<String> fullyQualifiedTables = new HashSet<>();
@@ -60,18 +64,19 @@ public class GeneratorToolWrapper {
         return warnings;
     }
 
-    public void export(File file) throws IOException {
-        Configuration configuration = new Configuration();
-        populateConfiguration(configuration);
-
-        // NOTE: hard code to fix the issue that url property contains '&';
-        JDBCConnectionConfiguration jdbcConfig = configuration.getContexts().get(0).getJdbcConnectionConfiguration();
-        String url = jdbcConfig.getConnectionURL().replace("&", "&amp;");
-        jdbcConfig.setConnectionURL(url);
-
-        String content = configuration.toDocument().getFormattedContent();
-        FileUtils.write(file, content, "UTF-8");
-    }
+    // discard export function since the library does not support anymore
+//    public void export(File file) throws IOException {
+//        Configuration configuration = new Configuration();
+//        populateConfiguration(configuration);
+//
+//        // NOTE: hard code to fix the issue that url property contains '&';
+//        JDBCConnectionConfiguration jdbcConfig = configuration.getContexts().get(0).getJdbcConnectionConfiguration();
+//        String url = jdbcConfig.getConnectionURL().replace("&", "&amp;");
+//        jdbcConfig.setConnectionURL(url);
+//
+//        String content = configuration.toDocument().getFormattedContent();
+//        FileUtils.write(file, content, "UTF-8");
+//    }
 
     private void populateConfiguration(Configuration configuration) {
         DefaultParameters defaultParameters = paramWrapper.getDefaultParameters();
@@ -142,6 +147,23 @@ public class GeneratorToolWrapper {
             context.addPluginConfiguration(pluginConfig);
         }
 
+        // add patch plugin for dynamic sql runtime
+        if (DefaultParameters.MY_BATIS_3_DYNAMIC_SQL.equals(context.getTargetRuntime())) {
+            context.addPluginConfiguration(createPluginConfig(DynamicRuntimePatchPlugin.class));
+
+            // Disable Insert/Update/Delete
+            TableConfigurationWrapper tableConfig = paramWrapper.getDefaultTableConfigWrapper();
+            if (!tableConfig.isInsertStatementEnabled()) {
+                context.addPluginConfiguration(createPluginConfig(DisableInsertPlugin.class));
+            }
+            if (!tableConfig.isUpdateByPrimaryKeyStatementEnabled()) {
+                context.addPluginConfiguration(createPluginConfig(DisableUpdatePlugin.class));
+            }
+            if (!tableConfig.isDeleteByPrimaryKeyStatementEnabled()) {
+                context.addPluginConfiguration(createPluginConfig(DisableDeletePlugin.class));
+            }
+        }
+
         if (paramWrapper.getSelectedPlugins().isEmpty()) {
             return;
         }
@@ -154,6 +176,14 @@ public class GeneratorToolWrapper {
 
             context.addPluginConfiguration(pluginConfig);
         }
+    }
+
+    @NotNull
+    private PluginConfiguration createPluginConfig(Class pluginClass) {
+        PluginConfiguration pluginConfig = new PluginConfiguration();
+        pluginConfig.setConfigurationType(pluginClass.getName());
+        pluginConfig.addProperty("type", pluginClass.getName());
+        return pluginConfig;
     }
 
     private void populatePluginConfig(PluginConfigWrapper configWrapper, PluginConfiguration pluginConfig) {
@@ -214,7 +244,7 @@ public class GeneratorToolWrapper {
         context.getProperties().putAll(properties);
         validateTargetProject(context);
 
-        ShellCallback shellCallback = new CustomShellCallback(true);
+        ShellCallback shellCallback = ShellCallbackFactory.createInstance(context.getTargetRuntime());
         MyBatisGenerator generator = new MyBatisGenerator(configuration, shellCallback, warnings);
         generator.generate(processCallback);
 

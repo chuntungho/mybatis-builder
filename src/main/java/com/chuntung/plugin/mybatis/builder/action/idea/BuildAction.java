@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
@@ -22,7 +22,6 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
-import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
 import org.mybatis.generator.config.PropertyHolder;
@@ -37,6 +36,7 @@ import javax.swing.tree.TreeSelectionModel;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -97,7 +97,7 @@ public class BuildAction extends DumbAwareAction {
         }
 
         // populate project and package
-        populateProjectAndPackage(paramWrapper, project);
+        populatePathAndPackage(paramWrapper, project);
 
         // show dialog
         new MybatisBuilderParametersDialog(project, paramWrapper, connectionInfo.getId()).show();
@@ -163,7 +163,7 @@ public class BuildAction extends DumbAwareAction {
 
         paramWrapper.setSelectedTables(tables);
 
-        if (tables.size() == 0) {
+        if (tables.isEmpty()) {
             msg = "There is no table selected";
         }
 
@@ -198,7 +198,7 @@ public class BuildAction extends DumbAwareAction {
         }
     }
 
-    private void populateProjectAndPackage(GeneratorParamWrapper paramWrapper, Project project) {
+    private void populatePathAndPackage(GeneratorParamWrapper paramWrapper, Project project) {
         // maven/gradle default path
         String projectPath = project.getBasePath();
         String sourceCodeRoot = projectPath + "/src/main/java";

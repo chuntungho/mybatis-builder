@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.view;
@@ -20,16 +20,10 @@ import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
 import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileChooser.FileChooserFactory;
-import com.intellij.openapi.fileChooser.FileSaverDescriptor;
-import com.intellij.openapi.fileChooser.FileSaverDialog;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.psi.PsiPackage;
 import com.intellij.ui.TextFieldWithHistoryWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
@@ -95,8 +89,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JCheckBox lockAllCheckBox;
     private JPanel lockPanel;
     private JScrollPane selectedTablePanel;
-    private JTextField domainSearchText;
-    private JTextField domainReplaceText;
+    private JTextField searchText;
+    private JTextField replaceText;
     private JButton replaceButton;
     private JButton resetButton;
 
@@ -213,13 +207,14 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         replaceButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String regex = domainSearchText.getText(), replace = domainReplaceText.getText();
+                String regex = searchText.getText(), replace = replaceText.getText();
                 ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>) selectedTables.getModel();
                 for (TableInfo item : model.getItems()) {
                     if (item.getDomainName() != null && !item.getDomainName().isEmpty()) {
                         item.setDomainName(item.getDomainName().replaceAll(regex, replace));
                     }
                 }
+                model.fireTableDataChanged();
             }
         });
 
@@ -230,6 +225,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
                 for (TableInfo item : model.getItems()) {
                     item.setDomainName(JavaBeansUtil.getCamelCaseString(item.getTableName(), true));
                 }
+                model.fireTableDataChanged();
             }
         });
 
@@ -294,20 +290,22 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         boolean lombokEnabled = data.getSelectedPlugins().containsKey(LombokPlugin.class.getName());
         lombokSupportCheckBox.setSelected(lombokEnabled);
 
-        // -- select with lock
-        String selectWithLockPlugin = SelectWithLockPlugin.class.getName();
-        boolean selectWithLockEnabled = data.getSelectedPlugins().containsKey(selectWithLockPlugin);
-        PluginConfigWrapper pluginConfigWrapper = data.getSelectedPlugins().get(selectWithLockPlugin);
-        if (selectWithLockEnabled && pluginConfigWrapper != null) {
-            SelectWithLockConfig selectWithLockConfig = (SelectWithLockConfig) pluginConfigWrapper.getPluginConfig();
-            selectByPrimaryKeyWithLockCheckBox.setSelected(selectWithLockConfig.byPrimaryKeyWithLockEnabled);
-            selectByExampleWithLockCheckBox.setSelected(selectWithLockConfig.byExampleWithLockEnabled);
+        // -- select with lock, not applied to dynamic sql
+        if (!DefaultParameters.MY_BATIS_3_DYNAMIC_SQL.equals(data.getDefaultParameters().getTargetRuntime())) {
+            String selectWithLockPlugin = SelectWithLockPlugin.class.getName();
+            boolean selectWithLockEnabled = data.getSelectedPlugins().containsKey(selectWithLockPlugin);
+            PluginConfigWrapper pluginConfigWrapper = data.getSelectedPlugins().get(selectWithLockPlugin);
+            if (selectWithLockEnabled && pluginConfigWrapper != null) {
+                SelectWithLockConfig selectWithLockConfig = (SelectWithLockConfig) pluginConfigWrapper.getPluginConfig();
+                selectByPrimaryKeyWithLockCheckBox.setSelected(selectWithLockConfig.byPrimaryKeyWithLockEnabled);
+                selectByExampleWithLockCheckBox.setSelected(selectWithLockConfig.byExampleWithLockEnabled);
+            }
+            SelectWithLockConfig selectWithLockConfig = defaultParameters.getSelectWithLockConfig();
+            Object byPrimaryKeyOverride = ConfigUtil.getFieldValueByConfigKey(selectWithLockConfig, SelectWithLockConfig.BY_PRIMARY_KEY_WITH_LOCK_OVERRIDE);
+            Object byExampleOverride = ConfigUtil.getFieldValueByConfigKey(selectWithLockConfig, SelectWithLockConfig.BY_EXAMPLE_WITH_LOCK_OVERRIDE);
+            selectByPrimaryKeyWithLockCheckBox.setToolTipText(StringUtil.valueOf(byPrimaryKeyOverride));
+            selectByExampleWithLockCheckBox.setToolTipText(StringUtil.valueOf(byExampleOverride));
         }
-        SelectWithLockConfig selectWithLockConfig = defaultParameters.getSelectWithLockConfig();
-        Object byPrimaryKeyOverride = ConfigUtil.getFieldValueByConfigKey(selectWithLockConfig, SelectWithLockConfig.BY_PRIMARY_KEY_WITH_LOCK_OVERRIDE);
-        Object byExampleOverride = ConfigUtil.getFieldValueByConfigKey(selectWithLockConfig, SelectWithLockConfig.BY_EXAMPLE_WITH_LOCK_OVERRIDE);
-        selectByPrimaryKeyWithLockCheckBox.setToolTipText(StringUtil.valueOf(byPrimaryKeyOverride));
-        selectByExampleWithLockCheckBox.setToolTipText(StringUtil.valueOf(byExampleOverride));
 
         // default table config
         TableConfigurationWrapper defaultTableConfig = data.getDefaultTableConfigWrapper();
@@ -316,13 +314,19 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         selectByPrimaryKeyCheckBox.setSelected(defaultTableConfig.isSelectByPrimaryKeyStatementEnabled());
         deleteByPrimaryKeyCheckBox.setSelected(defaultTableConfig.isDeleteByPrimaryKeyStatementEnabled());
 
-        selectByExampleCheckbox.setSelected(defaultTableConfig.isSelectByExampleStatementEnabled());
-        countByExampleCheckbox.setSelected(defaultTableConfig.isCountByExampleStatementEnabled());
-        updateByExampleCheckbox.setSelected(defaultTableConfig.isUpdateByExampleStatementEnabled());
-        deleteByExampleCheckbox.setSelected(defaultTableConfig.isDeleteByExampleStatementEnabled());
-
-        domainSearchText.setText(defaultTableConfig.getDomainObjectRenamingRule().getSearchString());
-        domainReplaceText.setText(defaultTableConfig.getDomainObjectRenamingRule().getReplaceString());
+        // disable example for dynamic sql
+        if (DefaultParameters.MY_BATIS_3_DYNAMIC_SQL.equals(data.getDefaultParameters().getTargetRuntime())) {
+            ViewUtil.makeAvailable(examplePanel, false);
+            ViewUtil.makeAvailable(lockPanel, false);
+            ViewUtil.makeAvailable(sqlMapGeneratorPanel, false);
+        } else {
+            selectByExampleCheckbox.setSelected(defaultTableConfig.isSelectByExampleStatementEnabled());
+            countByExampleCheckbox.setSelected(defaultTableConfig.isCountByExampleStatementEnabled());
+            updateByExampleCheckbox.setSelected(defaultTableConfig.isUpdateByExampleStatementEnabled());
+            deleteByExampleCheckbox.setSelected(defaultTableConfig.isDeleteByExampleStatementEnabled());
+        }
+        searchText.setText(defaultTableConfig.getDomainObjectRenamingRule().getSearchString());
+        replaceText.setText(defaultTableConfig.getDomainObjectRenamingRule().getReplaceString());
 
         GeneratedKeyWrapper generatedKeyWrapper = defaultTableConfig.getGeneratedKeyWrapper();
         columnText.setText(generatedKeyWrapper.getColumn());
@@ -437,8 +441,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         defaultTableConfig.setUpdateByExampleStatementEnabled(updateByExampleCheckbox.isSelected());
         defaultTableConfig.setDeleteByExampleStatementEnabled(deleteByExampleCheckbox.isSelected());
 
-        defaultTableConfig.getDomainObjectRenamingRule().setSearchString(domainSearchText.getText());
-        defaultTableConfig.getDomainObjectRenamingRule().setReplaceString(domainReplaceText.getText());
+        defaultTableConfig.getDomainObjectRenamingRule().setSearchString(searchText.getText());
+        defaultTableConfig.getDomainObjectRenamingRule().setReplaceString(replaceText.getText());
 
         // generated key prototype
         GeneratedKeyWrapper generatedKeyWrapper = defaultTableConfig.getGeneratedKeyWrapper();
@@ -521,24 +525,24 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         }
     };
 
-    private Action exportAction = new AbstractAction("Export...") {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            FileSaverDialog saver = FileChooserFactory.getInstance()
-                    .createSaveFileDialog(new FileSaverDescriptor("Export configuration", "Export to", "xml"), project);
-            VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
-            VirtualFileWrapper target = saver.save(projectDir, "mybatis-generator.xml");
-            if (target != null) {
-                File file = target.getFile();
-                getData(paramWrapper);
-                parametersHandler.exportConfiguration(paramWrapper, file, project);
-            }
-        }
-    };
+//    private Action exportAction = new AbstractAction("Export...") {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            FileSaverDialog saver = FileChooserFactory.getInstance()
+//                    .createSaveFileDialog(new FileSaverDescriptor("Export configuration", "Export to", "xml"), project);
+//            VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
+//            VirtualFileWrapper target = saver.save(projectDir, "mybatis-generator.xml");
+//            if (target != null) {
+//                File file = target.getFile();
+//                getData(paramWrapper);
+//                parametersHandler.exportConfiguration(paramWrapper, file, project);
+//            }
+//        }
+//    };
 
     @Override
     protected Action[] createLeftSideActions() {
-        return new Action[]{stashAction, exportAction};
+        return new Action[]{stashAction};
     }
 
     @Override // remember window position and size

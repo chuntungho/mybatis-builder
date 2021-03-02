@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.action;
@@ -111,13 +111,13 @@ public class ObjectTreeHandler {
     // load active connection on start
     public void initData() {
         ApplicationManager.getApplication().invokeLater(
-                () -> loadConnectionNodes()
+                this::loadConnectionNodes
         );
     }
 
     private synchronized void loadConnectionNodes() {
         List<ConnectionInfo> connectionInfoList = service.loadConnectionInfoList();
-        if (connectionInfoList != null && connectionInfoList.size() > 0) {
+        if (connectionInfoList != null && !connectionInfoList.isEmpty()) {
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) objectTree.getModel().getRoot();
             for (ConnectionInfo connectionInfo : connectionInfoList) {
                 if (Boolean.TRUE.equals(connectionInfo.getActive())) {
@@ -174,7 +174,8 @@ public class ObjectTreeHandler {
     }
 
     public TreeWillExpandListener getTreeWillExpandListener() {
-        TreeWillExpandListener listener = new TreeWillExpandListener() {
+
+        return new TreeWillExpandListener() {
             @Override
             public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
@@ -190,12 +191,11 @@ public class ObjectTreeHandler {
                 // NOOP
             }
         };
-
-        return listener;
     }
 
     public MouseListener getMouseListener() {
-        MouseListener mouseListener = new PopupHandler() {
+
+        return new PopupHandler() {
             @Override
             public void invokePopup(Component comp, int x, int y) {
                 JTree source = (JTree) comp;
@@ -226,8 +226,6 @@ public class ObjectTreeHandler {
                 }
             }
         };
-
-        return mouseListener;
     }
 
     public TreeCellRenderer getTreeCellRenderer() {

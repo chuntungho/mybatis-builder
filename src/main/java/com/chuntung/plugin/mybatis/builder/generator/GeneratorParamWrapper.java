@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.generator;
@@ -16,17 +16,24 @@ import java.util.List;
 import java.util.Map;
 
 public class GeneratorParamWrapper implements Cloneable {
-    private DefaultParameters defaultParameters;
-    private Map<String, ? extends List<String>> historyMap;
+    private String stashName;
+    private String connectionId;
 
-    private String driverLibrary;
+    // reload default parameters every time
+    private DefaultParameters defaultParameters;
+
+    // just for ui usage
+    private Map<String, ? extends List<String>> historyMap;
 
     private String beginningDelimiter = "`";
     private String endingDelimiter = "`";
     private Boolean trimStrings = true;
     private Boolean databaseRemark = true;
 
+    // derived from connection
+    private String driverLibrary;
     private JDBCConnectionConfiguration jdbcConfig = new JDBCConnectionConfiguration();
+
     private JavaModelGeneratorConfiguration javaModelConfig = new JavaModelGeneratorConfiguration();
     private JavaClientGeneratorConfiguration javaClientConfig = new JavaClientGeneratorConfiguration();
     private SqlMapGeneratorConfiguration sqlMapConfig = new SqlMapGeneratorConfiguration();
@@ -149,7 +156,6 @@ public class GeneratorParamWrapper implements Cloneable {
         this.selectedPlugins = selectedPlugins;
     }
 
-    @Transient
     public List<TableInfo> getSelectedTables() {
         return selectedTables;
     }
