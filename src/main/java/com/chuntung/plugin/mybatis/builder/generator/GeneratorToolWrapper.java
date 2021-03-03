@@ -235,20 +235,30 @@ public class GeneratorToolWrapper {
 
     public static List<String> runWithConfigurationFile(String path, Properties properties, ProgressCallback processCallback)
             throws IOException, XMLParserException, InvalidConfigurationException, SQLException, InterruptedException {
-        List<String> warnings = new ArrayList<>();
-        ConfigurationParser parser = new ConfigurationParser(warnings);
-        Configuration configuration = parser.parseConfiguration(new File(path));
-        validateClassPath(configuration.getClassPathEntries(), properties);
+        // to avoid xml parsing issue
+        String origin = System.getProperty("javax.xml.parsers.DocumentBuilderFactory");
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+        try {
+            List<String> warnings = new ArrayList<>();
+            ConfigurationParser parser = new ConfigurationParser(warnings);
+            Configuration configuration = parser.parseConfiguration(new File(path));
+            validateClassPath(configuration.getClassPathEntries(), properties);
 
-        Context context = configuration.getContexts().get(0);
-        context.getProperties().putAll(properties);
-        validateTargetProject(context);
+            Context context = configuration.getContexts().get(0);
+            context.getProperties().putAll(properties);
+            validateTargetProject(context);
 
-        ShellCallback shellCallback = ShellCallbackFactory.createInstance(context.getTargetRuntime());
-        MyBatisGenerator generator = new MyBatisGenerator(configuration, shellCallback, warnings);
-        generator.generate(processCallback);
+            ShellCallback shellCallback = ShellCallbackFactory.createInstance(context.getTargetRuntime());
+            MyBatisGenerator generator = new MyBatisGenerator(configuration, shellCallback, warnings);
+            generator.generate(processCallback);
+            return warnings;
+        } finally {
+            // restore
+            if (origin != null) {
+                System.setProperty("javax.xml.parsers.DocumentBuilderFactory", origin);
+            }
+        }
 
-        return warnings;
     }
 
     private static void validateClassPath(List<String> classPathEntries, Properties properties) throws IOException {

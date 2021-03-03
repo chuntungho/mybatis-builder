@@ -18,3 +18,8 @@ Provides with additional features as below.
 - "Run MyBatis Generator" with official configuration file.
 
 
+Reference:
+
+- Project [dependencies](dependencies.md)
+- MyBatis Generator [doc](http://mybatis.org/generator)
+- MyBatis Dynamic SQL [doc](https://github.com/mybatis/mybatis-dynamic-sql)

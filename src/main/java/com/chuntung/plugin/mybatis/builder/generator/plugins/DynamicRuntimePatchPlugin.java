@@ -6,6 +6,7 @@ package com.chuntung.plugin.mybatis.builder.generator.plugins;
 
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
+import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 
@@ -21,7 +22,8 @@ public class DynamicRuntimePatchPlugin extends PluginAdapter {
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
-        // enable sub package for support type
+        // enable sub package for support type, this will be resolved in MBG 1.4.1
+        // see org.mybatis.generator.api.IntrospectedTable.calculateJavaClientAttributes
         if (stringHasValue(introspectedTable.getFullyQualifiedTable().getDomainObjectSubPackage())) {
             String supportType = introspectedTable.getMyBatisDynamicSqlSupportType();
             StringBuilder sb = new StringBuilder();
@@ -37,7 +39,12 @@ public class DynamicRuntimePatchPlugin extends PluginAdapter {
     @Override
     public boolean clientGenerated(Interface interfaze,
                                    IntrospectedTable introspectedTable) {
-        // add generated comment to mapper method
+        // add generated comment to mapper fields
+        for (Field field : interfaze.getFields()) {
+            context.getCommentGenerator().addFieldComment(field, introspectedTable);
+        }
+
+        // add generated comment to mapper methods
         for (Method method : interfaze.getMethods()) {
             context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
         }

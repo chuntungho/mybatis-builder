@@ -148,6 +148,7 @@ public class BuildAction extends DumbAwareAction {
                         tableInfo.setDomainName(lastTableInfo.getDomainName());
                         tableInfo.setKeyColumn(lastTableInfo.getKeyColumn());
                         tableInfo.setCustomColumns(lastTableInfo.getCustomColumns());
+                        tableInfo.setColumnRenamingRule(lastTableInfo.getColumnRenamingRule());
                     }
 
                     // pre-gen domain name for reference

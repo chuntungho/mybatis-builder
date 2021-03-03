@@ -51,8 +51,6 @@ dependencies {
         exclude group: 'org.junit.platform'
         exclude group: 'org.assertj'
     }
-    // https://mvnrepository.com/artifact/xerces/xercesImpl
-    implementation group: 'xerces', name: 'xercesImpl', version: '2.11.0'
     compile group: 'com.github.javaparser', name: 'javaparser-core', version: '3.19.0'
     compile group: 'org.postgresql', name: 'postgresql', version: '9.4.1212'
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.47'
