@@ -6,7 +6,7 @@ package com.chuntung.plugin.mybatis.builder.generator;
 
 import com.chuntung.plugin.mybatis.builder.generator.annotation.PluginConfig;
 import com.chuntung.plugin.mybatis.builder.generator.callback.ShellCallbackFactory;
-import com.chuntung.plugin.mybatis.builder.generator.plugins.DynamicRuntimePatchPlugin;
+import com.chuntung.plugin.mybatis.builder.generator.plugins.DsqlRuntimePatchPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.RenamePlugin;
 import com.chuntung.plugin.mybatis.builder.model.ColumnActionEnum;
 import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
@@ -149,7 +149,7 @@ public class GeneratorToolWrapper {
 
         // add patch plugin for dynamic sql runtime
         if (DefaultParameters.MY_BATIS_3_DYNAMIC_SQL.equals(context.getTargetRuntime())) {
-            context.addPluginConfiguration(createPluginConfig(DynamicRuntimePatchPlugin.class));
+            context.addPluginConfiguration(createPluginConfig(DsqlRuntimePatchPlugin.class));
 
             // Disable Insert/Update/Delete
             TableConfigurationWrapper tableConfig = paramWrapper.getDefaultTableConfigWrapper();

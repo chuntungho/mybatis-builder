@@ -112,9 +112,9 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
                 imports.add(new Import(oldImportMatcher.group(1)));
             }
 
-            // sort import: static -> java -> custom
-            imports.sort(Comparator.comparingInt((Import l) -> (l.isStatic ? 0 : 1))
-                    .thenComparingInt(l -> (l.name.startsWith("java") ? 0 : 1))
+            // idea import order: custom -> java -> static
+            imports.sort(Comparator.comparingInt((Import l) -> (l.isStatic ? 1 : 0))
+                    .thenComparingInt(l -> (l.name.startsWith("java") ? 1 : 0))
                     .thenComparing(l -> l.name));
 
             Iterator<Import> iterator = imports.iterator();

@@ -10,8 +10,8 @@
       <property name="type" value="com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin" />
     </plugin>
 
-    <plugin type="com.chuntung.plugin.mybatis.builder.generator.plugins.DynamicRuntimePatchPlugin">
-      <property name="type" value="com.chuntung.plugin.mybatis.builder.generator.plugins.DynamicRuntimePatchPlugin" />
+    <plugin type="com.chuntung.plugin.mybatis.builder.generator.plugins.DsqlRuntimePatchPlugin">
+      <property name="type" value="com.chuntung.plugin.mybatis.builder.generator.plugins.DsqlRuntimePatchPlugin" />
     </plugin>
 
     <commentGenerator type="com.chuntung.plugin.mybatis.builder.generator.CustomCommentGenerator">

@@ -4,17 +4,22 @@
 
 package com.chuntung.plugin.mybatis.builder.generator.plugins;
 
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 
 import java.util.List;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
-public class DynamicRuntimePatchPlugin extends PluginAdapter {
+/**
+ * the plugin to patch Dynamic SQL runtime
+ */
+public class DsqlRuntimePatchPlugin extends PluginAdapter {
     @Override
     public boolean validate(List<String> warnings) {
         return "MyBatis3DynamicSql".equals(context.getTargetRuntime());
@@ -34,6 +39,14 @@ public class DynamicRuntimePatchPlugin extends PluginAdapter {
             sb.append(supportType.substring(idx + 1));
             introspectedTable.setMyBatisDynamicSqlSupportType(sb.toString());
         }
+    }
+
+    @Override
+    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                        IntrospectedColumn introspectedColumn,
+                                        IntrospectedTable introspectedTable, ModelClassType modelClassType) {
+        context.getCommentGenerator().addFieldComment(field, introspectedTable, introspectedColumn);
+        return true;
     }
 
     @Override
