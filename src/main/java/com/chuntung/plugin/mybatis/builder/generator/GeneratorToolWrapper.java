@@ -87,7 +87,7 @@ public class GeneratorToolWrapper {
         configuration.addContext(context);
 
         context.setId("mybatis-builder");
-        context.setTargetRuntime(defaultParameters.getTargetRuntime());
+        context.setTargetRuntime(paramWrapper.getTargetRuntime());
         context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, defaultParameters.getJavaFileEncoding());
 
         context.addProperty(PropertyRegistry.CONTEXT_AUTO_DELIMIT_KEYWORDS, "true");
@@ -148,7 +148,7 @@ public class GeneratorToolWrapper {
         }
 
         // add patch plugin for dynamic sql runtime
-        if (DefaultParameters.MY_BATIS_3_DYNAMIC_SQL.equals(context.getTargetRuntime())) {
+        if (GeneratorParamWrapper.MY_BATIS_3_DYNAMIC_SQL.equals(context.getTargetRuntime())) {
             context.addPluginConfiguration(createPluginConfig(DsqlRuntimePatchPlugin.class));
 
             // Disable Insert/Update/Delete

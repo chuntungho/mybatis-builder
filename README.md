@@ -23,3 +23,4 @@ Reference:
 - Project [dependencies](dependencies.md)
 - MyBatis Generator [doc](http://mybatis.org/generator)
 - MyBatis Dynamic SQL [doc](https://github.com/mybatis/mybatis-dynamic-sql)
+- [Free MyBatis Plugin](https://github.com/chuntungho/free-mybatis-plugin/releases/) for Idea IC

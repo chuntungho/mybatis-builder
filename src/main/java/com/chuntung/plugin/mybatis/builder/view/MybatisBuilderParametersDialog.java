@@ -36,6 +36,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.plaf.basic.BasicToggleButtonUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -93,9 +94,15 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JTextField replaceText;
     private JButton replaceButton;
     private JButton resetButton;
+    private JTabbedPane tabbedPane;
+    private JComboBox targetRuntimeComboBox;
+    private JToggleButton tableButton;
+    private JToggleButton othersButton;
+    private JPanel cardContainer;
 
     private boolean morePanelVisible = false;
 
+    private static final String[] targetRuntimes = {"MyBatis3DynamicSql", "MyBatis3", "MyBatis3Simple"};
     private String[] javaClientTypes = {"XMLMAPPER", "ANNOTATEDMAPPER", "MIXEDMAPPER"};
     private String[] keyTypes = {"", "pre", "post"};
 
@@ -173,6 +180,41 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         setTitle("MyBatis Builder - Parameters");
         Cursor hand = new Cursor(Cursor.HAND_CURSOR);
 
+        // reset UI to make background customizable
+        BasicToggleButtonUI basicUi = new BasicToggleButtonUI();
+        tableButton.setUI(basicUi);
+        tableButton.setCursor(hand);
+        othersButton.setUI(basicUi);
+        othersButton.setCursor(hand);
+
+        ItemListener itemListener = e -> {
+            JToggleButton btn = (JToggleButton) e.getSource();
+            btn.setBackground(ItemEvent.SELECTED == e.getStateChange() ? SystemColor.controlLtHighlight : null);
+
+            if (ItemEvent.SELECTED == e.getStateChange()) {
+                String cmd = btn.getActionCommand();
+                CardLayout layout = (CardLayout) (cardContainer.getLayout());
+                layout.show(cardContainer, cmd);
+            }
+        };
+        tableButton.addItemListener(itemListener);
+        othersButton.addItemListener(itemListener);
+
+        // select first button to trigger listener
+        tableButton.setSelected(true);
+
+        targetRuntimeComboBox.setModel(new DefaultComboBoxModel(targetRuntimes));
+        // set null to trigger listener
+        targetRuntimeComboBox.setSelectedItem(null);
+        targetRuntimeComboBox.addItemListener(e -> {
+            boolean dsql = "MyBatis3DynamicSql".equals(e.getItem());
+
+            // disable example for dynamic sql
+            ViewUtil.makeAvailable(examplePanel, !dsql);
+            ViewUtil.makeAvailable(lockPanel, !dsql);
+            ViewUtil.makeAvailable(sqlMapGeneratorPanel, !dsql);
+        });
+
         // init checkbox panel
         ViewUtil.initCheckBoxPanel(examplePanel, exampleAllCheckBox);
         ViewUtil.initCheckBoxPanel(basicPanel, basicAllCheckBox);
@@ -204,39 +246,29 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         keyTypeComboBox.setModel(new DefaultComboBoxModel(keyTypes));
 
         // rename domain
-        replaceButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String regex = searchText.getText(), replace = replaceText.getText();
-                ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>) selectedTables.getModel();
-                for (TableInfo item : model.getItems()) {
-                    if (item.getDomainName() != null && !item.getDomainName().isEmpty()) {
-                        item.setDomainName(item.getDomainName().replaceAll(regex, replace));
-                    }
+        replaceButton.addActionListener(e -> {
+            String regex = searchText.getText(), replace = replaceText.getText();
+            ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>) selectedTables.getModel();
+            for (TableInfo item : model.getItems()) {
+                if (item.getDomainName() != null && !item.getDomainName().isEmpty()) {
+                    item.setDomainName(item.getDomainName().replaceAll(regex, replace));
                 }
-                model.fireTableDataChanged();
             }
+            model.fireTableDataChanged();
         });
 
-        resetButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>) selectedTables.getModel();
-                for (TableInfo item : model.getItems()) {
-                    item.setDomainName(JavaBeansUtil.getCamelCaseString(item.getTableName(), true));
-                }
-                model.fireTableDataChanged();
+        resetButton.addActionListener(e -> {
+            ObjectTableModel<TableInfo> model = (ObjectTableModel<TableInfo>) selectedTables.getModel();
+            for (TableInfo item : model.getItems()) {
+                item.setDomainName(JavaBeansUtil.getCamelCaseString(item.getTableName(), true));
             }
+            model.fireTableDataChanged();
         });
+
 
         // java client Combo box
         javaClientTypeComboBox.setModel(new DefaultComboBoxModel(javaClientTypes));
-        javaClientTypeComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                sqlMapGeneratorPanel.setVisible(!"ANNOTATEDMAPPER".equals(e.getItem()));
-            }
-        });
+        javaClientTypeComboBox.addItemListener(e -> sqlMapGeneratorPanel.setVisible(!"ANNOTATEDMAPPER".equals(e.getItem())));
 
         // directory chooser
         javaModelProjectText.addBrowseFolderListener("Choose Target Project", "", null, FOLDER_DESCRIPTOR);
@@ -269,6 +301,12 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     }
 
     private void setData(GeneratorParamWrapper data) {
+        if (data.getTargetRuntime() == null) {
+            targetRuntimeComboBox.setSelectedIndex(0);
+        } else {
+            targetRuntimeComboBox.setSelectedItem(data.getTargetRuntime());
+        }
+
         // context
         beginningDelimiterText.setText(data.getBeginningDelimiter());
         endingDelimiterText.setText(data.getEndingDelimiter());
@@ -291,21 +329,19 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         lombokSupportCheckBox.setSelected(lombokEnabled);
 
         // -- select with lock, not applied to dynamic sql
-        if (!DefaultParameters.MY_BATIS_3_DYNAMIC_SQL.equals(data.getDefaultParameters().getTargetRuntime())) {
-            String selectWithLockPlugin = SelectWithLockPlugin.class.getName();
-            boolean selectWithLockEnabled = data.getSelectedPlugins().containsKey(selectWithLockPlugin);
-            PluginConfigWrapper pluginConfigWrapper = data.getSelectedPlugins().get(selectWithLockPlugin);
-            if (selectWithLockEnabled && pluginConfigWrapper != null) {
-                SelectWithLockConfig selectWithLockConfig = (SelectWithLockConfig) pluginConfigWrapper.getPluginConfig();
-                selectByPrimaryKeyWithLockCheckBox.setSelected(selectWithLockConfig.byPrimaryKeyWithLockEnabled);
-                selectByExampleWithLockCheckBox.setSelected(selectWithLockConfig.byExampleWithLockEnabled);
-            }
-            SelectWithLockConfig selectWithLockConfig = defaultParameters.getSelectWithLockConfig();
-            Object byPrimaryKeyOverride = ConfigUtil.getFieldValueByConfigKey(selectWithLockConfig, SelectWithLockConfig.BY_PRIMARY_KEY_WITH_LOCK_OVERRIDE);
-            Object byExampleOverride = ConfigUtil.getFieldValueByConfigKey(selectWithLockConfig, SelectWithLockConfig.BY_EXAMPLE_WITH_LOCK_OVERRIDE);
-            selectByPrimaryKeyWithLockCheckBox.setToolTipText(StringUtil.valueOf(byPrimaryKeyOverride));
-            selectByExampleWithLockCheckBox.setToolTipText(StringUtil.valueOf(byExampleOverride));
+        String selectWithLockPlugin = SelectWithLockPlugin.class.getName();
+        boolean selectWithLockEnabled = data.getSelectedPlugins().containsKey(selectWithLockPlugin);
+        PluginConfigWrapper pluginConfigWrapper = data.getSelectedPlugins().get(selectWithLockPlugin);
+        if (selectWithLockEnabled && pluginConfigWrapper != null) {
+            SelectWithLockConfig selectWithLockConfig = (SelectWithLockConfig) pluginConfigWrapper.getPluginConfig();
+            selectByPrimaryKeyWithLockCheckBox.setSelected(selectWithLockConfig.byPrimaryKeyWithLockEnabled);
+            selectByExampleWithLockCheckBox.setSelected(selectWithLockConfig.byExampleWithLockEnabled);
         }
+        SelectWithLockConfig selectWithLockConfig = defaultParameters.getSelectWithLockConfig();
+        Object byPrimaryKeyOverride = ConfigUtil.getFieldValueByConfigKey(selectWithLockConfig, SelectWithLockConfig.BY_PRIMARY_KEY_WITH_LOCK_OVERRIDE);
+        Object byExampleOverride = ConfigUtil.getFieldValueByConfigKey(selectWithLockConfig, SelectWithLockConfig.BY_EXAMPLE_WITH_LOCK_OVERRIDE);
+        selectByPrimaryKeyWithLockCheckBox.setToolTipText(StringUtil.valueOf(byPrimaryKeyOverride));
+        selectByExampleWithLockCheckBox.setToolTipText(StringUtil.valueOf(byExampleOverride));
 
         // default table config
         TableConfigurationWrapper defaultTableConfig = data.getDefaultTableConfigWrapper();
@@ -314,17 +350,12 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         selectByPrimaryKeyCheckBox.setSelected(defaultTableConfig.isSelectByPrimaryKeyStatementEnabled());
         deleteByPrimaryKeyCheckBox.setSelected(defaultTableConfig.isDeleteByPrimaryKeyStatementEnabled());
 
-        // disable example for dynamic sql
-        if (DefaultParameters.MY_BATIS_3_DYNAMIC_SQL.equals(data.getDefaultParameters().getTargetRuntime())) {
-            ViewUtil.makeAvailable(examplePanel, false);
-            ViewUtil.makeAvailable(lockPanel, false);
-            ViewUtil.makeAvailable(sqlMapGeneratorPanel, false);
-        } else {
-            selectByExampleCheckbox.setSelected(defaultTableConfig.isSelectByExampleStatementEnabled());
-            countByExampleCheckbox.setSelected(defaultTableConfig.isCountByExampleStatementEnabled());
-            updateByExampleCheckbox.setSelected(defaultTableConfig.isUpdateByExampleStatementEnabled());
-            deleteByExampleCheckbox.setSelected(defaultTableConfig.isDeleteByExampleStatementEnabled());
-        }
+        // example, not applied to dynamic sql
+        selectByExampleCheckbox.setSelected(defaultTableConfig.isSelectByExampleStatementEnabled());
+        countByExampleCheckbox.setSelected(defaultTableConfig.isCountByExampleStatementEnabled());
+        updateByExampleCheckbox.setSelected(defaultTableConfig.isUpdateByExampleStatementEnabled());
+        deleteByExampleCheckbox.setSelected(defaultTableConfig.isDeleteByExampleStatementEnabled());
+
         searchText.setText(defaultTableConfig.getDomainObjectRenamingRule().getSearchString());
         replaceText.setText(defaultTableConfig.getDomainObjectRenamingRule().getReplaceString());
 
@@ -400,6 +431,9 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     }
 
     private void getData(GeneratorParamWrapper data) {
+        // runtime
+        data.setTargetRuntime(targetRuntimeComboBox.getSelectedItem().toString());
+
         // context
         data.setBeginningDelimiter(beginningDelimiterText.getText());
         data.setEndingDelimiter(endingDelimiterText.getText());

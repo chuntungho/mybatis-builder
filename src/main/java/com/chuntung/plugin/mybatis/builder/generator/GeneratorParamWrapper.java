@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 public class GeneratorParamWrapper implements Cloneable {
+    public static final String MY_BATIS_3_DYNAMIC_SQL = "MyBatis3DynamicSql";
+
     private String stashName;
     private String connectionId;
 
@@ -24,6 +26,8 @@ public class GeneratorParamWrapper implements Cloneable {
 
     // just for ui usage
     private Map<String, ? extends List<String>> historyMap;
+
+    private String targetRuntime;
 
     private String beginningDelimiter = "`";
     private String endingDelimiter = "`";
@@ -46,6 +50,13 @@ public class GeneratorParamWrapper implements Cloneable {
     // selected tables
     private List<TableInfo> selectedTables;
 
+    public String getTargetRuntime() {
+        return targetRuntime;
+    }
+
+    public void setTargetRuntime(String targetRuntime) {
+        this.targetRuntime = targetRuntime;
+    }
 
     @Transient
     public DefaultParameters getDefaultParameters() {

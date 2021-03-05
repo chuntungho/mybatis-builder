@@ -11,9 +11,6 @@ import org.mybatis.generator.config.ModelType;
 
 public class DefaultParameters {
 
-    public static final String MY_BATIS_3_DYNAMIC_SQL = "MyBatis3DynamicSql";
-
-    private String targetRuntime = MY_BATIS_3_DYNAMIC_SQL;
     private ModelType defaultModelType = ModelType.FLAT;
     private String javaFileEncoding = "UTF-8";
     private Boolean forceBigDecimals = true;
@@ -29,15 +26,6 @@ public class DefaultParameters {
     private SelectWithLockConfig selectWithLockConfig = new SelectWithLockConfig();
 
     private RenamePlugin.Config renameConfig = new RenamePlugin.Config();
-
-
-    public String getTargetRuntime() {
-        return targetRuntime;
-    }
-
-    public void setTargetRuntime(String targetRuntime) {
-        this.targetRuntime = targetRuntime;
-    }
 
     public ModelType getDefaultModelType() {
         return defaultModelType;

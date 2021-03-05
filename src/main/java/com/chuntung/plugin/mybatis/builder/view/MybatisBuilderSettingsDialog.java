@@ -56,7 +56,6 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JButton testConnectionButton;
     private JTextField javaFileEncodingText;
     private JComboBox defaultModelTypeComboBox;
-    private JComboBox targetRuntimeComboBox;
     private JPanel hostPanel;
     private JPanel connectionPanel;
     private JTextField customAnnotationTypeText;
@@ -76,8 +75,6 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private Project project;
     private ConnectionInfo current;
     private Action applyAction;
-
-    private static final String[] targetRuntimes = {"MyBatis3DynamicSql", "MyBatis3", "MyBatis3Simple"};
 
     public MybatisBuilderSettingsDialog(@Nullable Project project) {
         super(project);
@@ -173,7 +170,6 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private void initDefaultParameterPane() {
         // init component
         defaultModelTypeComboBox.setModel(new DefaultComboBoxModel(ModelType.values()));
-        targetRuntimeComboBox.setModel(new DefaultComboBoxModel(targetRuntimes));
 
         // set data
         DefaultParameters defaultParameters = settingsHandler.getDefaultParameters();
@@ -310,12 +306,6 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     }
 
     public void setData(DefaultParameters defaultParameters) {
-        if (defaultParameters.getTargetRuntime() == null) {
-            targetRuntimeComboBox.setSelectedIndex(0);
-        } else {
-            targetRuntimeComboBox.setSelectedItem(defaultParameters.getTargetRuntime());
-        }
-
         if (defaultParameters.getDefaultModelType() == null) {
             defaultModelTypeComboBox.setSelectedIndex(0);
         } else {
@@ -345,7 +335,6 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     }
 
     public void getData(DefaultParameters defaultParameters) {
-        defaultParameters.setTargetRuntime((String) targetRuntimeComboBox.getSelectedItem());
         defaultParameters.setDefaultModelType((ModelType) defaultModelTypeComboBox.getSelectedItem());
         defaultParameters.setJavaFileEncoding(javaFileEncodingText.getText());
         defaultParameters.setGeneratedComment(generatedCommentText.getText());
