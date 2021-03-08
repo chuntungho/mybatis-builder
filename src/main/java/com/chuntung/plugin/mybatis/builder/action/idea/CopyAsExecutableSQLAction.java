@@ -29,7 +29,7 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
 
     private static final String PREPARING = "Preparing: ";
     private static final String PARAMETERS = "Parameters: ";
-    private static final Set<String> QUOTE_TYPES = new HashSet<>(Arrays.asList("(String)", "(Date)", "(Time)", "(Timestamp)"));
+    private static final Set<String> QUOTE_TYPES = new HashSet<>(Arrays.asList("(String)", "(Date)", "(Time)", "(Timestamp)", "(DateTime)", "(LocalDateTime)"));
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {

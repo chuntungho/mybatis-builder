@@ -48,20 +48,30 @@ public class GeneratorToolWrapper {
     }
 
     public List<String> generate() throws InvalidConfigurationException, InterruptedException, SQLException, IOException {
-        Configuration configuration = new Configuration();
-        populateConfiguration(configuration);
+        // to avoid xml parsing issue in MBG 1.4.1-SNAPSHOT
+        String origin = System.getProperty("javax.xml.parsers.DocumentBuilderFactory");
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+        try {
+            Configuration configuration = new Configuration();
+            populateConfiguration(configuration);
 
-        // start invocation
-        ShellCallback shellCallback = ShellCallbackFactory.createInstance(configuration.getContexts().get(0).getTargetRuntime());
+            // start invocation
+            ShellCallback shellCallback = ShellCallbackFactory.createInstance(configuration.getContexts().get(0).getTargetRuntime());
 
-        List<String> warnings = new ArrayList<>();
-        Set<String> fullyQualifiedTables = new HashSet<>();
-        Set<String> contexts = new HashSet<>();
+            List<String> warnings = new ArrayList<>();
+            Set<String> fullyQualifiedTables = new HashSet<>();
+            Set<String> contexts = new HashSet<>();
 
-        MyBatisGenerator myBatisGenerator = new MyBatisGenerator(configuration, shellCallback, warnings);
-        myBatisGenerator.generate(progressCallback, contexts, fullyQualifiedTables);
+            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(configuration, shellCallback, warnings);
+            myBatisGenerator.generate(progressCallback, contexts, fullyQualifiedTables);
 
-        return warnings;
+            return warnings;
+        } finally {
+            // restore
+            if (origin != null) {
+                System.setProperty("javax.xml.parsers.DocumentBuilderFactory", origin);
+            }
+        }
     }
 
     // discard export function since the library does not support anymore
@@ -235,7 +245,7 @@ public class GeneratorToolWrapper {
 
     public static List<String> runWithConfigurationFile(String path, Properties properties, ProgressCallback processCallback)
             throws IOException, XMLParserException, InvalidConfigurationException, SQLException, InterruptedException {
-        // to avoid xml parsing issue
+        // to avoid xml parsing issue in MBG 1.4.1-SNAPSHOT
         String origin = System.getProperty("javax.xml.parsers.DocumentBuilderFactory");
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
         try {

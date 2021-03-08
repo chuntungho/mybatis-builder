@@ -4,7 +4,7 @@
   "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 
 <generatorConfiguration>
-  <context id="test" targetRuntime="MyBatis3DynamicSql">
+  <context id="test" targetRuntime="MyBatis3">
     <plugin type="com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin">
       <property name="customAnnotationType" value="org.apache.ibatis.annotations.Mapper" />
       <property name="type" value="com.chuntung.plugin.mybatis.builder.generator.plugins.MapperAnnotationPlugin" />

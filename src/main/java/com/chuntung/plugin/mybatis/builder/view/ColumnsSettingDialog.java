@@ -50,8 +50,6 @@ public class ColumnsSettingDialog extends DialogWrapper {
 
         setData(tableInfo);
 
-        // TODO save to column rename rule??
-
         // rename field
         replaceButton.addActionListener(new ActionListener() {
             @Override
