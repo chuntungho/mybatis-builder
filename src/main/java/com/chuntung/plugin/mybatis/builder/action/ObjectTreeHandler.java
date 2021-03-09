@@ -8,6 +8,7 @@ import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
 import com.chuntung.plugin.mybatis.builder.action.idea.BuildAction;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
+import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -32,9 +33,9 @@ public class ObjectTreeHandler {
 
     // custom tree cell renderer
     private static class CustomTreeCellRenderer extends ColoredTreeCellRenderer {
-        private Icon connectionIcon = IconLoader.getIcon("/images/connection.png");
-        private Icon databaseIcon = IconLoader.getIcon("/images/database.png");
-        private Icon tableIcon = IconLoader.getIcon("/images/table.png");
+        private Icon connectionIcon = ViewUtil.getIcon("/images/connection.png");
+        private Icon databaseIcon = ViewUtil.getIcon("/images/database.png");
+        private Icon tableIcon = ViewUtil.getIcon("/images/table.png");
 
         @Override
         public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {

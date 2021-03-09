@@ -4,13 +4,14 @@
 
 package com.chuntung.plugin.mybatis.builder.generator.callback;
 
-import org.apache.commons.io.FileUtils;
+import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -106,7 +107,7 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
             sb.append(NEWLINE);
 
             // append merged imports
-            String oldSrc = FileUtils.readFileToString(existingFile);
+            String oldSrc = StringUtil.readFromFile(existingFile, Charset.defaultCharset());
             Matcher oldImportMatcher = IMPORT_PATTERN.matcher(oldSrc);
             while (oldImportMatcher.find()) {
                 imports.add(new Import(oldImportMatcher.group(1)));

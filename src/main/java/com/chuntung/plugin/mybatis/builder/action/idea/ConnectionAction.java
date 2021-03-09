@@ -6,6 +6,7 @@ package com.chuntung.plugin.mybatis.builder.action.idea;
 
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
+import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.util.IconLoader;
@@ -19,7 +20,7 @@ public class ConnectionAction extends DumbAwareAction{
     private JTree objectTree;
 
     public ConnectionAction(ConnectionInfo connectionInfo, JTree objectTree) {
-        super(connectionInfo.getName(), connectionInfo.getDescription(), IconLoader.getIcon(connectionInfo.getDriverType().getIcon()));
+        super(connectionInfo.getName(), connectionInfo.getDescription(), ViewUtil.getIcon(connectionInfo.getDriverType().getIcon()));
         this.connectionInfo = connectionInfo;
         this.objectTree = objectTree;
     }

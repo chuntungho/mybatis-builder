@@ -4,7 +4,11 @@
 
 package com.chuntung.plugin.mybatis.builder.util;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.*;
+import java.nio.charset.Charset;
 
 public class StringUtil {
     public static boolean stringHasValue(String str) {
@@ -27,5 +31,18 @@ public class StringUtil {
         } else {
             return object.toString();
         }
+    }
+
+    /**
+     * Read text from given file with given charset.
+     *
+     * @param file
+     * @param charset
+     * @return
+     * @throws IOException
+     */
+    public static String readFromFile(File file, Charset charset) throws IOException {
+        Reader reader = new InputStreamReader(new FileInputStream(file), charset);
+        return IOUtils.toString(reader);
     }
 }

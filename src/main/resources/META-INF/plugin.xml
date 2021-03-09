@@ -90,6 +90,9 @@
 
         <!-- core project service -->
         <projectService serviceImplementation="com.chuntung.plugin.mybatis.builder.MybatisBuilderService" />
+
+        <!-- notification group, since 203.3645.34 -->
+        <notificationGroup id="MyBatisBuilder.NotificationGroup" displayType="BALLOON" isLogByDefault="true" />
     </extensions>
 
 </idea-plugin>

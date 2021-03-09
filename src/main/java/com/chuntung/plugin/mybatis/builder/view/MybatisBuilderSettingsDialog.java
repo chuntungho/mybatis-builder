@@ -139,7 +139,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 DriverTypeEnum item = (DriverTypeEnum) value;
                 if (item.getIcon() != null) {
-                    setIcon(IconLoader.getIcon(item.getIcon()));
+                    setIcon(ViewUtil.getIcon(item.getIcon()));
                 }
                 return this;
             }
