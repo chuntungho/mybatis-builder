@@ -5,6 +5,9 @@
 package com.chuntung.plugin.mybatis.builder.generator.callback;
 
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ast.CompilationUnit;
 import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
@@ -32,6 +35,8 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
     // /\*\*\n\s*\* @mbg.generated.*\n\s*\*/((?!\n\s*\n)[\s\S])+\n\s*\n
     private static final String GENERATED = "\\s*/\\*\\*\\n\\s*\\* "
             + MergeConstants.NEW_ELEMENT_TAG + ".*\\n\\s*\\*/((?!\\n\\s*\\n)[\\s\\S])+\\n\\s*\\n";
+    private static final String GENERATED_LAST = "\\s*/\\*\\*\\n\\s*\\* "
+            + MergeConstants.NEW_ELEMENT_TAG + ".*\\n\\s*\\*/((?!\\n\\s*\\n)[\\s\\S])+\\n";
 
     private static final Pattern BODY_PATTERN = Pattern.compile("public interface [^\\{]*\\{([\\s\\S]+)\\}");
     private static final Pattern IMPORT_PATTERN = Pattern.compile("import (.*);\\r?\\n");
@@ -90,6 +95,11 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
         }
 
         try {
+            String oldSrc = StringUtil.readFromFile(existingFile, Charset.defaultCharset());
+            if (oldSrc.equals(newFileSource) || !includingCustom(oldSrc)) {
+                return newFileSource;
+            }
+
             List<Import> imports = new ArrayList<>();
             StringBuffer sb = new StringBuffer();
             Matcher newImportMatcher = IMPORT_PATTERN.matcher(newFileSource);
@@ -107,36 +117,12 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
             sb.append(NEWLINE);
 
             // append merged imports
-            String oldSrc = StringUtil.readFromFile(existingFile, Charset.defaultCharset());
             Matcher oldImportMatcher = IMPORT_PATTERN.matcher(oldSrc);
             while (oldImportMatcher.find()) {
                 imports.add(new Import(oldImportMatcher.group(1)));
             }
 
-            // idea import order: custom -> java -> static
-            imports.sort(Comparator.comparingInt((Import l) -> (l.isStatic ? 1 : 0))
-                    .thenComparingInt(l -> (l.name.startsWith("java") ? 1 : 0))
-                    .thenComparing(l -> l.name));
-
-            Iterator<Import> iterator = imports.iterator();
-            if (iterator.hasNext()) {
-                sb.append(NEWLINE);
-
-                Import former = iterator.next();
-                sb.append(former.asString(null)).append(NEWLINE);
-                while (iterator.hasNext()) {
-                    Import current = iterator.next();
-                    if (current.isStatic == former.isStatic
-                            && (current.name.equals(former.name)
-                            || former.isAsterisk && (current.name.startsWith(former.name)))) {
-                        // merge into former asterisk import or same import
-                        iterator.remove();
-                    } else {
-                        sb.append(current.asString(former)).append(NEWLINE);
-                        former = current;
-                    }
-                }
-            }
+            mergeImport(imports, sb);
 
             // append chars after import
             newImportMatcher.appendTail(sb);
@@ -146,7 +132,11 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
 
             // append delta body
             String deltaSrc = oldSrc.replace("\r", "")
-                    .replaceAll(GENERATED, "\n").replaceAll("\\n\\n+", NEWLINE+NEWLINE);
+                    .replaceAll(GENERATED, "\n")
+                    .replaceAll(GENERATED_LAST, "\n")
+                    // merge new line and change to system new line format
+                    .replaceAll("\\n\\n+", "\n\n")
+                    .replaceAll("\\n", NEWLINE);
             Matcher bodyMatcher = BODY_PATTERN.matcher(deltaSrc);
             if (bodyMatcher.find()) {
                 String stmt = bodyMatcher.group(1);
@@ -163,6 +153,45 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
         } catch (IOException e) {
             throw new ShellException(e.getMessage());
         }
+    }
+
+    private void mergeImport(List<Import> imports, StringBuffer sb) {
+        // idea import order: custom -> java -> static
+        imports.sort(Comparator.comparingInt((Import l) -> (l.isStatic ? 1 : 0))
+                .thenComparingInt(l -> (l.name.startsWith("java") ? 1 : 0))
+                .thenComparing(l -> l.name));
+
+        Iterator<Import> iterator = imports.iterator();
+        if (iterator.hasNext()) {
+            sb.append(NEWLINE);
+
+            Import former = iterator.next();
+            sb.append(former.asString(null)).append(NEWLINE);
+            while (iterator.hasNext()) {
+                Import current = iterator.next();
+                if (current.isStatic == former.isStatic
+                        && (current.name.equals(former.name)
+                        || former.isAsterisk && (current.name.startsWith(former.name)))) {
+                    // merge into former asterisk import or same import
+                    iterator.remove();
+                } else {
+                    sb.append(current.asString(former)).append(NEWLINE);
+                    former = current;
+                }
+            }
+        }
+    }
+
+    private boolean includingCustom(String oldSrc) {
+        ParseResult<CompilationUnit> result = new JavaParser().parse(oldSrc);
+        if (!result.isSuccessful()) {
+            return true;
+        }
+
+        CompilationUnit compilationUnit = result.getResult().get();
+        return compilationUnit.getType(0).getMembers().stream()
+                .anyMatch(x -> !x.getComment().isPresent()
+                        || !x.getComment().get().getContent().contains(MergeConstants.NEW_ELEMENT_TAG));
     }
 
 }
