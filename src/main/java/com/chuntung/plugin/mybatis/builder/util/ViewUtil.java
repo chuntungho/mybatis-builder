@@ -14,7 +14,7 @@ import java.awt.event.ActionListener;
 
 public class ViewUtil {
     public static Icon getIcon(String path) {
-      return  IconLoader.getIcon("/images/connection.png", ViewUtil.class);
+      return  IconLoader.getIcon(path, ViewUtil.class);
     }
 
     /**
