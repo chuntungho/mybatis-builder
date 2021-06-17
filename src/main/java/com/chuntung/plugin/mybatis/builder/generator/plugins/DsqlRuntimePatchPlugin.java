@@ -29,7 +29,7 @@ public class DsqlRuntimePatchPlugin extends PluginAdapter {
     public void initialized(IntrospectedTable introspectedTable) {
         // enable sub package for support type, this will be resolved in MBG 1.4.1
         // see org.mybatis.generator.api.IntrospectedTable.calculateJavaClientAttributes
-        if (stringHasValue(introspectedTable.getFullyQualifiedTable().getDomainObjectSubPackage())) {
+        /*if (stringHasValue(introspectedTable.getFullyQualifiedTable().getDomainObjectSubPackage())) {
             String supportType = introspectedTable.getMyBatisDynamicSqlSupportType();
             StringBuilder sb = new StringBuilder();
             int idx = supportType.lastIndexOf('.');
@@ -38,7 +38,7 @@ public class DsqlRuntimePatchPlugin extends PluginAdapter {
             sb.append('.');
             sb.append(supportType.substring(idx + 1));
             introspectedTable.setMyBatisDynamicSqlSupportType(sb.toString());
-        }
+        }*/
     }
 
     @Override

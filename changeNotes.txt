@@ -1,4 +1,3 @@
 <ul>
-<li>Upgrade <a href="http://mybatis.org/generator/">MyBatis Generator</a> library to 1.4.1-SNAPSHOT</li>
-<li>Support Dynamic SQL Runtime, refer to <a href="https://github.com/mybatis/mybatis-dynamic-sql">mybatis-dynamic-sql</a></li>
+<li>Import latest snapshot version of <a href="http://mybatis.org/generator/">MyBatis Generator</a></li>
 </ul>
