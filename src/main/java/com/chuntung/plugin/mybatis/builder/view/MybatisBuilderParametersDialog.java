@@ -99,6 +99,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JToggleButton tableButton;
     private JToggleButton othersButton;
     private JPanel cardContainer;
+    private JButton sameSourcePathButton;
+    private JPanel othersPanel;
 
     private boolean morePanelVisible = false;
 
@@ -213,6 +215,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
             ViewUtil.makeAvailable(examplePanel, !dsql);
             ViewUtil.makeAvailable(lockPanel, !dsql);
             ViewUtil.makeAvailable(sqlMapGeneratorPanel, !dsql);
+            javaClientTypeComboBox.setEnabled(!dsql);
         });
 
         // init checkbox panel
@@ -266,14 +269,20 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         });
 
 
+        ViewUtil.setCheckboxCursor(othersPanel);
+        
         // java client Combo box
         javaClientTypeComboBox.setModel(new DefaultComboBoxModel(javaClientTypes));
         javaClientTypeComboBox.addItemListener(e -> sqlMapGeneratorPanel.setVisible(!"ANNOTATEDMAPPER".equals(e.getItem())));
 
         // directory chooser
-        javaModelProjectText.addBrowseFolderListener("Choose Target Project", "", null, FOLDER_DESCRIPTOR);
-        javaClientProjectText.addBrowseFolderListener("Choose Target Project", "", null, FOLDER_DESCRIPTOR);
-        sqlMapProjectText.addBrowseFolderListener("Choose Target Project", "", null, FOLDER_DESCRIPTOR);
+        javaModelProjectText.addBrowseFolderListener("Choose source path", "", null, FOLDER_DESCRIPTOR);
+        javaClientProjectText.addBrowseFolderListener("Choose source path", "", null, FOLDER_DESCRIPTOR);
+        sqlMapProjectText.addBrowseFolderListener("Choose resource path", "", null, FOLDER_DESCRIPTOR);
+
+        sameSourcePathButton.addActionListener(e->{
+            javaClientProjectText.setText(javaModelProjectText.getText());
+        });
 
         // package chooser
         javaModelPackageText.addActionListener(getPackageActionListener(project, javaModelPackageText));
@@ -510,7 +519,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     @Override
     protected ValidationInfo doValidate() {
         ValidationInfo info = checkTargetProjects(javaModelProjectText, javaClientProjectText,
-                (sqlMapGeneratorPanel.isVisible() ? sqlMapProjectText : null));
+                (sqlMapGeneratorPanel.isVisible() && sqlMapGeneratorPanel.isEnabled() ? sqlMapProjectText : null));
 
         if (info == null) {
             getData(paramWrapper);

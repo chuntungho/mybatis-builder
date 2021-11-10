@@ -12,11 +12,11 @@ import org.mybatis.generator.config.GeneratedKey;
  * Use wrapper due to GeneratedKey has no default constructor and setter that can't be persisted.
  */
 public class GeneratedKeyWrapper {
-    private String column;
+    private String column = "id";
 
-    private boolean isIdentity;
+    private boolean isIdentity = true;
 
-    private String statement;
+    private String statement = "JDBC";
 
     private String type;
 

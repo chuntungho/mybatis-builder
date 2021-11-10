@@ -14,7 +14,7 @@ import java.awt.event.ActionListener;
 
 public class ViewUtil {
     public static Icon getIcon(String path) {
-      return  IconLoader.getIcon(path, ViewUtil.class);
+        return IconLoader.getIcon(path, ViewUtil.class);
     }
 
     /**
@@ -65,22 +65,33 @@ public class ViewUtil {
         }
     }
 
+    // set checkboxes' cursor to hand
+    public static void setCheckboxCursor(JPanel panel) {
+        Cursor hand = new Cursor(Cursor.HAND_CURSOR);
+        for (int i = 0; i < panel.getComponentCount(); i++) {
+            Component component = panel.getComponent(i);
+            if (component instanceof JPanel) {
+                setCheckboxCursor((JPanel) component);
+            } else if (component instanceof JCheckBox) {
+                component.setCursor(hand);
+            }
+        }
+    }
+
     /**
-     * Init the check box group panel.
+     * Init the checkbox group panel.
      *
      * @param panel
      * @param allCheckBox
      */
     public static void initCheckBoxPanel(JPanel panel, JCheckBox allCheckBox) {
-        Cursor hand = new Cursor(Cursor.HAND_CURSOR);
-        allCheckBox.setCursor(hand);
+        setCheckboxCursor(panel);
         allCheckBox.addActionListener(createCheckAllAction(panel, allCheckBox));
 
         for (int i = 0; i < panel.getComponentCount(); i++) {
             Component component = panel.getComponent(i);
             if (component instanceof JCheckBox) {
                 if (component != allCheckBox) {
-                    component.setCursor(hand);
                     ((JCheckBox) component).addActionListener(createRenderAllCheckBoxAction(panel, allCheckBox));
                 }
             }
