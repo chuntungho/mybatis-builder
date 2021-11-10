@@ -1,3 +1,5 @@
 <ul>
-<li>Import latest snapshot version of <a href="http://mybatis.org/generator/">MyBatis Generator</a></li>
+<li>Fix encoding mismatch issue, use configured file encoding.</li>
+<li>Fix duplicated generated methods on mapper.</li>
+<li>Add column type and default value in model comment.</li>
 </ul>

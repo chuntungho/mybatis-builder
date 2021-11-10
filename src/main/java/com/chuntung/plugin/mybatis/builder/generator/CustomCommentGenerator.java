@@ -14,6 +14,8 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.internal.DefaultCommentGenerator;
 
+import java.sql.SQLType;
+import java.sql.Types;
 import java.util.Properties;
 import java.util.Set;
 
@@ -53,6 +55,22 @@ public class CustomCommentGenerator implements CommentGenerator {
         StringBuilder sb = new StringBuilder();
         sb.append(" * Column: ").append(introspectedColumn.getActualColumnName());
         field.addJavaDocLine(sb.toString());
+
+        sb.setLength(0);
+        sb.append(" * Type: ").append(introspectedColumn.getActualTypeName());
+        // append length for tinyint, char, varchar
+        if (Types.CHAR == introspectedColumn.getJdbcType() ||
+                Types.VARCHAR == introspectedColumn.getJdbcType() ||
+                Types.TINYINT == introspectedColumn.getJdbcType()) {
+            sb.append("(").append(introspectedColumn.getLength()).append(")");
+        }
+        field.addJavaDocLine(sb.toString());
+
+        if (StringUtil.stringHasValue(introspectedColumn.getDefaultValue())) {
+            sb.setLength(0);
+            sb.append(" * Default value: ").append(introspectedColumn.getDefaultValue());
+            field.addJavaDocLine(sb.toString());
+        }
 
         if (StringUtil.stringHasValue(introspectedColumn.getRemarks())) {
             sb.setLength(0);

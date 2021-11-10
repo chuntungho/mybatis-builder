@@ -32,11 +32,17 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
     private static final String JAVA_PREFIX = "java";
     private static final String NEWLINE = System.getProperty("line.separator", "\n");
 
-    // /\*\*\n\s*\* @mbg.generated.*\n\s*\*/((?!\n\s*\n)[\s\S])+\n\s*\n
-    private static final String GENERATED = "\\s*/\\*\\*\\n\\s*\\* "
-            + MergeConstants.NEW_ELEMENT_TAG + ".*\\n\\s*\\*/((?!\\n\\s*\\n)[\\s\\S])+\\n\\s*\\n";
-    private static final String GENERATED_LAST = "\\s*/\\*\\*\\n\\s*\\* "
-            + MergeConstants.NEW_ELEMENT_TAG + ".*\\n\\s*\\*/((?!\\n\\s*\\n)[\\s\\S])+\\n";
+    // generated code    : /\*\*\n(\s*\*.*\n)*\s*\* @mbg.generated.*\n\s*\*/\n((?!\s*\n)[\s\S])+\n
+
+    // comment start     : /\*\*\n
+    // multiple comments : (\s*\*.*\n)*
+    // special comment   : \s*\* @mbg.generated.*\n
+    // comment end       : \s*\*/\n
+    // method            : ((?!\s*\n)[\s\S])+\n
+    // space line        : \s*\n
+    private static final String GENERATED = "\\s*/\\*\\*\\n(\\s*\\*.*\\n)*\\s*\\* "
+            + MergeConstants.NEW_ELEMENT_TAG + ".*\\n\\s*\\*/\\n((?!\\s*\\n)[\\s\\S])+\\n";
+    private static final String GENERATED_WITH_LINE = GENERATED + "\\s*\\n";
 
     private static final Pattern BODY_PATTERN = Pattern.compile("public interface [^\\{]*\\{([\\s\\S]+)\\}");
     private static final Pattern IMPORT_PATTERN = Pattern.compile("import (.*);\\r?\\n");
@@ -95,7 +101,7 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
         }
 
         try {
-            String oldSrc = StringUtil.readFromFile(existingFile, Charset.defaultCharset());
+            String oldSrc = StringUtil.readFromFile(existingFile, Charset.forName(fileEncoding));
             if (oldSrc.equals(newFileSource) || !includingCustom(oldSrc)) {
                 return newFileSource;
             }
@@ -132,8 +138,8 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
 
             // append delta body
             String deltaSrc = oldSrc.replace("\r", "")
+                    .replaceAll(GENERATED_WITH_LINE, "\n")
                     .replaceAll(GENERATED, "\n")
-                    .replaceAll(GENERATED_LAST, "\n")
                     // merge new line and change to system new line format
                     .replaceAll("\\n\\n+", "\n\n")
                     .replaceAll("\\n", NEWLINE);
