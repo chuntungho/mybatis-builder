@@ -38,6 +38,11 @@ import java.util.*;
  * @author Tony Ho
  */
 public class GeneratorToolWrapper {
+    // disable log4j logging
+    // http://mybatis.org/generator/reference/logging.html
+    static {
+        org.mybatis.generator.logging.LogFactory.forceSlf4jLogging();
+    }
 
     private GeneratorParamWrapper paramWrapper;
     private ProgressCallback progressCallback;

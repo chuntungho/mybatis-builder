@@ -1,5 +1,3 @@
 <ul>
-<li>Fix encoding mismatch issue, use configured file encoding.</li>
-<li>Fix duplicated generated methods on mapper.</li>
-<li>Add column type and default value in model comment.</li>
+<li>Disable log4j upon http://mybatis.org/generator/reference/logging.html</li>
 </ul>
