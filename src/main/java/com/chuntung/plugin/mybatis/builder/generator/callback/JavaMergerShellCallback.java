@@ -32,17 +32,13 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
     private static final String JAVA_PREFIX = "java";
     private static final String NEWLINE = System.getProperty("line.separator", "\n");
 
-    // generated code    : /\*\*\n(\s*\*.*\n)*\s*\* @mbg.generated.*\n\s*\*/\n((?!\s*\n)[\s\S])+\n
+    // generated comment    : /\*\*\n(\s*\*.*\n)*\s*\* @mbg.generated.*\n\s*\*/\n((?!\s*\n)
 
     // comment start     : /\*\*\n
     // multiple comments : (\s*\*.*\n)*
     // special comment   : \s*\* @mbg.generated.*\n
     // comment end       : \s*\*/\n
-    // method            : ((?!\s*\n)[\s\S])+\n
-    // space line        : \s*\n
-    private static final String GENERATED = "\\s*/\\*\\*\\n(\\s*\\*.*\\n)*\\s*\\* "
-            + MergeConstants.NEW_ELEMENT_TAG + ".*\\n\\s*\\*/\\n((?!\\s*\\n)[\\s\\S])+\\n";
-    private static final String GENERATED_WITH_LINE = GENERATED + "\\s*\\n";
+    private static final Pattern GENERATED_COMMENT_PATTERN = Pattern.compile("/\\*\\*\\n(\\s*\\*.*\\n)*\\s*\\* @mbg.generated.*\\n\\s*\\*/\\n");
 
     private static final Pattern BODY_PATTERN = Pattern.compile("public interface [^\\{]*\\{([\\s\\S]+)\\}");
     private static final Pattern IMPORT_PATTERN = Pattern.compile("import (.*);\\r?\\n");
@@ -101,6 +97,9 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
         }
 
         try {
+            if (fileEncoding == null) {
+                fileEncoding = "UTF-8";
+            }
             String oldSrc = StringUtil.readFromFile(existingFile, Charset.forName(fileEncoding));
             if (oldSrc.equals(newFileSource) || !includingCustom(oldSrc)) {
                 return newFileSource;
@@ -136,21 +135,8 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
             // remove the end char
             sb.setLength(sb.lastIndexOf("}"));
 
-            // append delta body
-            String deltaSrc = oldSrc.replace("\r", "")
-                    .replaceAll(GENERATED_WITH_LINE, "\n")
-                    .replaceAll(GENERATED, "\n")
-                    // merge new line and change to system new line format
-                    .replaceAll("\\n\\n+", "\n\n")
-                    .replaceAll("\\n", NEWLINE);
-            Matcher bodyMatcher = BODY_PATTERN.matcher(deltaSrc);
-            if (bodyMatcher.find()) {
-                String stmt = bodyMatcher.group(1);
-                sb.append(stmt);
-                if (!stmt.endsWith(NEWLINE)) {
-                    sb.append(NEWLINE);
-                }
-            }
+            // append existing methods
+            appendExistingMethods(oldSrc, sb);
 
             // append end char
             sb.append("}");
@@ -158,6 +144,23 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
             return sb.toString();
         } catch (IOException e) {
             throw new ShellException(e.getMessage());
+        }
+    }
+
+    private void appendExistingMethods(String oldSrc, StringBuffer sb) {
+        Matcher bodyMatcher = BODY_PATTERN.matcher(oldSrc);
+        if (bodyMatcher.find()) {
+            String body = bodyMatcher.group(1);
+            String[] methods = body.split("(\\r?\\n)\\s*(\\r?\\n)+");
+            for (String method : methods) {
+                Matcher matcher = GENERATED_COMMENT_PATTERN.matcher(method.replace("\r", ""));
+                if (!matcher.find()) {
+                    sb.append(NEWLINE).append(method);
+                    if (!method.endsWith(NEWLINE)) {
+                        sb.append(NEWLINE);
+                    }
+                }
+            }
         }
     }
 
@@ -191,7 +194,7 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
     private boolean includingCustom(String oldSrc) {
         ParseResult<CompilationUnit> result = new JavaParser().parse(oldSrc);
         if (!result.isSuccessful()) {
-            return true;
+            return false;
         }
 
         CompilationUnit compilationUnit = result.getResult().get();

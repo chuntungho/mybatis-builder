@@ -1,3 +1,4 @@
 <ul>
 <li>Disable log4j upon http://mybatis.org/generator/reference/logging.html</li>
+<li>Fix dynamic sql mapper merging issue.</li>
 </ul>

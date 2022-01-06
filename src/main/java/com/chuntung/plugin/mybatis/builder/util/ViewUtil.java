@@ -4,7 +4,6 @@
 
 package com.chuntung.plugin.mybatis.builder.util;
 
-import com.chuntung.plugin.mybatis.builder.action.ObjectTreeHandler;
 import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
