@@ -35,13 +35,13 @@
   <dependency>
     <groupId>org.mybatis.dynamic-sql</groupId>
     <artifactId>mybatis-dynamic-sql</artifactId>
-    <version>1.2.1</version>
+    <version>1.3.1</version>
   </dependency>
   ````
 
   ```groovy
   // gradle
-  compile "org.mybatis.dynamic-sql:mybatis-dynamic-sql:1.2.1"
+  compile "org.mybatis.dynamic-sql:mybatis-dynamic-sql:1.3.1"
   ```
   
 - MySQL driver
