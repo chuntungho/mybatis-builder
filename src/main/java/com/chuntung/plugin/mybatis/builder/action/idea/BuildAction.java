@@ -30,13 +30,13 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -57,7 +57,6 @@ public class BuildAction extends DumbAwareAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
         Project project = anActionEvent.getProject();
-        MybatisBuilderService service = MybatisBuilderService.getInstance(project);
 
         // find out tool window panel
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
@@ -65,6 +64,11 @@ public class BuildAction extends DumbAwareAction {
         Content content = toolWindow.getContentManager().getSelectedContent();
         MybatisBuilderToolWindowPanel windowPanel = (MybatisBuilderToolWindowPanel) content.getComponent();
 
+        showBuildingDialog(project,  windowPanel.getTree());
+    }
+
+    public void showBuildingDialog(Project project, JTree tree) {
+        MybatisBuilderService service = MybatisBuilderService.getInstance(project);
         // load the last parameters
         GeneratorParamWrapper paramWrapper = service.getLastGeneratorParamWrapper();
 
@@ -77,7 +81,7 @@ public class BuildAction extends DumbAwareAction {
 
         // populate selected tables
         ConnectionInfo connectionInfo = new ConnectionInfo();
-        String msg = populateSelectedTables(service, paramWrapper, connectionInfo, windowPanel.getTree().getSelectionModel());
+        String msg = populateSelectedTables(service, paramWrapper, connectionInfo, tree.getSelectionModel());
         if (msg != null) {
             Messages.showWarningDialog(msg, "Building Failed");
             return;

@@ -27,6 +27,7 @@ public class SimpleDataSourceFactory {
             dataSource.setUser(connectionInfo.getUserName());
             dataSource.setPassword(connectionInfo.getPassword());
             dataSource.setDatabaseName(connectionInfo.getDatabase());
+            dataSource.setCharacterEncoding("utf-8");
             try {
                 dataSource.setAllowPublicKeyRetrieval(true);
             } catch (SQLException e) {

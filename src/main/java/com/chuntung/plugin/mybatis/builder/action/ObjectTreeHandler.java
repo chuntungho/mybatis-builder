@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
+ * Copyright (c) 2019-2021 Chuntung Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.action;
@@ -9,6 +9,7 @@ import com.chuntung.plugin.mybatis.builder.action.idea.BuildAction;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
 import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
+import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -24,6 +25,7 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.SQLException;
 import java.util.List;
@@ -194,9 +196,25 @@ public class ObjectTreeHandler {
         };
     }
 
-    public MouseListener getMouseListener() {
+    public MouseListener getMouseListener(Project project) {
 
         return new PopupHandler() {
+            public void mouseClicked(MouseEvent e) {
+                // double-click on table
+                if (e.getClickCount() == 2) {
+                    JTree source = (JTree) e.getSource();
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) source.getLastSelectedPathComponent();
+                    DatabaseItem item = (DatabaseItem) node.getUserObject();
+                    if (DatabaseItem.ItemTypeEnum.TABLE.equals(item.getType())) {
+                        // trigger build action
+                        AnActionEvent actionEvent = new AnActionEvent(null, DataManager.getInstance().getDataContext(),
+                                ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
+                        BuildAction.getInstance(project).actionPerformed(actionEvent);
+                    }
+                }
+                super.mouseClicked(e);
+            }
+
             @Override
             public void invokePopup(Component comp, int x, int y) {
                 JTree source = (JTree) comp;

@@ -1,4 +1,4 @@
 <ul>
-<li>Disable log4j as per http://mybatis.org/generator/reference/logging.html</li>
-<li>Fix dynamic sql mapper merging issue.</li>
+<li>Update dynamic sql to 1.4.1.</li>
+<li>Improve UI.</li>
 </ul>

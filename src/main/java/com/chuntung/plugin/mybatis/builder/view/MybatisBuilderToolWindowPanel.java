@@ -39,11 +39,11 @@ public class MybatisBuilderToolWindowPanel extends SimpleToolWindowPanel {
     public MybatisBuilderToolWindowPanel(Project project) {
         super(true, true);
         ObjectTreeHandler treeHandler = ObjectTreeHandler.getInstance(objectTree, project);
-        initGUI(treeHandler);
+        initGUI(treeHandler, project);
         treeHandler.initData();
     }
 
-    private void initGUI(ObjectTreeHandler treeHandler) {
+    private void initGUI(ObjectTreeHandler treeHandler, Project project) {
         // use idea managed toolbar
         DefaultActionGroup actionGroup = new DefaultActionGroup(
                 new PopupAction(objectTree),
@@ -58,7 +58,7 @@ public class MybatisBuilderToolWindowPanel extends SimpleToolWindowPanel {
         objectTree.setShowsRootHandles(true);
 
         objectTree.addTreeWillExpandListener(treeHandler.getTreeWillExpandListener());
-        objectTree.addMouseListener(treeHandler.getMouseListener());
+        objectTree.addMouseListener(treeHandler.getMouseListener(project));
 
         objectTree.setCellRenderer(treeHandler.getTreeCellRenderer());
         JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(objectTree, true);

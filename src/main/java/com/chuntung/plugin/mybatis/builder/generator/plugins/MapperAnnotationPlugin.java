@@ -6,6 +6,7 @@ package com.chuntung.plugin.mybatis.builder.generator.plugins;
 
 import com.chuntung.plugin.mybatis.builder.generator.annotation.PluginConfig;
 import com.chuntung.plugin.mybatis.builder.util.ConfigUtil;
+import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Custom Annotation support.
+ * Custom Annotation support, use default annotation if config unset.
  *
  * @author Tony Ho
  */
@@ -52,24 +53,24 @@ public class MapperAnnotationPlugin extends PluginAdapter {
 
     @Override
     public boolean validate(List<String> warnings) {
-        if (config.customAnnotationType == null || config.customAnnotationType.isEmpty()) {
-            warnings.add("Please specify custom annotation type");
-            return false;
-        } else {
-            return true;
-        }
+        return true;
     }
 
     @Override
     public boolean clientGenerated(Interface interfaze,
                                    IntrospectedTable introspectedTable) {
-        // remove the plugin added by mybatis3 dynamic sql runtime
+        String annotationType = StringUtil.stringHasValue(config.customAnnotationType) ? config.customAnnotationType : MAPPER_TYPE.getFullyQualifiedName();
+        String annotation = '@' + annotationType.substring(annotationType.lastIndexOf('.') + 1);
+
+        // remove the annotation added by mybatis3 dynamic sql runtime
         if (interfaze.getAnnotations().stream().anyMatch(x -> MAPPER_ANNOTATION.equals(x))) {
+            if (MAPPER_ANNOTATION.equals(annotation)) {
+                return true;
+            }
             interfaze.getAnnotations().remove(MAPPER_ANNOTATION);
             interfaze.getImportedTypes().remove(MAPPER_TYPE);
         }
-        String annotationType = config.customAnnotationType;
-        String annotation = '@' + annotationType.substring(annotationType.lastIndexOf('.') + 1);
+
         interfaze.addAnnotation(annotation);
         interfaze.addImportedType(new FullyQualifiedJavaType(annotationType));
 
