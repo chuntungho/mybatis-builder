@@ -1,4 +1,3 @@
 <ul>
-<li>Update dynamic sql to 1.4.1.</li>
-<li>Improve UI.</li>
+<li>Upgrade mybatis generator to 1.4.2.</li>
 </ul>
