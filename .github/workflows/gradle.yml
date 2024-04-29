@@ -36,7 +36,7 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew buildPlugin
 
-    - name: Upload image file
+    - name: Upload plugin file
       uses: actions/upload-artifact@v4
       with:
         retention-days: 1
