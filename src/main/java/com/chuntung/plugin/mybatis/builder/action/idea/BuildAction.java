@@ -14,6 +14,7 @@ import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.chuntung.plugin.mybatis.builder.view.MybatisBuilderParametersDialog;
 import com.chuntung.plugin.mybatis.builder.view.MybatisBuilderToolWindowPanel;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -52,6 +53,10 @@ public class BuildAction extends DumbAwareAction {
 
     public static AnAction getInstance(Project project) {
         return ActionManager.getInstance().getAction(ACTION_ID);
+    }
+
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 
     @Override

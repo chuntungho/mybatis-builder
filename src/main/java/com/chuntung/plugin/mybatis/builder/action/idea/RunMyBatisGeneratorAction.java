@@ -6,6 +6,7 @@ package com.chuntung.plugin.mybatis.builder.action.idea;
 
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorToolWrapper;
 import com.chuntung.plugin.mybatis.builder.generator.callback.IndicatorProcessCallback;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -30,6 +31,10 @@ import java.util.Properties;
  * @author Tony Ho
  */
 public class RunMyBatisGeneratorAction extends AnAction {
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         PsiFile psiFile = (PsiFile) event.getData(CommonDataKeys.PSI_FILE);

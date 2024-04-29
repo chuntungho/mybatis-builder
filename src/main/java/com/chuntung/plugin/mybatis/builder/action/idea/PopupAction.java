@@ -7,6 +7,7 @@ package com.chuntung.plugin.mybatis.builder.action.idea;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
 import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -28,6 +29,10 @@ public class PopupAction extends DumbAwareAction {
     public PopupAction(JTree objectTree) {
         super("Connections", null, ViewUtil.getIcon("/images/connections.png"));
         this.objectTree = objectTree;
+    }
+
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 
     @Override

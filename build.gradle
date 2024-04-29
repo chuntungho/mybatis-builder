@@ -1,28 +1,18 @@
-plugins {
-    id "java"
-    id "org.jetbrains.intellij" version "0.4.15"
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
 }
 
-intellij {
-    version ideaVersion
-    pluginName "MyBatisBuilder"
-//    plugins = ['java'] only for 201
-    sameSinceUntilBuild Boolean.valueOf(isEAP)
-    patchPluginXml{
-        untilBuild customUtilBuild
-        changeNotes "${new File('changeNotes.txt').getText('UTF-8')}"
-    }
+plugins {
+    id 'org.jetbrains.intellij' version '1.10.2'
 }
 
 group 'com.chuntung.plugin'
 version "${version}"
-sourceCompatibility = JavaVersion.VERSION_1_8
-
-publishPlugin {
-    username System.properties['plugin.publish.username']
-    password System.properties['plugin.publish.password']
-    channels "${pluginChannels}"
-}
+//sourceCompatibility = JavaVersion.VERSION_1_8
+[compileJava,compileTestJava,javadoc]*.options*.encoding = 'UTF-8'
 
 repositories {
     jcenter()
@@ -30,6 +20,23 @@ repositories {
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
+
+intellij {
+    pluginName = "MyBatis Builder"
+    version = ideaVersion
+    plugins = ["java"]
+    sameSinceUntilBuild = Boolean.valueOf(isEAP)
+    patchPluginXml {
+        untilBuild = customUtilBuild
+        changeNotes = "${new File('changeNotes.txt').getText('UTF-8')}"
+    }
+}
+
+//publishPlugin {
+//    username = System.properties['plugin.publish.username']
+//    password = System.properties['plugin.publish.password']
+//    channels = "${pluginChannels}"
+//}
 
 sourceSets {
     test {
@@ -46,16 +53,16 @@ sourceSets {
 }
 
 dependencies {
-    compile ( group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '1.4.2') {
+    implementation( group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '1.4.2') {
         exclude group: 'org.junit.jupiter'
         exclude group: 'org.junit.platform'
         exclude group: 'org.assertj'
     }
-    compile group: 'com.github.javaparser', name: 'javaparser-core', version: '3.19.0'
-    compile group: 'org.postgresql', name: 'postgresql', version: '9.4.1212'
-    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.47'
+    implementation group: 'com.github.javaparser', name: 'javaparser-core', version: '3.19.0'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '9.4.1212'
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '5.1.47'
 
-    testCompile('com.h2database:h2:1.4.200')
-    testCompile('org.mybatis:mybatis:3.5.9')
-    testCompile("org.mybatis.dynamic-sql:mybatis-dynamic-sql:1.5.0")
+    testImplementation('com.h2database:h2:1.4.200')
+    testImplementation('org.mybatis:mybatis:3.5.9')
+    testImplementation("org.mybatis.dynamic-sql:mybatis-dynamic-sql:1.5.0")
 }

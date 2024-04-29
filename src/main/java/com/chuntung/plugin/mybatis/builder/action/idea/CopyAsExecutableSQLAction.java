@@ -6,6 +6,7 @@ package com.chuntung.plugin.mybatis.builder.action.idea;
 
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.codeInsight.hint.HintManager;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Editor;
@@ -30,6 +31,10 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
     private static final String PREPARING = "Preparing: ";
     private static final String PARAMETERS = "Parameters: ";
     private static final Set<String> QUOTE_TYPES = new HashSet<>(Arrays.asList("(String)", "(Date)", "(Time)", "(Timestamp)", "(DateTime)", "(LocalDateTime)"));
+
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
+    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
