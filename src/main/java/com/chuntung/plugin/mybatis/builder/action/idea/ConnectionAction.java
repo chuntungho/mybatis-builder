@@ -28,7 +28,7 @@ public class ConnectionAction extends DumbAwareAction{
     }
 
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.EDT;
+        return ActionUpdateThread.BGT;
     }
 
     @Override

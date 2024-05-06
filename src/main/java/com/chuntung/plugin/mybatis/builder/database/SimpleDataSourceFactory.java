@@ -29,6 +29,8 @@ public class SimpleDataSourceFactory {
             dataSource.setDatabaseName(connectionInfo.getDatabase());
             dataSource.setCharacterEncoding("utf-8");
             try {
+                // dataSource.setLoginTimeout(5);
+                dataSource.setConnectTimeout(5000);
                 dataSource.setAllowPublicKeyRetrieval(true);
             } catch (SQLException e) {
                 // NOOP
@@ -43,13 +45,18 @@ public class SimpleDataSourceFactory {
             dataSource.setServerName(connectionInfo.getHost());
             dataSource.setPortNumber(connectionInfo.getPort());
             dataSource.setDatabaseName(connectionInfo.getDatabase());
-
+            dataSource.setLoginTimeout(5);
             return dataSource;
         } else {
             CustomDataSource dataSource = new CustomDataSource(connectionInfo.getDriverLibrary(), connectionInfo.getDriverClass());
             dataSource.setUrl(connectionInfo.getUrl());
             dataSource.setUser(connectionInfo.getUserName());
             dataSource.setPassword(connectionInfo.getPassword());
+            try {
+                dataSource.setLoginTimeout(5);
+            } catch (SQLException e) {
+                // NOOP
+            }
             return dataSource;
         }
 

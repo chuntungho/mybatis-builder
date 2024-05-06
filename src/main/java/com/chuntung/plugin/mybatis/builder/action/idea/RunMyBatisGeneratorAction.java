@@ -32,7 +32,7 @@ import java.util.Properties;
  */
 public class RunMyBatisGeneratorAction extends AnAction {
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.EDT;
+        return ActionUpdateThread.BGT;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class RunMyBatisGeneratorAction extends AnAction {
     }
 
     public void update(@NotNull AnActionEvent event) {
-        PsiFile psiFile = (PsiFile) event.getData(CommonDataKeys.PSI_FILE);
+        PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
         if (psiFile == null || !(psiFile instanceof XmlFile)) {
             event.getPresentation().setVisible(false);
         }

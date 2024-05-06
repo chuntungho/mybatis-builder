@@ -33,7 +33,7 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
     private static final Set<String> QUOTE_TYPES = new HashSet<>(Arrays.asList("(String)", "(Date)", "(Time)", "(Timestamp)", "(DateTime)", "(LocalDateTime)"));
 
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.EDT;
+        return ActionUpdateThread.BGT;
     }
 
     @Override

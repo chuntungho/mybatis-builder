@@ -12,6 +12,9 @@ import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -68,7 +71,12 @@ public class ObjectTreeHandler {
         public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
             if (currentTreePath != null) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) currentTreePath.getLastPathComponent();
-                loadSubNodes(node, true);
+                new Task.Backgroundable(null, "Loading database objects ...") {
+                    @Override
+                    public void run(@NotNull ProgressIndicator progressIndicator) {
+                        loadSubNodes(node, true);
+                    }
+                }.queue();
             }
         }
     };
@@ -143,35 +151,44 @@ public class ObjectTreeHandler {
                 DatabaseItem item = (DatabaseItem) node.getUserObject();
 
                 if (DatabaseItem.ItemTypeEnum.CONNECTION.equals(item.getType())) {
-                    TreePath toPath = null;
+
                     ConnectionInfo connectionInfo = service.getConnectionInfoWithPassword(item.getConnId());
                     String defaultDatabase = connectionInfo.getDatabase();
 
                     List<DatabaseItem> databaseItems = service.fetchDatabases(item.getConnId());
-                    for (DatabaseItem dbItem : databaseItems) {
-                        node.add(new DefaultMutableTreeNode(dbItem, true));
-                        if (dbItem.getName().equals(defaultDatabase)) {
-                            toPath = new TreePath(node.getPath()).pathByAddingChild(node.getLastChild());
+                    // run in dispatch thread to update UI
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        TreePath toPath = null;
+                        for (DatabaseItem dbItem : databaseItems) {
+                            node.add(new DefaultMutableTreeNode(dbItem, true));
+                            if (dbItem.getName().equals(defaultDatabase)) {
+                                toPath = new TreePath(node.getPath()).pathByAddingChild(node.getLastChild());
+                            }
                         }
-                    }
 
-                    // select and scroll to default database
-                    if (toPath != null) {
-                        objectTree.setSelectionPath(toPath);
-                        objectTree.scrollPathToVisible(toPath);
-                    }
+                        // select and scroll to default database
+                        if (toPath != null) {
+                            objectTree.setSelectionPath(toPath);
+                            objectTree.scrollPathToVisible(toPath);
+                        }
+                    });
                 } else if (DatabaseItem.ItemTypeEnum.DATABASE.equals(item.getType())) {
                     DefaultMutableTreeNode connNode = (DefaultMutableTreeNode) node.getParent();
                     String connectionId = ((DatabaseItem) connNode.getUserObject()).getConnId();
                     List<DatabaseItem> databaseItems = service.fetchTables(connectionId, item.getName());
-                    for (DatabaseItem dbItem : databaseItems) {
-                        node.add(new DefaultMutableTreeNode(dbItem, false));
-                    }
+                    ApplicationManager.getApplication().invokeLater( () -> {
+                        for (DatabaseItem dbItem : databaseItems) {
+                            node.add(new DefaultMutableTreeNode(dbItem, false));
+                        }
+                    });
                 }
             } catch (SQLException e) {
-                Messages.showErrorDialog(e.getMessage(), "Database Error");
+                ApplicationManager.getApplication().invokeLater(
+                        ()-> Messages.showErrorDialog(e.getMessage(), "Database Error"));
             } finally {
-                objectTree.updateUI();
+                ApplicationManager.getApplication().invokeLater(
+                        ()->objectTree.updateUI()
+                );
             }
         }
     }
@@ -183,9 +200,12 @@ public class ObjectTreeHandler {
             public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
                 if (node.getUserObject() instanceof DatabaseItem) {
-                    ApplicationManager.getApplication().invokeLater(() ->
-                            loadSubNodes(node, false)
-                    );
+                    new Task.Backgroundable(null, "Loading database objects ...") {
+                        @Override
+                        public void run(@NotNull ProgressIndicator progressIndicator) {
+                            loadSubNodes(node, false);
+                        }
+                    }.queue();
                 }
             }
 

@@ -32,7 +32,7 @@ public class PopupAction extends DumbAwareAction {
     }
 
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.EDT;
+        return ActionUpdateThread.BGT;
     }
 
     @Override
