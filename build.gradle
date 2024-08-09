@@ -1,21 +1,12 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-}
-
 plugins {
-    id 'org.jetbrains.intellij' version '1.10.2'
+    id("java")
+    id("org.jetbrains.intellij") version "1.17.3"
 }
 
 group 'com.chuntung.plugin'
 version "${version}"
-//sourceCompatibility = JavaVersion.VERSION_1_8
-[compileJava,compileTestJava,javadoc]*.options*.encoding = 'UTF-8'
 
 repositories {
-    jcenter()
     mavenLocal()
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
@@ -32,11 +23,11 @@ intellij {
     }
 }
 
-//publishPlugin {
-//    username = System.properties['plugin.publish.username']
-//    password = System.properties['plugin.publish.password']
-//    channels = "${pluginChannels}"
-//}
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    sourceCompatibility = "17"
+    targetCompatibility = "17"
+}
 
 sourceSets {
     test {
