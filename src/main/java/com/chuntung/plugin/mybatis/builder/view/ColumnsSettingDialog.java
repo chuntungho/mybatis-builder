@@ -10,6 +10,7 @@ import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
 import com.chuntung.plugin.mybatis.builder.model.ObjectTableModel;
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
@@ -36,11 +37,13 @@ public class ColumnsSettingDialog extends DialogWrapper {
     private String connectionId;
     private TableInfo tableInfo;
     private ColumnsSettingHandler handler;
+    private Project project;
 
     public ColumnsSettingDialog(String connectionId, TableInfo tableInfo, Project project) {
         super(project, false);
         this.connectionId = connectionId;
         this.tableInfo = tableInfo;
+        this.project = project;
         handler = ColumnsSettingHandler.getInstance(project);
 
         this.setTitle("MyBatis Builder - Columns setting");
@@ -89,8 +92,16 @@ public class ColumnsSettingDialog extends DialogWrapper {
         init();
     }
 
+    @SuppressWarnings("unchecked")
     private void setData(TableInfo tableInfo) {
-        List<ColumnInfo> columns = handler.fetchColumns(connectionId, tableInfo.getDatabase(), tableInfo.getTableName());
+        List<ColumnInfo>[] holder = new List[1];
+        ProgressManager.getInstance().runProcessWithProgressSynchronously(
+                () -> holder[0] = handler.fetchColumns(connectionId, tableInfo.getDatabase(), tableInfo.getTableName()),
+                "Fetching columns...", false, project);
+        List<ColumnInfo> columns = holder[0];
+        if (columns == null) {
+            return;
+        }
         // convert to map
         Map<String, ColumnInfo> columnMap = new HashMap<>();
         if (tableInfo.getCustomColumns() != null && !tableInfo.getCustomColumns().isEmpty()) {
