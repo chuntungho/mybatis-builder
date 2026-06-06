@@ -5,60 +5,37 @@
 package com.chuntung.plugin.mybatis.builder.database;
 
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
-import com.chuntung.plugin.mybatis.builder.model.DriverTypeEnum;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
-import org.postgresql.ds.PGSimpleDataSource;
+import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
+import java.util.Map;
+import java.util.Properties;
 
 public class SimpleDataSourceFactory {
-    private static SimpleDataSourceFactory instance = new SimpleDataSourceFactory();
+    private static final SimpleDataSourceFactory instance = new SimpleDataSourceFactory();
 
     public static SimpleDataSourceFactory getInstance() {
         return instance;
     }
 
     public DataSource getDataSource(ConnectionInfo connectionInfo) {
-        if (DriverTypeEnum.MySQL.equals(connectionInfo.getDriverType())) {
-            MysqlDataSource dataSource = new MysqlDataSource();
-            dataSource.setServerName(connectionInfo.getHost());
-            dataSource.setPort(connectionInfo.getPort());
-            dataSource.setUser(connectionInfo.getUserName());
-            dataSource.setPassword(connectionInfo.getPassword());
-            dataSource.setDatabaseName(connectionInfo.getDatabase());
-            dataSource.setCharacterEncoding("utf-8");
-            try {
-                // dataSource.setLoginTimeout(5);
-                dataSource.setConnectTimeout(5000);
-                dataSource.setAllowPublicKeyRetrieval(true);
-            } catch (SQLException e) {
-                // NOOP
-            }
-            dataSource.setUseInformationSchema(true);
-            dataSource.setUseSSL(false);
-            return dataSource;
-        } else if (DriverTypeEnum.PostgreSQL.equals(connectionInfo.getDriverType())) {
-            PGSimpleDataSource dataSource = new PGSimpleDataSource();
-            dataSource.setUser(connectionInfo.getUserName());
-            dataSource.setPassword(connectionInfo.getPassword());
-            dataSource.setServerName(connectionInfo.getHost());
-            dataSource.setPortNumber(connectionInfo.getPort());
-            dataSource.setDatabaseName(connectionInfo.getDatabase());
-            dataSource.setLoginTimeout(5);
-            return dataSource;
-        } else {
-            CustomDataSource dataSource = new CustomDataSource(connectionInfo.getDriverLibrary(), connectionInfo.getDriverClass());
-            dataSource.setUrl(connectionInfo.getUrl());
-            dataSource.setUser(connectionInfo.getUserName());
-            dataSource.setPassword(connectionInfo.getPassword());
-            try {
-                dataSource.setLoginTimeout(5);
-            } catch (SQLException e) {
-                // NOOP
-            }
-            return dataSource;
-        }
+        String driverClass = StringUtil.stringHasValue(connectionInfo.getDriverClass())
+                ? connectionInfo.getDriverClass()
+                : connectionInfo.getDriverType().getDriverClass();
+        String url = new ConnectionUrlBuilder(connectionInfo).getConnectionUrl();
 
+        Properties props = new Properties();
+        for (Map.Entry<String, String> entry : ConnectionProperties.resolve(connectionInfo).entrySet()) {
+            props.setProperty(entry.getKey(), entry.getValue());
+        }
+        if (StringUtil.stringHasValue(connectionInfo.getUserName())) {
+            props.setProperty("user", connectionInfo.getUserName());
+        }
+        if (connectionInfo.getPassword() != null) {
+            props.setProperty("password", connectionInfo.getPassword());
+        }
+        props.setProperty("remarks", "true");
+
+        return new JdbcDataSource(connectionInfo.getDriverLibrary(), driverClass, url, props);
     }
 }

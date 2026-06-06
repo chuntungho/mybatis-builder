@@ -9,7 +9,6 @@ import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatis.builder.model.*;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ public class MybatisBuilderService {
     private MybatisBuilderSettingsManager manager;
 
     public static MybatisBuilderService getInstance(Project project) {
-        return ServiceManager.getService(project, MybatisBuilderService.class);
+        return project.getService(MybatisBuilderService.class);
     }
 
     public MybatisBuilderService(Project project) {

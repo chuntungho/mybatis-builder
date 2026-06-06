@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
+ * Copyright (c) 2026 Chuntung Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
 import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
+import com.chuntung.plugin.mybatis.builder.MybatisIcons;
+import com.chuntung.plugin.mybatis.builder.database.ConnectionProperties;
 import com.chuntung.plugin.mybatis.builder.database.ConnectionUrlBuilder;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
@@ -39,17 +41,21 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The key building controller.
  *
- * @author Tony Ho
  */
 public class BuildAction extends DumbAwareAction {
     private static final Logger logger = LoggerFactory.getLogger(BuildAction.class);
 
     // NOTE: action id should be consistent with plugin.xml
     private static final String ACTION_ID = "MyBatisBuilder.Build";
+
+    public BuildAction() {
+        super("Build", "Generate code based on selected tables and parameters", MybatisIcons.BUILD);
+    }
 
     public static AnAction getInstance(Project project) {
         return ActionManager.getInstance().getAction(ACTION_ID);
@@ -101,7 +107,11 @@ public class BuildAction extends DumbAwareAction {
             populateConnection(paramWrapper, savedConnectionIfo);
         } catch (SQLException e) {
             logger.warn("Failed to connect to database", e);
-            Messages.showErrorDialog(e.getMessage(), "Building Error");
+            String message = e.getMessage();
+            if (e.getCause() instanceof java.net.UnknownHostException) {
+                message = "Unknown host: " + e.getCause().getMessage();
+            }
+            Messages.showErrorDialog(message, "Building Error");
             return;
         }
 
@@ -200,6 +210,9 @@ public class BuildAction extends DumbAwareAction {
 
         jdbcConfig.setUserId(connectionInfo.getUserName());
         jdbcConfig.setPassword(connectionInfo.getPassword());
+        for (Map.Entry<String, String> entry : ConnectionProperties.resolve(connectionInfo).entrySet()) {
+            jdbcConfig.addProperty(entry.getKey(), entry.getValue());
+        }
     }
 
     private void enableSubPackages(PropertyHolder... holders) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
+ * Copyright (c) 2026 Chuntung Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.action;
@@ -19,21 +19,19 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-public class ParametersHandler {
-    private static final Logger logger = LoggerFactory.getLogger(ParametersHandler.class);
+public class BuildingPresenter {
+    private static final Logger logger = LoggerFactory.getLogger(BuildingPresenter.class);
 
     private final MybatisBuilderService service;
 
-    public ParametersHandler(Project project) {
+    public BuildingPresenter(Project project) {
         service = MybatisBuilderService.getInstance(project);
     }
 
-    public static ParametersHandler getInstance(Project project) {
-        return new ParametersHandler(project);
+    public static BuildingPresenter getInstance(Project project) {
+        return new BuildingPresenter(project);
     }
 
     public void stashGeneratorParamWrapper(GeneratorParamWrapper paramWrapper) {

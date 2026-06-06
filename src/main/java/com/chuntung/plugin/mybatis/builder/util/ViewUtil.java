@@ -1,10 +1,8 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2026 Chuntung Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.util;
-
-import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,9 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ViewUtil {
-    public static Icon getIcon(String path) {
-        return IconLoader.getIcon(path, ViewUtil.class);
-    }
 
     /**
      * Focus component in tabbed pane.

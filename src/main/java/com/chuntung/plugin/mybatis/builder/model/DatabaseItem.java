@@ -18,6 +18,8 @@ public class DatabaseItem {
     private String name;
     private String comment;
     private ItemTypeEnum type;
+    private boolean connected;
+    private DriverTypeEnum driverType;
 
     public static DatabaseItem of(ItemTypeEnum type, String name) {
         return new DatabaseItem(type, name, null, null);
@@ -48,5 +50,21 @@ public class DatabaseItem {
 
     public String getComment() {
         return comment;
+    }
+
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+
+    public DriverTypeEnum getDriverType() {
+        return driverType;
+    }
+
+    public void setDriverType(DriverTypeEnum driverType) {
+        this.driverType = driverType;
     }
 }

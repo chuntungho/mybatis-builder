@@ -1,27 +1,29 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2026 Chuntung Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.action;
 
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderTopics;
 import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
-import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public class SettingsHandler {
+public class SettingsPresenter {
+    private final Project project;
     private final MybatisBuilderService service;
 
-    public static SettingsHandler getInstance(Project project) {
-        return new SettingsHandler(project);
+    public static SettingsPresenter getInstance(Project project) {
+        return new SettingsPresenter(project);
     }
 
-    public SettingsHandler(Project project) {
+    public SettingsPresenter(Project project) {
+        this.project = project;
         this.service = MybatisBuilderService.getInstance(project);
     }
 
@@ -38,13 +40,20 @@ public class SettingsHandler {
             service.testConnection(connectionInfo);
             Messages.showInfoMessage("Connection to [" + connectionInfo.getName() + "] was successful", "Connection Successful");
         } catch (SQLException e) {
-            Messages.showErrorDialog(e.getMessage(), "Connection Error");
+            String message = e.getMessage();
+            if (e.getCause() instanceof java.net.UnknownHostException) {
+                message = "Unknown host: " + e.getCause().getMessage();
+            }
+            Messages.showErrorDialog(message, "Connection Error");
         }
     }
 
     public void saveAll(List<ConnectionInfo> list, DefaultParameters defaultParameters) {
         service.saveConnectionInfo(list);
         service.saveDefaultParameters(defaultParameters);
+        project.getMessageBus()
+                .syncPublisher(MybatisBuilderTopics.CONNECTIONS_CHANGED)
+                .connectionsChanged();
     }
 
     public void clearHistory() {

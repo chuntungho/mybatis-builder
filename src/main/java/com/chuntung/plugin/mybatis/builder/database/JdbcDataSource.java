@@ -11,47 +11,33 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class CustomDataSource implements DataSource {
+public class JdbcDataSource implements DataSource {
     private static final Map<String, Driver> driverCache = new HashMap<>();
-    private String driverLibrary;
-    private String driverClass;
-    private String url;
-    private String user;
-    private String password;
 
-    public CustomDataSource(String driverLibrary, String driverClass) {
+    private final String driverLibrary;
+    private final String driverClass;
+    private final String url;
+    private final Properties properties;
+
+    public JdbcDataSource(String driverLibrary, String driverClass, String url, Properties properties) {
         this.driverLibrary = driverLibrary;
         this.driverClass = driverClass;
+        this.url = url;
+        this.properties = properties != null ? properties : new Properties();
     }
 
     public String getUrl() {
         return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     private Driver getDriver() throws SQLException {
@@ -66,7 +52,7 @@ public class CustomDataSource implements DataSource {
                 }
                 URLClassLoader classLoader = URLClassLoader.newInstance(urls, parentClassLoader);
                 Class<?> clazz = classLoader.loadClass(driverClass);
-                Driver driver = (Driver) clazz.newInstance();
+                Driver driver = (Driver) clazz.getDeclaredConstructor().newInstance();
                 DriverManager.registerDriver(driver);
                 driverCache.put(key, driver);
             } catch (Exception e) {
@@ -78,50 +64,47 @@ public class CustomDataSource implements DataSource {
 
     @Override
     public Connection getConnection() throws SQLException {
-        return getConnection(user, password);
+        return getDriver().connect(url, properties);
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        Properties props = new Properties();
+        Properties override = new Properties();
+        override.putAll(properties);
         if (StringUtil.stringHasValue(username)) {
-            props.put("user", username);
+            override.setProperty("user", username);
         }
-        if (StringUtil.stringHasValue(password)) {
-            props.put("password", password);
+        if (password != null) {
+            override.setProperty("password", password);
         }
-        props.setProperty("remarks", "true");
-        Connection connection = getDriver().connect(url, props);
-        return connection;
+        return getDriver().connect(url, override);
     }
 
     @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> iface) {
         return null;
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> iface) {
         return false;
     }
 
     @Override
-    public PrintWriter getLogWriter() throws SQLException {
+    public PrintWriter getLogWriter() {
         return null;
     }
 
     @Override
-    public void setLogWriter(PrintWriter out) throws SQLException {
-
+    public void setLogWriter(PrintWriter out) {
     }
 
     @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
-
+    public void setLoginTimeout(int seconds) {
     }
 
     @Override
-    public int getLoginTimeout() throws SQLException {
+    public int getLoginTimeout() {
         return 0;
     }
 

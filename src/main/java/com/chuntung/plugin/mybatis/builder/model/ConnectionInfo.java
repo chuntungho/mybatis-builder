@@ -5,6 +5,8 @@
 package com.chuntung.plugin.mybatis.builder.model;
 
 import com.intellij.util.xmlb.annotations.Transient;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Connection Info Model
@@ -25,6 +27,7 @@ public class ConnectionInfo implements Cloneable {
     private String database;
     private String userName;
     private String password;
+    private Map<String, String> properties = new LinkedHashMap<>();
 
     public String getId() {
         return id;
@@ -131,6 +134,14 @@ public class ConnectionInfo implements Cloneable {
         this.password = password;
     }
 
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties != null ? properties : new LinkedHashMap<>();
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ConnectionInfo{");
@@ -147,13 +158,16 @@ public class ConnectionInfo implements Cloneable {
         sb.append(", database='").append(database).append('\'');
         sb.append(", userName='").append(userName).append('\'');
         sb.append(", password='").append(password).append('\'');
+        sb.append(", properties=").append(properties);
         sb.append('}');
         return sb.toString();
     }
 
     public ConnectionInfo clone() {
         try {
-            return (ConnectionInfo) super.clone();
+            ConnectionInfo copy = (ConnectionInfo) super.clone();
+            copy.properties = new LinkedHashMap<>(this.properties);
+            return copy;
         } catch (CloneNotSupportedException e) {
             return null;
         }

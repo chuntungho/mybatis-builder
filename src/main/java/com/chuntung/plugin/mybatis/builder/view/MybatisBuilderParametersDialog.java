@@ -4,8 +4,8 @@
 
 package com.chuntung.plugin.mybatis.builder.view;
 
-import com.chuntung.plugin.mybatis.builder.action.ParametersHandler;
-import com.chuntung.plugin.mybatis.builder.action.SettingsHandler;
+import com.chuntung.plugin.mybatis.builder.action.BuildingPresenter;
+import com.chuntung.plugin.mybatis.builder.action.SettingsPresenter;
 import com.chuntung.plugin.mybatis.builder.generator.*;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.ExampleRowBoundsPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.LombokPlugin;
@@ -22,10 +22,13 @@ import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.ComponentValidator;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.psi.PsiPackage;
 import com.intellij.ui.TextFieldWithHistoryWithBrowseButton;
+import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
@@ -37,7 +40,6 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.plaf.basic.BasicToggleButtonUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -45,8 +47,6 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.List;
 
@@ -68,8 +68,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JCheckBox selectByExampleCheckbox;
     private JCheckBox withRowBoundsCheckBox;
     private JTable selectedTables;
-    private JTextField endingDelimiterText;
-    private JTextField beginningDelimiterText;
+    private JBTextField endingDelimiterText;
+    private JBTextField beginningDelimiterText;
     private JCheckBox mapperAnnotationSupportCheckBox;
     private JTextField columnText;
     private JComboBox statementComboBox;
@@ -85,7 +85,6 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JCheckBox selectByPrimaryKeyCheckBox;
     private JCheckBox deleteByPrimaryKeyCheckBox;
     private JCheckBox selectByExampleWithLockCheckBox;
-    private JLabel basicStatementLabel;
     private JPanel basicPanel;
     private JPanel examplePanel;
     private JCheckBox lockAllCheckBox;
@@ -97,14 +96,9 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JButton resetButton;
     private JTabbedPane tabbedPane;
     private JComboBox targetRuntimeComboBox;
-    private JToggleButton tableButton;
-    private JToggleButton othersButton;
-    private JPanel cardContainer;
     private JPanel othersPanel;
     private JButton syncBtn;
     private JButton syncButton;
-
-    private boolean morePanelVisible = false;
 
     private static final String[] targetRuntimes = {"MyBatis3DynamicSql", "MyBatis3", "MyBatis3Simple"};
     private String[] javaClientTypes = {"XMLMAPPER", "ANNOTATEDMAPPER", "MIXEDMAPPER"};
@@ -117,8 +111,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private Project project;
     private String connectionId;
     private GeneratorParamWrapper paramWrapper;
-    private final SettingsHandler settingsHandler;
-    private final ParametersHandler parametersHandler;
+    private final SettingsPresenter settingsHandler;
+    private final BuildingPresenter parametersHandler;
 
     private class NameCellRenderer extends DefaultTableCellRenderer {
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -171,8 +165,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         this.project = project;
         this.paramWrapper = paramWrapper;
         this.connectionId = connectionId;
-        this.settingsHandler = SettingsHandler.getInstance(project);
-        this.parametersHandler = ParametersHandler.getInstance(project);
+        this.settingsHandler = SettingsPresenter.getInstance(project);
+        this.parametersHandler = BuildingPresenter.getInstance(project);
 
         initGUI(project);
         setData(paramWrapper);
@@ -184,30 +178,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         setTitle("MyBatis Builder - Parameters");
         Cursor hand = new Cursor(Cursor.HAND_CURSOR);
 
-        // reset UI to make background customizable
-        BasicToggleButtonUI basicUi = new BasicToggleButtonUI();
-        tableButton.setUI(basicUi);
-        tableButton.setCursor(hand);
-        othersButton.setUI(basicUi);
-        othersButton.setCursor(hand);
-
-        ItemListener itemListener = e -> {
-            JToggleButton btn = (JToggleButton) e.getSource();
-            btn.setBackground(ItemEvent.SELECTED == e.getStateChange() ? SystemColor.controlLtHighlight : null);
-
-            if (ItemEvent.SELECTED == e.getStateChange()) {
-                String cmd = btn.getActionCommand();
-                CardLayout layout = (CardLayout) (cardContainer.getLayout());
-                layout.show(cardContainer, cmd);
-            }
-        };
-        tableButton.addItemListener(itemListener);
-        othersButton.addItemListener(itemListener);
-
-        // select first button to trigger listener
-        tableButton.setSelected(true);
-
-        targetRuntimeComboBox.setModel(new DefaultComboBoxModel(targetRuntimes));
+        targetRuntimeComboBox.setModel(new DefaultComboBoxModel<>(targetRuntimes));
         // set null to trigger listener
         targetRuntimeComboBox.setSelectedItem(null);
         targetRuntimeComboBox.addItemListener(e -> {
@@ -245,10 +216,10 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
 
         // generated key
         identityCheckBox.setCursor(hand);
-        DefaultComboBoxModel statementModel = new DefaultComboBoxModel(DatabaseDialects.values());
+        DefaultComboBoxModel<Object> statementModel = new DefaultComboBoxModel<>(DatabaseDialects.values());
         statementModel.insertElementAt("JDBC", 0);
         statementComboBox.setModel(statementModel);
-        keyTypeComboBox.setModel(new DefaultComboBoxModel(keyTypes));
+        keyTypeComboBox.setModel(new DefaultComboBoxModel<>(keyTypes));
 
         // rename domain
         replaceButton.addActionListener(e -> {
@@ -274,13 +245,22 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         ViewUtil.setCheckboxCursor(othersPanel);
         
         // java client Combo box
-        javaClientTypeComboBox.setModel(new DefaultComboBoxModel(javaClientTypes));
+        javaClientTypeComboBox.setModel(new DefaultComboBoxModel<>(javaClientTypes));
         javaClientTypeComboBox.addItemListener(e -> sqlMapGeneratorPanel.setVisible(!"ANNOTATEDMAPPER".equals(e.getItem())));
 
+        // delimiter hints
+        beginningDelimiterText.getEmptyText().setText("Begin");
+        endingDelimiterText.getEmptyText().setText("End");
+
         // directory chooser
-        javaModelProjectText.addBrowseFolderListener("Choose source path", "", null, FOLDER_DESCRIPTOR);
-        javaClientProjectText.addBrowseFolderListener("Choose source path", "", null, FOLDER_DESCRIPTOR);
-        sqlMapProjectText.addBrowseFolderListener("Choose resource path", "", null, FOLDER_DESCRIPTOR);
+        javaModelProjectText.addBrowseFolderListener("Choose source path", "", project, FOLDER_DESCRIPTOR);
+        javaClientProjectText.addBrowseFolderListener("Choose source path", "", project, FOLDER_DESCRIPTOR);
+        sqlMapProjectText.addBrowseFolderListener("Choose resource path", "", project, FOLDER_DESCRIPTOR);
+
+        // inline path validation
+        installPathValidator(javaModelProjectText, "Source path");
+        installPathValidator(javaClientProjectText, "Source path");
+        installPathValidator(sqlMapProjectText, "Resource path");
 
         syncButton.addActionListener(e->{
             javaClientProjectText.setText(javaModelProjectText.getText());
@@ -294,6 +274,28 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         javaModelPackageText.addActionListener(getPackageActionListener(project, javaModelPackageText, javaModelProjectText, true));
         javaClientPackageText.addActionListener(getPackageActionListener(project, javaClientPackageText, javaClientProjectText, true));
         sqlMapPackageText.addActionListener(getPackageActionListener(project, sqlMapPackageText, sqlMapProjectText, false));
+    }
+
+    private void installPathValidator(TextFieldWithBrowseButton field, String label) {
+        Runnable revalidate = new ComponentValidator(getDisposable())
+                .withValidator(() -> {
+                    String path = field.getText();
+                    if (StringUtil.isBlank(path)) {
+                        return new ValidationInfo(label + " not specified", field);
+                    }
+                    if (!new File(path).exists()) {
+                        return new ValidationInfo(label + " does not exist", field);
+                    }
+                    return null;
+                })
+                .installOn(field)
+                ::revalidate;
+        field.getTextField().getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull javax.swing.event.DocumentEvent e) {
+                revalidate.run();
+            }
+        });
     }
 
     @NotNull
@@ -340,6 +342,9 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         mapperAnnotationSupportCheckBox.setSelected(mapperAnnotationEnabled);
         String customAnnotationType = defaultParameters.getMapperAnnotationConfig().customAnnotationType;
         mapperAnnotationSupportCheckBox.setToolTipText(customAnnotationType);
+        if (!StringUtil.isBlank(customAnnotationType)) {
+            mapperAnnotationSupportCheckBox.setText("Mapper annotation support (custom)");
+        }
 
         boolean lombokEnabled = data.getSelectedPlugins().containsKey(LombokPlugin.class.getName());
         lombokSupportCheckBox.setSelected(lombokEnabled);
@@ -395,7 +400,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         TitledBorder border = (TitledBorder) selectedTablePanel.getBorder();
         border.setTitle(border.getTitle() + ": " + data.getSelectedTables().size());
 
-        ObjectTableModel<TableInfo> tableModel = new ObjectTableModel(data.getSelectedTables(), fieldNames, columnNames);
+        ObjectTableModel<TableInfo> tableModel = new ObjectTableModel<>(data.getSelectedTables(), fieldNames, columnNames);
         tableModel.setEditableFieldNames(editableFieldNames);
         selectedTables.setModel(tableModel);
         selectedTables.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -574,21 +579,6 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
             close(CLOSE_EXIT_CODE);
         }
     };
-
-//    private Action exportAction = new AbstractAction("Export...") {
-//        @Override
-//        public void actionPerformed(ActionEvent e) {
-//            FileSaverDialog saver = FileChooserFactory.getInstance()
-//                    .createSaveFileDialog(new FileSaverDescriptor("Export configuration", "Export to", "xml"), project);
-//            VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
-//            VirtualFileWrapper target = saver.save(projectDir, "mybatis-generator.xml");
-//            if (target != null) {
-//                File file = target.getFile();
-//                getData(paramWrapper);
-//                parametersHandler.exportConfiguration(paramWrapper, file, project);
-//            }
-//        }
-//    };
 
     @Override
     protected Action[] createLeftSideActions() {

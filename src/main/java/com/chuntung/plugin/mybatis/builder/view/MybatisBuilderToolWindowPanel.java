@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2026 Chuntung Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.view;
 
-import com.chuntung.plugin.mybatis.builder.action.ObjectTreeHandler;
+import com.chuntung.plugin.mybatis.builder.action.ToolWindowPresenter;
 import com.chuntung.plugin.mybatis.builder.action.idea.BuildAction;
-import com.chuntung.plugin.mybatis.builder.action.idea.PopupAction;
+import com.chuntung.plugin.mybatis.builder.action.idea.ManageAction;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -20,7 +20,6 @@ import javax.swing.tree.DefaultTreeModel;
 /**
  * The only entry point of this plugin.
  *
- * @author Tony Ho
  */
 public class MybatisBuilderToolWindowPanel extends SimpleToolWindowPanel {
     // NOTE: should be consistent with plugin.xml defined
@@ -34,15 +33,15 @@ public class MybatisBuilderToolWindowPanel extends SimpleToolWindowPanel {
 
     public MybatisBuilderToolWindowPanel(Project project) {
         super(true, true);
-        ObjectTreeHandler treeHandler = ObjectTreeHandler.getInstance(objectTree, project);
-        initGUI(treeHandler, project);
-        treeHandler.initData();
+        ToolWindowPresenter presenter = ToolWindowPresenter.getInstance(objectTree, project);
+        initGUI(presenter, project);
+        presenter.initData();
     }
 
-    private void initGUI(ObjectTreeHandler treeHandler, Project project) {
+    private void initGUI(ToolWindowPresenter presenter, Project project) {
         // use idea managed toolbar
         DefaultActionGroup actionGroup = new DefaultActionGroup(
-                new PopupAction(objectTree),
+                ManageAction.getInstance(),
                 new Separator(),
                 BuildAction.getInstance(null));
         ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, actionGroup, true);
@@ -54,10 +53,10 @@ public class MybatisBuilderToolWindowPanel extends SimpleToolWindowPanel {
         objectTree.setRootVisible(false);
         objectTree.setShowsRootHandles(true);
 
-        objectTree.addTreeWillExpandListener(treeHandler.getTreeWillExpandListener());
-        objectTree.addMouseListener(treeHandler.getMouseListener(project));
+        objectTree.addTreeWillExpandListener(presenter.getTreeWillExpandListener());
+        objectTree.addMouseListener(presenter.getMouseListener(project));
 
-        objectTree.setCellRenderer(treeHandler.getTreeCellRenderer());
+        objectTree.setCellRenderer(presenter.getTreeCellRenderer());
         JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(objectTree, true);
         setContent(scrollPane);
     }

@@ -12,7 +12,6 @@ import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -39,7 +38,7 @@ public class MybatisBuilderSettingsManager implements PersistentStateComponent<M
     private MybatisBuilderSettings settings = new MybatisBuilderSettings();
 
     public static MybatisBuilderSettingsManager getInstance(Project project) {
-        return ServiceManager.getService(project, MybatisBuilderSettingsManager.class);
+        return project.getService(MybatisBuilderSettingsManager.class);
     }
 
     public MybatisBuilderSettings getSettings() {
@@ -64,7 +63,7 @@ public class MybatisBuilderSettingsManager implements PersistentStateComponent<M
 
     private CredentialAttributes getCredentialAttr(ConnectionInfo connection) {
         String serviceName = String.format("MybatisBuilderConnection_%s", connection.getId());
-        CredentialAttributes attributes = new CredentialAttributes(serviceName, connection.getUserName(), this.getClass(), false);
+        CredentialAttributes attributes = new CredentialAttributes(serviceName, connection.getUserName());
         return attributes;
     }
 

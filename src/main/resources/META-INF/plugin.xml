@@ -40,7 +40,7 @@
 
     <actions>
         <!-- Manage -->
-        <action id="MyBatisBuilder.Manage" text="Manage..." icon="/images/new.png"
+        <action id="MyBatisBuilder.Manage"
                 description="Manage connections, default settings, etc."
                 class="com.chuntung.plugin.mybatis.builder.action.idea.ManageAction"/>
 
@@ -75,7 +75,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- tool window -->
-        <toolWindow id="MyBatis Builder" anchor="left" secondary="true" icon="/images/toolWindowMybatis.svg"
+        <toolWindow id="MyBatis Builder"
+                    anchor="left" secondary="true"
                     factoryClass="com.chuntung.plugin.mybatis.builder.view.MybatisBuilderToolWindowFactory"/>
 
         <!-- file template provider -->
@@ -92,6 +93,27 @@
 
         <!-- notification group, since 203.3645.34 -->
         <notificationGroup id="MyBatisBuilder.NotificationGroup" displayType="BALLOON" isLogByDefault="true" />
+
+        <!-- Mapper <-> XML gutter line markers -->
+        <codeInsight.lineMarkerProvider language="JAVA"
+            implementationClass="com.chuntung.plugin.mybatis.builder.view.MapperToXmlLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="XML"
+            implementationClass="com.chuntung.plugin.mybatis.builder.view.XmlToMapperLineMarkerProvider"/>
+
+        <!-- Mapper XML <-> Java cross-language references -->
+        <psi.referenceContributor language="XML"
+            implementation="com.chuntung.plugin.mybatis.builder.reference.MapperNamespaceReferenceContributor"/>
+
+        <!-- Quick-fix: generate XML statement stub from a mapper method -->
+        <intentionAction>
+            <className>com.chuntung.plugin.mybatis.builder.action.idea.GenerateXmlStatementIntention</className>
+            <category>MyBatis Builder</category>
+            <descriptionDirectoryName>GenerateXmlStatementIntention</descriptionDirectoryName>
+        </intentionAction>
+
+        <!-- Annotator: validate parameterType / resultType against the mapper method -->
+        <annotator language="XML"
+            implementationClass="com.chuntung.plugin.mybatis.builder.annotator.MapperTypeAnnotator"/>
     </extensions>
 
 </idea-plugin>

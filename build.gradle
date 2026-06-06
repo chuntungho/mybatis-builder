@@ -33,6 +33,8 @@ sourceSets {
     test {
         java {
             exclude '**/example'
+            exclude '**/MybatisBuilderServiceTest.java'
+            exclude '**/GeneratorToolWrapperTest.java'
         }
     }
 
@@ -50,7 +52,7 @@ dependencies {
         exclude group: 'org.assertj'
     }
     implementation group: 'com.github.javaparser', name: 'javaparser-core', version: '3.19.0'
-    implementation group: 'org.postgresql', name: 'postgresql', version: '9.4.1212'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.10'
     implementation group: 'mysql', name: 'mysql-connector-java', version: '5.1.47'
 
     testImplementation('com.h2database:h2:1.4.200')

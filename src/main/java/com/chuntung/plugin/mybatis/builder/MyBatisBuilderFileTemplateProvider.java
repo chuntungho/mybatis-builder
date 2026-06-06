@@ -15,7 +15,7 @@ public class MyBatisBuilderFileTemplateProvider implements FileTemplateGroupDesc
 
     @Override
     public FileTemplateGroupDescriptor getFileTemplatesDescriptor() {
-        FileTemplateGroupDescriptor group = new FileTemplateGroupDescriptor("MyBatis Builder", ViewUtil.getIcon("/images/mybatis-icon.png"));
+        FileTemplateGroupDescriptor group = new FileTemplateGroupDescriptor("MyBatis Builder", MybatisIcons.load("/images/mybatis-icon.png"));
         group.addTemplate(new FileTemplateDescriptor("MyBatisGenerator.xml", AllIcons.FileTypes.Xml));
         return group;
     }

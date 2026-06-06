@@ -51,7 +51,6 @@
     <!-- custom comment generator is required for auto merger -->
     <commentGenerator type="com.chuntung.plugin.mybatis.builder.generator.CustomCommentGenerator">
       <property name="addDatabaseRemark" value="true" />
-      <property name="generatedComment" value="generated automatically, do not modify!" />
     </commentGenerator>
 
     <!-- TODO define connection here -->

@@ -3,12 +3,12 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="699" height="492"/>
+      <xy x="20" y="20" width="738" height="529"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="bae21" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="bae21" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -18,12 +18,12 @@
         <children>
           <hspacer id="2c6b">
             <constraints>
-              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <component id="d2af7" class="javax.swing.JLabel">
             <constraints>
-              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Runtime"/>
@@ -31,7 +31,7 @@
           </component>
           <component id="f9e15" class="javax.swing.JComboBox" binding="targetRuntimeComboBox">
             <constraints>
-              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <editable value="false"/>
@@ -42,33 +42,9 @@
               <opaque value="false"/>
             </properties>
           </component>
-          <component id="2a27e" class="javax.swing.JToggleButton" binding="tableButton">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
-                <preferred-size width="50" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <actionCommand value="tableCard"/>
-              <borderPainted value="false"/>
-              <text value="Table"/>
-            </properties>
-          </component>
-          <component id="ed2f3" class="javax.swing.JToggleButton" binding="othersButton">
-            <constraints>
-              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
-                <preferred-size width="50" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <actionCommand value="othersCard"/>
-              <borderPainted value="false"/>
-              <text value="Others"/>
-            </properties>
-          </component>
         </children>
       </grid>
-      <grid id="2b85f" binding="cardContainer" layout-manager="CardLayout" hgap="0" vgap="0">
+      <tabbedpane id="2b85f" binding="tabbedPane">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="200" height="200"/>
@@ -80,12 +56,12 @@
           <grid id="65399" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <card name="tableCard"/>
+              <tabbedpane title="Table"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
-              <grid id="33fa0" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="33fa0" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
@@ -93,15 +69,15 @@
                   </grid>
                 </constraints>
                 <properties/>
-                <border type="none" title="Default table config"/>
+                <border type="none"/>
                 <children>
                   <grid id="7b6c0" binding="examplePanel" layout-manager="GridLayoutManager" row-count="1" column-count="7" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
-                    <border type="none"/>
+                    <border type="none" title="Statement by example"/>
                     <children>
                       <component id="60a72" class="javax.swing.JCheckBox" binding="selectByExampleCheckbox">
                         <constraints>
@@ -166,21 +142,13 @@
                       </component>
                     </children>
                   </grid>
-                  <component id="94d9a" class="javax.swing.JLabel">
-                    <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text value="Statement by example"/>
-                    </properties>
-                  </component>
                   <grid id="31849" binding="lockPanel" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
-                    <border type="none"/>
+                    <border type="none" title="Select with lock"/>
                     <children>
                       <component id="f1d3b" class="javax.swing.JCheckBox" binding="selectByPrimaryKeyWithLockCheckBox">
                         <constraints>
@@ -213,30 +181,13 @@
                       </hspacer>
                     </children>
                   </grid>
-                  <component id="7086b" class="javax.swing.JLabel">
-                    <constraints>
-                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <horizontalTextPosition value="2"/>
-                      <text value="Select with lock"/>
-                    </properties>
-                  </component>
-                  <component id="ad32b" class="javax.swing.JLabel">
-                    <constraints>
-                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text value="Generated key"/>
-                    </properties>
-                  </component>
                   <grid id="6d375" layout-manager="GridLayoutManager" row-count="1" column-count="8" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
-                    <border type="none"/>
+                    <border type="none" title="Generated key"/>
                     <children>
                       <component id="9d67" class="javax.swing.JLabel">
                         <constraints>
@@ -306,10 +257,10 @@
                   <grid id="7b853" binding="basicPanel" layout-manager="GridLayoutManager" row-count="1" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
-                    <border type="none"/>
+                    <border type="none" title="Basic statement"/>
                     <children>
                       <component id="b1089" class="javax.swing.JCheckBox" binding="basicAllCheckBox">
                         <constraints>
@@ -362,15 +313,6 @@
                       </component>
                     </children>
                   </grid>
-                  <component id="4a65" class="javax.swing.JLabel" binding="basicStatementLabel">
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <horizontalTextPosition value="2"/>
-                      <text value="Basic statement"/>
-                    </properties>
-                  </component>
                 </children>
               </grid>
               <vspacer id="f3bc2">
@@ -466,7 +408,7 @@
           <grid id="2b804" binding="othersPanel" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <card name="othersCard"/>
+              <tabbedpane title="Generator output"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -616,8 +558,8 @@
                       <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Sync"/>
-                      <toolTipText value="Use source path of model"/>
+                      <text value="From model"/>
+                      <toolTipText value="Copy source path from Java model"/>
                     </properties>
                   </component>
                   <hspacer id="908b7">
@@ -687,26 +629,26 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <component id="257d6" class="javax.swing.JTextField" binding="endingDelimiterText">
+                      <component id="257d6" class="com.intellij.ui.components.JBTextField" binding="endingDelimiterText">
                         <constraints>
                           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                            <preferred-size width="28" height="-1"/>
+                            <preferred-size width="32" height="-1"/>
                           </grid>
                         </constraints>
                         <properties>
                           <text value=""/>
-                          <toolTipText value="Ending"/>
+                          <toolTipText value="Ending delimiter (e.g. &quot;)"/>
                         </properties>
                       </component>
-                      <component id="39cbf" class="javax.swing.JTextField" binding="beginningDelimiterText">
+                      <component id="39cbf" class="com.intellij.ui.components.JBTextField" binding="beginningDelimiterText">
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                            <preferred-size width="28" height="-1"/>
+                            <preferred-size width="32" height="-1"/>
                           </grid>
                         </constraints>
                         <properties>
                           <text value=""/>
-                          <toolTipText value="Beginning"/>
+                          <toolTipText value="Beginning delimiter (e.g. &quot;)"/>
                         </properties>
                       </component>
                     </children>
@@ -721,8 +663,8 @@
                       <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Sync"/>
-                      <toolTipText value="Use source path of model"/>
+                      <text value="From model"/>
+                      <toolTipText value="Derive resource path from Java model source path (replaces /java with /resources)"/>
                     </properties>
                   </component>
                 </children>
@@ -735,13 +677,7 @@
             </children>
           </grid>
         </children>
-      </grid>
+      </tabbedpane>
     </children>
   </grid>
-  <buttonGroups>
-    <group name="tabButtonGroup">
-      <member id="2a27e"/>
-      <member id="ed2f3"/>
-    </group>
-  </buttonGroups>
 </form>

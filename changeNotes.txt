@@ -1,3 +1,7 @@
 <ul>
-<li>Fix for IC 2024.2</li>
+<li>Mapper interface &lt;-&gt; Mapper XML navigation: gutter line markers, namespace/id reference resolution, and rename support</li>
+<li>Validate <code>parameterType</code> / <code>resultType</code> on XML statements against the matching mapper method</li>
+<li>Intention to generate a statement stub (select/insert/update/delete) from a mapper method, creating the XML mapper file if needed</li>
+<li>Per-connection JDBC properties: configure driver properties in the Settings dialog; forwarded to both JDBC connections and MyBatis Generator config</li>
+<li>Fix slow operation on EDT when fetching columns</li>
 </ul>
