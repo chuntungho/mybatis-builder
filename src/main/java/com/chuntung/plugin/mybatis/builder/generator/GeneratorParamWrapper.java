@@ -6,10 +6,6 @@ package com.chuntung.plugin.mybatis.builder.generator;
 
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.intellij.util.xmlb.annotations.Transient;
-import org.mybatis.generator.config.JDBCConnectionConfiguration;
-import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
-import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
-import org.mybatis.generator.config.SqlMapGeneratorConfiguration;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,11 +32,12 @@ public class GeneratorParamWrapper implements Cloneable {
 
     // derived from connection
     private String driverLibrary;
-    private JDBCConnectionConfiguration jdbcConfig = new JDBCConnectionConfiguration();
+    @Transient
+    private JdbcConnectionConfig jdbcConfig = new JdbcConnectionConfig();
 
-    private JavaModelGeneratorConfiguration javaModelConfig = new JavaModelGeneratorConfiguration();
-    private JavaClientGeneratorConfiguration javaClientConfig = new JavaClientGeneratorConfiguration();
-    private SqlMapGeneratorConfiguration sqlMapConfig = new SqlMapGeneratorConfiguration();
+    private JavaModelGeneratorConfig javaModelConfig = new JavaModelGeneratorConfig();
+    private JavaClientGeneratorConfig javaClientConfig = new JavaClientGeneratorConfig();
+    private SqlMapGeneratorConfig sqlMapConfig = new SqlMapGeneratorConfig();
 
     private TableConfigurationWrapper defaultTableConfigWrapper = new TableConfigurationWrapper();
 
@@ -117,36 +114,35 @@ public class GeneratorParamWrapper implements Cloneable {
         this.databaseRemark = databaseRemark;
     }
 
-    @Transient
-    public JDBCConnectionConfiguration getJdbcConfig() {
+    public JdbcConnectionConfig getJdbcConfig() {
         return jdbcConfig;
     }
 
-    public void setJdbcConfig(JDBCConnectionConfiguration jdbcConfig) {
+    public void setJdbcConfig(JdbcConnectionConfig jdbcConfig) {
         this.jdbcConfig = jdbcConfig;
     }
 
-    public JavaModelGeneratorConfiguration getJavaModelConfig() {
+    public JavaModelGeneratorConfig getJavaModelConfig() {
         return javaModelConfig;
     }
 
-    public void setJavaModelConfig(JavaModelGeneratorConfiguration javaModelConfig) {
+    public void setJavaModelConfig(JavaModelGeneratorConfig javaModelConfig) {
         this.javaModelConfig = javaModelConfig;
     }
 
-    public JavaClientGeneratorConfiguration getJavaClientConfig() {
+    public JavaClientGeneratorConfig getJavaClientConfig() {
         return javaClientConfig;
     }
 
-    public void setJavaClientConfig(JavaClientGeneratorConfiguration javaClientConfig) {
+    public void setJavaClientConfig(JavaClientGeneratorConfig javaClientConfig) {
         this.javaClientConfig = javaClientConfig;
     }
 
-    public SqlMapGeneratorConfiguration getSqlMapConfig() {
+    public SqlMapGeneratorConfig getSqlMapConfig() {
         return sqlMapConfig;
     }
 
-    public void setSqlMapConfig(SqlMapGeneratorConfiguration sqlMapConfig) {
+    public void setSqlMapConfig(SqlMapGeneratorConfig sqlMapConfig) {
         this.sqlMapConfig = sqlMapConfig;
     }
 

@@ -46,7 +46,7 @@ sourceSets {
 }
 
 dependencies {
-    implementation( group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '1.4.2') {
+    implementation( group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '2.0.0') {
         exclude group: 'org.junit.jupiter'
         exclude group: 'org.junit.platform'
         exclude group: 'org.assertj'

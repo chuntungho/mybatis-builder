@@ -32,9 +32,9 @@ import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
-import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
-import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
-import org.mybatis.generator.config.SqlMapGeneratorConfiguration;
+import com.chuntung.plugin.mybatis.builder.generator.JavaClientGeneratorConfig;
+import com.chuntung.plugin.mybatis.builder.generator.JavaModelGeneratorConfig;
+import com.chuntung.plugin.mybatis.builder.generator.SqlMapGeneratorConfig;
 import org.mybatis.generator.internal.db.DatabaseDialects;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
@@ -383,7 +383,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         GeneratedKeyWrapper generatedKeyWrapper = defaultTableConfig.getGeneratedKeyWrapper();
         columnText.setText(generatedKeyWrapper.getColumn());
         identityCheckBox.setSelected(generatedKeyWrapper.isIdentity());
-        DatabaseDialects statement = DatabaseDialects.getDatabaseDialect(generatedKeyWrapper.getStatement());
+        DatabaseDialects statement = DatabaseDialects.getDatabaseDialect(generatedKeyWrapper.getStatement()).orElse(null);
         if (statement != null) {
             statementComboBox.setSelectedItem(statement);
         } else {
@@ -416,7 +416,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
 
         List<String> history = null;
         // model
-        JavaModelGeneratorConfiguration modelConfig = data.getJavaModelConfig();
+        JavaModelGeneratorConfig modelConfig = data.getJavaModelConfig();
         javaModelProjectText.setText(modelConfig.getTargetProject());
 
         history = paramWrapper.getHistoryMap().get(HistoryCategoryEnum.JAVA_MODEL_PACKAGE.toString());
@@ -426,7 +426,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         javaModelPackageText.setText(modelConfig.getTargetPackage());
 
         // client
-        JavaClientGeneratorConfiguration javaClientConfig = data.getJavaClientConfig();
+        JavaClientGeneratorConfig javaClientConfig = data.getJavaClientConfig();
         if (javaClientConfig.getConfigurationType() == null) {
             javaClientTypeComboBox.setSelectedIndex(0);
         } else {
@@ -441,7 +441,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         javaClientPackageText.setText(javaClientConfig.getTargetPackage());
 
         // sqlmap
-        SqlMapGeneratorConfiguration sqlMapConfig = data.getSqlMapConfig();
+        SqlMapGeneratorConfig sqlMapConfig = data.getSqlMapConfig();
         sqlMapProjectText.setText(sqlMapConfig.getTargetProject());
 
         history = paramWrapper.getHistoryMap().get(HistoryCategoryEnum.SQL_MAP_PACKAGE.toString());
@@ -511,18 +511,18 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         }
 
         // model config
-        JavaModelGeneratorConfiguration javaModelConfig = data.getJavaModelConfig();
+        JavaModelGeneratorConfig javaModelConfig = data.getJavaModelConfig();
         javaModelConfig.setTargetProject(javaModelProjectText.getText());
         javaModelConfig.setTargetPackage(javaModelPackageText.getText());
 
         // client config
-        JavaClientGeneratorConfiguration javaClientConfig = data.getJavaClientConfig();
+        JavaClientGeneratorConfig javaClientConfig = data.getJavaClientConfig();
         javaClientConfig.setConfigurationType((String) javaClientTypeComboBox.getSelectedItem());
         javaClientConfig.setTargetProject(javaClientProjectText.getText());
         javaClientConfig.setTargetPackage(javaClientPackageText.getText());
 
         // sqlmap config
-        SqlMapGeneratorConfiguration sqlMapConfig = data.getSqlMapConfig();
+        SqlMapGeneratorConfig sqlMapConfig = data.getSqlMapConfig();
         sqlMapConfig.setTargetProject(sqlMapProjectText.getText());
         sqlMapConfig.setTargetPackage(sqlMapPackageText.getText());
     }

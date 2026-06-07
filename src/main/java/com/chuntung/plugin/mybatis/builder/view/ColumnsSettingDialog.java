@@ -14,7 +14,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
-import org.mybatis.generator.config.ColumnRenamingRule;
+import com.chuntung.plugin.mybatis.builder.generator.RenamingRule;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import javax.swing.*;
@@ -124,7 +124,7 @@ public class ColumnsSettingDialog extends DialogWrapper {
 
         handler.initTable(columnsTable, columns);
 
-        ColumnRenamingRule columnRenamingRule = tableInfo.getColumnRenamingRule();
+        RenamingRule columnRenamingRule = tableInfo.getColumnRenamingRule();
         if (columnRenamingRule != null) {
             searchText.setText(columnRenamingRule.getSearchString());
             replaceText.setText(columnRenamingRule.getReplaceString());
@@ -142,7 +142,7 @@ public class ColumnsSettingDialog extends DialogWrapper {
         tableInfo.setCustomColumns(customColumns);
 
         if (StringUtil.stringHasValue(searchText.getText())) {
-            ColumnRenamingRule rule = new ColumnRenamingRule();
+            RenamingRule rule = new RenamingRule();
             rule.setSearchString(searchText.getText());
             rule.setReplaceString(replaceText.getText() == null ? "" : replaceText.getText());
             tableInfo.setColumnRenamingRule(rule);

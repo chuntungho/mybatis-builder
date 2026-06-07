@@ -74,21 +74,15 @@ public class JavaMergerShellCallback extends DefaultShellCallback {
 
     }
 
-    /**
-     * Instantiates a new default shell callback.
-     *
-     * @param overwrite the overwrite
-     */
     public JavaMergerShellCallback(boolean overwrite) {
-        super(overwrite);
+        super();
     }
 
-    @Override
+    // isMergeSupported / mergeJavaFile removed from ShellCallback in MBG 2.0.0; kept as dead code
     public boolean isMergeSupported() {
         return true;
     }
 
-    @Override
     public String mergeJavaFile(String newFileSource, File existingFile, String[] javadocTags, String fileEncoding)
             throws ShellException {
         // only support interface file

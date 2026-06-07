@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2019 Tony Ho. Some rights reserved.
+  ~ Copyright (c) 2026 Chuntung Ho. Some rights reserved.
   -->
 <idea-plugin>
     <id>com.chuntung.plugin.mybatisbuilder</id>
@@ -8,25 +8,31 @@
     <vendor email="ho@chuntung.com" url="https://mybatis.chuntung.com">Chuntung Ho</vendor>
 
     <description><![CDATA[
-    A free GUI tool integrated with MyBatis Generator, which is specially compatible with IDEA CE.
-    <br>
-    Supported databases: mysql/postgresql/mariadb/oracle/sqlserver/sqlite/h2.
-    <br>
-    Provides with additional features as below.<br>
+    <p>A free GUI plugin that integrates <b>MyBatis Generator</b> into IntelliJ IDEA, with bidirectional
+    navigation between Mapper interfaces and XML files.</p>
+
+    <p><b>Supported databases:</b> MySQL, PostgreSQL, MariaDB, Oracle, SQL Server, SQLite, H2</p>
+
+    <p><b>Features:</b></p>
     <ul>
-      <li>Merge existing MyBatis files automatically.</li>
-      <li>Support select with lock statement.</li>
-      <li>Support Lombok @Data annotation on java model.</li>
-      <li>Customizable mapper annotation, default is Spring @Repository.</li>
-      <li>Customizable patterns for mapper type, example type and SQL file name.</li>
-      <li>"Copy as Executable SQL" from MyBatis log.</li>
-      <li>"Run MyBatis Generator" with official configuration file.</li>
+      <li>Generate MyBatis boilerplate via a graphical wizard.</li>
+      <li>Navigate between Mapper interface methods and XML statements (gutter icons &amp; references).</li>
+      <li>Validate <code>parameterType</code> / <code>resultType</code> against mapper method signatures.</li>
+      <li>Generate XML statement stubs from mapper methods (quick-fix intention).</li>
+      <li>Merge existing MyBatis files automatically on re-generation.</li>
+      <li>Select-with-lock statement support (<code>FOR UPDATE</code> / <code>LOCK IN SHARE MODE</code>).</li>
+      <li>Lombok <code>@Data</code> annotation on generated Java models.</li>
+      <li>Customizable mapper annotation (default: Spring <code>@Repository</code>).</li>
+      <li>Customizable naming patterns for mapper type, example type and SQL file name.</li>
+      <li><i>Copy as Executable SQL</i> — reconstructs a runnable SQL from MyBatis log output.</li>
+      <li><i>Run MyBatis Generator</i> — execute MBG directly from a <code>generator-config.xml</code> file.</li>
     </ul>
-    <a href="https://mybatis.chuntung.com">Getting Started</a>
+
+    <p><a href="https://mybatis.chuntung.com">Getting Started</a></p>
     ]]></description>
 
     <change-notes><![CDATA[
-        A GUI tool integrated with mybatis generator, support IDEA CE specially.
+        A GUI tool integrated with mybatis generator.
     ]]>
     </change-notes>
 
@@ -41,12 +47,10 @@
     <actions>
         <!-- Manage -->
         <action id="MyBatisBuilder.Manage"
-                description="Manage connections, default settings, etc."
                 class="com.chuntung.plugin.mybatis.builder.action.idea.ManageAction"/>
 
         <!-- Build -->
-        <action id="MyBatisBuilder.Build" text="Build..." icon="/images/build.png"
-                description="Open Building dialog after selecting table(s)"
+        <action id="MyBatisBuilder.Build"
                 class="com.chuntung.plugin.mybatis.builder.action.idea.BuildAction"/>
 
         <!-- New MyBatis Generator Config-->

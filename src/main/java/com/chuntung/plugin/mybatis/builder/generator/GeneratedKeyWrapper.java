@@ -61,7 +61,7 @@ public class GeneratedKeyWrapper {
             keyColumn = tableInfo.getKeyColumn();
         }
         if (StringUtil.stringHasValue(keyColumn)) {
-            GeneratedKey generatedKey = new GeneratedKey(keyColumn, statement, isIdentity(), getType());
+            GeneratedKey generatedKey = new GeneratedKey(keyColumn, statement, isIdentity());
             return generatedKey;
         } else {
             return null;

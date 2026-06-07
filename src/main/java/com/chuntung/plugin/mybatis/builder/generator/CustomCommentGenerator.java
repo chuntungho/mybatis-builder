@@ -14,7 +14,6 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.internal.DefaultCommentGenerator;
 
-import java.sql.SQLType;
 import java.sql.Types;
 import java.util.Properties;
 import java.util.Set;
@@ -44,7 +43,7 @@ public class CustomCommentGenerator implements CommentGenerator {
         generatedComment = properties.getProperty(GENERATED_COMMENT);
     }
 
-    @Override
+    // addFieldComment is not in the MBG 2.0.0 CommentGenerator interface but kept for compatibility
     public void addFieldComment(Field field, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
         if (!addDatabaseRemark) {
             return;
@@ -66,22 +65,24 @@ public class CustomCommentGenerator implements CommentGenerator {
         }
         field.addJavaDocLine(sb.toString());
 
-        if (StringUtil.stringHasValue(introspectedColumn.getDefaultValue())) {
+        String defaultVal = introspectedColumn.getDefaultValue().orElse(null);
+        if (StringUtil.stringHasValue(defaultVal)) {
             sb.setLength(0);
-            sb.append(" * Default value: ").append(introspectedColumn.getDefaultValue());
+            sb.append(" * Default value: ").append(defaultVal);
             field.addJavaDocLine(sb.toString());
         }
 
-        if (StringUtil.stringHasValue(introspectedColumn.getRemarks())) {
+        String remarks = introspectedColumn.getRemarks().orElse(null);
+        if (StringUtil.stringHasValue(remarks)) {
             sb.setLength(0);
-            sb.append(" * Remark: ").append(introspectedColumn.getRemarks().replace('\n', ' '));
+            sb.append(" * Remark: ").append(remarks.replace('\n', ' '));
             field.addJavaDocLine(sb.toString());
         }
 
         field.addJavaDocLine(" */");
     }
 
-    @Override
+    // addFieldComment(Field, IntrospectedTable) is not in MBG 2.0.0 interface
     public void addFieldComment(Field field, IntrospectedTable introspectedTable) {
         addJavaDocComment(field);
     }
@@ -101,31 +102,27 @@ public class CustomCommentGenerator implements CommentGenerator {
         topLevelClass.addJavaDocLine(" */");
     }
 
-    @Override
+    // addClassComment is not in MBG 2.0.0 interface
     public void addClassComment(InnerClass innerClass, IntrospectedTable introspectedTable) {
     }
 
-    @Override
+    // addClassComment(bool) is not in MBG 2.0.0 interface
     public void addClassComment(InnerClass innerClass, IntrospectedTable introspectedTable, boolean b) {
-
     }
 
-    @Override
+    // addEnumComment is not in MBG 2.0.0 interface
     public void addEnumComment(InnerEnum innerEnum, IntrospectedTable introspectedTable) {
-
     }
 
-    @Override
+    // addGetterComment is not in MBG 2.0.0 interface
     public void addGetterComment(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
-
     }
 
-    @Override
+    // addSetterComment is not in MBG 2.0.0 interface
     public void addSetterComment(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
-
     }
 
-    @Override
+    // addGeneralMethodComment is not in MBG 2.0.0 interface
     public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
         addJavaDocComment(method);
     }
@@ -161,31 +158,25 @@ public class CustomCommentGenerator implements CommentGenerator {
 
     @Override
     public void addRootComment(XmlElement xmlElement) {
-
     }
 
     @Override
     public void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
-
     }
 
     @Override
     public void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
-
     }
 
     @Override
     public void addFieldAnnotation(Field field, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
-
     }
 
     @Override
     public void addFieldAnnotation(Field field, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
-
     }
 
     @Override
     public void addClassAnnotation(InnerClass innerClass, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
-
     }
 }

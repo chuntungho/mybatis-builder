@@ -26,8 +26,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import org.jetbrains.annotations.NotNull;
-import org.mybatis.generator.config.JDBCConnectionConfiguration;
-import org.mybatis.generator.config.PropertyHolder;
+import com.chuntung.plugin.mybatis.builder.generator.JdbcConnectionConfig;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.slf4j.Logger;
@@ -88,7 +87,10 @@ public class BuildAction extends DumbAwareAction {
         paramWrapper.setHistoryMap(service.getHistoryMap());
 
         // enable sub packages by default
-        enableSubPackages(paramWrapper.getJavaModelConfig(), paramWrapper.getJavaClientConfig(), paramWrapper.getSqlMapConfig());
+        String subPkgKey = PropertyRegistry.ANY_ENABLE_SUB_PACKAGES;
+        paramWrapper.getJavaModelConfig().addProperty(subPkgKey, "true");
+        paramWrapper.getJavaClientConfig().addProperty(subPkgKey, "true");
+        paramWrapper.getSqlMapConfig().addProperty(subPkgKey, "true");
 
         // populate selected tables
         ConnectionInfo connectionInfo = new ConnectionInfo();
@@ -198,7 +200,7 @@ public class BuildAction extends DumbAwareAction {
             paramWrapper.setDriverLibrary(null);
         }
 
-        JDBCConnectionConfiguration jdbcConfig = paramWrapper.getJdbcConfig();
+        JdbcConnectionConfig jdbcConfig = paramWrapper.getJdbcConfig();
         // the known driver class or custom driver class
         String driverClass = StringUtil.stringHasValue(connectionInfo.getDriverClass()) ?
                 connectionInfo.getDriverClass() : connectionInfo.getDriverType().getDriverClass();
@@ -212,12 +214,6 @@ public class BuildAction extends DumbAwareAction {
         jdbcConfig.setPassword(connectionInfo.getPassword());
         for (Map.Entry<String, String> entry : ConnectionProperties.resolve(connectionInfo).entrySet()) {
             jdbcConfig.addProperty(entry.getKey(), entry.getValue());
-        }
-    }
-
-    private void enableSubPackages(PropertyHolder... holders) {
-        for (PropertyHolder holder : holders) {
-            holder.addProperty(PropertyRegistry.ANY_ENABLE_SUB_PACKAGES, "true");
         }
     }
 

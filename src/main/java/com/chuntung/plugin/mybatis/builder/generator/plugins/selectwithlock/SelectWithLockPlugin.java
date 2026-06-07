@@ -114,7 +114,7 @@ public class SelectWithLockPlugin extends PluginAdapter {
         // remove old id attribute and add a new one with the new name
         for (Iterator<Attribute> iterator = newElement.getAttributes().iterator(); iterator.hasNext(); ) {
             Attribute attribute = iterator.next();
-            if ("id".equals(attribute.getName())) {
+            if ("id".equals(attribute.name())) {
                 iterator.remove();
                 Attribute newAttribute = new Attribute("id", newId);
                 newElement.addAttribute(newAttribute);
