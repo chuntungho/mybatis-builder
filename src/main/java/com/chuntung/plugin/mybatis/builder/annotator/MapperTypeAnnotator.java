@@ -7,6 +7,7 @@ import com.chuntung.plugin.mybatis.builder.util.MapperXmlIndex;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
@@ -78,6 +79,7 @@ public class MapperTypeAnnotator implements Annotator {
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        if (DumbService.isDumb(element.getProject())) return;
         if (!(element instanceof XmlAttributeValue)) return;
         XmlAttributeValue value = (XmlAttributeValue) element;
         if (!(value.getParent() instanceof XmlAttribute)) return;

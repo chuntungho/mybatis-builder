@@ -47,6 +47,9 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.HierarchyEvent;
 import java.io.File;
 import java.util.List;
 
@@ -95,7 +98,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JButton replaceButton;
     private JButton resetButton;
     private JTabbedPane tabbedPane;
-    private JComboBox targetRuntimeComboBox;
+    private JComboBox targetRuntimeComboBox = new JComboBox();
     private JPanel othersPanel;
     private JButton syncBtn;
     private JButton syncButton;
@@ -178,7 +181,10 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         setTitle("MyBatis Builder - Parameters");
         Cursor hand = new Cursor(Cursor.HAND_CURSOR);
 
+        // float Runtime combobox over the right of the tab strip (platform JTabbedPane
+        // uses DarculaTabbedPaneUI, which ignores JTabbedPane.trailingComponent)
         targetRuntimeComboBox.setModel(new DefaultComboBoxModel<>(targetRuntimes));
+        installRuntimeOverlay();
         // set null to trigger listener
         targetRuntimeComboBox.setSelectedItem(null);
         targetRuntimeComboBox.addItemListener(e -> {
@@ -316,6 +322,70 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         return mainPanel;
+    }
+
+    private JComponent runtimeOverlay;
+
+    /**
+     * Floats the Runtime label + combobox over the empty right side of the tab strip.
+     * The platform installs DarculaTabbedPaneUI for JTabbedPane, which does not honor
+     * the FlatLaf "JTabbedPane.trailingComponent" client property, so we attach the
+     * control to the dialog's layered pane and keep it aligned with the tab strip.
+     */
+    private void installRuntimeOverlay() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        panel.setOpaque(false);
+        panel.add(new JLabel("Runtime"));
+        panel.add(targetRuntimeComboBox);
+        panel.setSize(panel.getPreferredSize());
+        runtimeOverlay = panel;
+
+        tabbedPane.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                positionRuntimeOverlay();
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                positionRuntimeOverlay();
+            }
+        });
+        tabbedPane.addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && tabbedPane.isShowing()) {
+                JRootPane root = SwingUtilities.getRootPane(tabbedPane);
+                if (root != null && runtimeOverlay.getParent() != root.getLayeredPane()) {
+                    root.getLayeredPane().add(runtimeOverlay, JLayeredPane.PALETTE_LAYER);
+                }
+                positionRuntimeOverlay();
+            }
+        });
+    }
+
+    private void positionRuntimeOverlay() {
+        if (runtimeOverlay == null || !tabbedPane.isShowing()) {
+            return;
+        }
+        Container parent = runtimeOverlay.getParent();
+        if (parent == null) {
+            return;
+        }
+        Dimension pref = runtimeOverlay.getPreferredSize();
+        // align vertically within the tab strip band when available
+        int stripY = 0, stripH = pref.height;
+        if (tabbedPane.getTabCount() > 0) {
+            Rectangle b = tabbedPane.getBoundsAt(0);
+            if (b != null) {
+                stripY = b.y;
+                stripH = b.height;
+            }
+        }
+        Point origin = SwingUtilities.convertPoint(tabbedPane, 0, 0, parent);
+        int x = origin.x + tabbedPane.getWidth() - pref.width - 8;
+        int y = origin.y + stripY + Math.max(0, (stripH - pref.height) / 2);
+        runtimeOverlay.setBounds(x, y, pref.width, pref.height);
+        parent.revalidate();
+        parent.repaint();
     }
 
     private void setData(GeneratorParamWrapper data) {

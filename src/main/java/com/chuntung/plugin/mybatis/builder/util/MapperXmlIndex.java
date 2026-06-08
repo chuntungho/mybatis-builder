@@ -3,6 +3,7 @@
  */
 package com.chuntung.plugin.mybatis.builder.util;
 
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.JavaPsiFacade;
@@ -66,6 +67,7 @@ public final class MapperXmlIndex {
 
     public static PsiClass findMapperInterface(Project project, String namespace) {
         if (namespace == null || namespace.isEmpty()) return null;
+        if (DumbService.isDumb(project)) return null;
         PsiClass cls = JavaPsiFacade.getInstance(project).findClass(namespace, GlobalSearchScope.projectScope(project));
         return cls != null && cls.isInterface() ? cls : null;
     }
@@ -85,6 +87,10 @@ public final class MapperXmlIndex {
 
     private static Map<String, List<VirtualFile>> getOrBuildNamespaceMap(Project project) {
         return CachedValuesManager.getManager(project).getCachedValue(project, () -> {
+            if (DumbService.isDumb(project)) {
+                return CachedValueProvider.Result.create(Collections.emptyMap(),
+                        PsiModificationTracker.MODIFICATION_COUNT, DumbService.getInstance(project).getModificationTracker());
+            }
             Map<String, List<VirtualFile>> map = new HashMap<>();
             Collection<VirtualFile> files = FileTypeIndex.getFiles(XmlFileType.INSTANCE, GlobalSearchScope.projectScope(project));
             PsiManager psiManager = PsiManager.getInstance(project);
