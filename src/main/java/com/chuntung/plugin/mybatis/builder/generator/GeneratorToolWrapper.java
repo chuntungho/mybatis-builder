@@ -78,6 +78,7 @@ public class GeneratorToolWrapper {
 
         JavaTypeResolverConfiguration javaTypeResolverConfig = new JavaTypeResolverConfiguration.Builder()
                 .withProperty(new Property(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, defaultParameters.getForceBigDecimals().toString()))
+                .withProperty(new Property(PropertyRegistry.TYPE_RESOLVER_USE_JSR310_TYPES, defaultParameters.getUseJSR310Types().toString()))
                 .build();
 
         Context.Builder contextBuilder = new Context.Builder()
