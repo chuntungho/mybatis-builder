@@ -21,7 +21,7 @@ public class SimpleDataSourceFactory {
     public DataSource getDataSource(ConnectionInfo connectionInfo) {
         String driverClass = StringUtil.stringHasValue(connectionInfo.getDriverClass())
                 ? connectionInfo.getDriverClass()
-                : connectionInfo.getDriverType().getDriverClass();
+                : (connectionInfo.getDriverType() != null ? connectionInfo.getDriverType().getDriverClass() : "");
         String url = new ConnectionUrlBuilder(connectionInfo).getConnectionUrl();
 
         Properties props = new Properties();
@@ -36,6 +36,7 @@ public class SimpleDataSourceFactory {
         }
         props.setProperty("remarks", "true");
 
-        return new JdbcDataSource(connectionInfo.getDriverLibrary(), driverClass, url, props);
+        String driverLibrary = DriverDownloader.getInstance().resolveDriverLibrary(connectionInfo);
+        return new JdbcDataSource(driverLibrary, driverClass, url, props);
     }
 }

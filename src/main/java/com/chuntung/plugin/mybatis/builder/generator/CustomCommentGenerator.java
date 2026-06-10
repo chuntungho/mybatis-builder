@@ -8,6 +8,7 @@ import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
@@ -29,6 +30,12 @@ public class CustomCommentGenerator implements CommentGenerator {
     public static final String ADD_DATABASE_REMARK = "addDatabaseRemark";
     public static final String GENERATED_COMMENT = "generatedComment";
 
+    // The merger (MBG's JavaFileMergerJavaParserImpl) recognises generated members by the
+    // @Generated annotation whose value equals MyBatisGenerator's class name; match MBG default.
+    private static final FullyQualifiedJavaType GENERATED_ANNOTATION_TYPE =
+            new FullyQualifiedJavaType("jakarta.annotation.Generated");
+    private static final String GENERATED_ANNOTATION_VALUE = MyBatisGenerator.class.getName();
+
     private Properties properties = new Properties();
     private boolean addDatabaseRemark = true;
     private String generatedComment;
@@ -43,8 +50,9 @@ public class CustomCommentGenerator implements CommentGenerator {
         generatedComment = properties.getProperty(GENERATED_COMMENT);
     }
 
-    // addFieldComment is not in the MBG 2.0.0 CommentGenerator interface but kept for compatibility
-    public void addFieldComment(Field field, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
+    // Database remark comment for a model field (formerly addFieldComment in MBG < 2.0.0,
+    // now driven via addFieldAnnotation since MBG 2.0.0 removed the comment hooks).
+    private void addColumnRemark(Field field, IntrospectedColumn introspectedColumn) {
         if (!addDatabaseRemark) {
             return;
         }
@@ -82,11 +90,6 @@ public class CustomCommentGenerator implements CommentGenerator {
         field.addJavaDocLine(" */");
     }
 
-    // addFieldComment(Field, IntrospectedTable) is not in MBG 2.0.0 interface
-    public void addFieldComment(Field field, IntrospectedTable introspectedTable) {
-        addJavaDocComment(field);
-    }
-
     @Override
     public void addModelClassComment(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (!addDatabaseRemark) {
@@ -102,40 +105,26 @@ public class CustomCommentGenerator implements CommentGenerator {
         topLevelClass.addJavaDocLine(" */");
     }
 
-    // addClassComment is not in MBG 2.0.0 interface
-    public void addClassComment(InnerClass innerClass, IntrospectedTable introspectedTable) {
+    // Mark a generated member with the @Generated annotation so the merger treats it as
+    // regenerable; custom members added by the user (without the annotation) are preserved.
+    private void addGeneratedAnnotation(JavaElement el, Set<FullyQualifiedJavaType> imports) {
+        addGeneratedAnnotation(el, imports, null);
     }
 
-    // addClassComment(bool) is not in MBG 2.0.0 interface
-    public void addClassComment(InnerClass innerClass, IntrospectedTable introspectedTable, boolean b) {
+    private void addGeneratedAnnotation(JavaElement el, Set<FullyQualifiedJavaType> imports, String comments) {
+        imports.add(GENERATED_ANNOTATION_TYPE);
+        el.addAnnotation(buildGeneratedAnnotation(comments));
     }
 
-    // addEnumComment is not in MBG 2.0.0 interface
-    public void addEnumComment(InnerEnum innerEnum, IntrospectedTable introspectedTable) {
-    }
-
-    // addGetterComment is not in MBG 2.0.0 interface
-    public void addGetterComment(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
-    }
-
-    // addSetterComment is not in MBG 2.0.0 interface
-    public void addSetterComment(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
-    }
-
-    // addGeneralMethodComment is not in MBG 2.0.0 interface
-    public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
-        addJavaDocComment(method);
-    }
-
-    private void addJavaDocComment(JavaElement el) {
-        el.addJavaDocLine("/**");
-        StringBuilder sb = new StringBuilder(" * ");
-        sb.append(MergeConstants.NEW_ELEMENT_TAG);
-        if (StringUtil.stringHasValue(generatedComment)) {
-            sb.append(' ').append(generatedComment);
+    private String buildGeneratedAnnotation(String comments) {
+        String value = '"' + GENERATED_ANNOTATION_VALUE + '"';
+        if (!StringUtil.stringHasValue(comments)) {
+            comments = generatedComment;
         }
-        el.addJavaDocLine(sb.toString());
-        el.addJavaDocLine(" */");
+        if (StringUtil.stringHasValue(comments)) {
+            return "@Generated(value = " + value + ", comments = \"" + comments + "\")";
+        }
+        return "@Generated(" + value + ")";
     }
 
     @Override
@@ -160,23 +149,48 @@ public class CustomCommentGenerator implements CommentGenerator {
     public void addRootComment(XmlElement xmlElement) {
     }
 
+    // Since MBG 2.0.0 the comment hooks were removed and generators mark elements through the
+    // annotation hooks instead. We stamp every generated member with the @Generated annotation so
+    // that MBG's JavaParser-based file merger can detect and replace them while preserving custom code.
     @Override
     public void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
+        addGeneratedAnnotation(method, imports);
     }
 
     @Override
     public void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
+        addGeneratedAnnotation(method, imports);
     }
 
     @Override
     public void addFieldAnnotation(Field field, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
+        addGeneratedAnnotation(field, imports);
     }
 
     @Override
     public void addFieldAnnotation(Field field, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
+        addGeneratedAnnotation(field, imports);
+        addColumnRemark(field, introspectedColumn);
     }
 
     @Override
     public void addClassAnnotation(InnerClass innerClass, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
+        addGeneratedAnnotation(innerClass, imports);
+    }
+
+    // Marks legacy Example "Criteria" extension points so the merger keeps the user's modifications.
+    @Override
+    public void addClassAnnotationAndMarkAsDoNotDelete(InnerClass innerClass, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
+        addGeneratedAnnotation(innerClass, imports, MergeConstants.DO_NOT_DELETE_DURING_MERGE);
+    }
+
+    @Override
+    public void addRecordAnnotation(InnerRecord innerRecord, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
+        addGeneratedAnnotation(innerRecord, imports);
+    }
+
+    @Override
+    public void addEnumAnnotation(InnerEnum innerEnum, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
+        addGeneratedAnnotation(innerEnum, imports);
     }
 }

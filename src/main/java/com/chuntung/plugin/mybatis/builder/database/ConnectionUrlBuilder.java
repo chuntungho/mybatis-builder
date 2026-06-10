@@ -18,12 +18,23 @@ public class ConnectionUrlBuilder {
         if (StringUtil.stringHasValue(connectionInfo.getUrl())) {
             return connectionInfo.getUrl();
         } else {
-            String url = connectionInfo.getDriverType().getUrlPattern();
-            url = url.replace("${host}", connectionInfo.getHost());
+            // built-in driver uses its enum url pattern; a registered driver
+            // (driverType == null) carries its template in urlPattern
+            String url = connectionInfo.getDriverType() != null
+                    ? connectionInfo.getDriverType().getUrlPattern()
+                    : connectionInfo.getUrlPattern();
+            if (url == null) {
+                return "";
+            }
+            url = url.replace("${host}", emptyIfNull(connectionInfo.getHost()));
             url = url.replace("${port}", String.valueOf(connectionInfo.getPort()));
-            url = url.replace("${db}", connectionInfo.getDatabase());
+            url = url.replace("${db}", emptyIfNull(connectionInfo.getDatabase()));
             return url;
         }
+    }
+
+    private static String emptyIfNull(String s) {
+        return s == null ? "" : s;
     }
 }
 

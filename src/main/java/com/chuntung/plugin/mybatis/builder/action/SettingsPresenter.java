@@ -5,6 +5,7 @@
 package com.chuntung.plugin.mybatis.builder.action;
 
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
+import com.chuntung.plugin.mybatis.builder.model.CustomDriverInfo;
 import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
 import com.chuntung.plugin.mybatis.builder.MybatisBuilderTopics;
 import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
@@ -33,6 +34,14 @@ public class SettingsPresenter {
 
     public DefaultParameters getDefaultParameters() {
         return service.getDefaultParameters();
+    }
+
+    public List<CustomDriverInfo> loadCustomDrivers() {
+        return service.loadCustomDrivers();
+    }
+
+    public void saveCustomDrivers(List<CustomDriverInfo> customDrivers) {
+        service.saveCustomDrivers(customDrivers);
     }
 
     public void testConnection(ConnectionInfo connectionInfo) {

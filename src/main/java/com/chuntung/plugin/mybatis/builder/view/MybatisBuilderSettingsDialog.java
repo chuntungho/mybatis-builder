@@ -6,8 +6,10 @@ package com.chuntung.plugin.mybatis.builder.view;
 
 import com.chuntung.plugin.mybatis.builder.MybatisIcons;
 import com.chuntung.plugin.mybatis.builder.action.SettingsPresenter;
+import com.chuntung.plugin.mybatis.builder.database.DriverDownloader;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.RenamePlugin;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
+import com.chuntung.plugin.mybatis.builder.model.CustomDriverInfo;
 import com.chuntung.plugin.mybatis.builder.model.DriverTypeEnum;
 import com.chuntung.plugin.mybatis.builder.model.ObjectTableModel;
 import com.chuntung.plugin.mybatis.builder.model.PropertyEntry;
@@ -18,15 +20,21 @@ import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.selectwithlock.SelectWithLockConfig;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.DocumentAdapter;
@@ -46,7 +54,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -98,11 +108,17 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JTable propertiesTable;
     private JLabel hostLabel;
     private JLabel portLabel;
+    private JLabel databaseLabel;
+    private JPanel driverStatusPanel;
+    private JLabel driverStatusLabel;
+    private LinkLabel downloadDriverLink;
 
     private final SettingsPresenter settingsHandler;
     private Project project;
     private ConnectionInfo current;
     private Action applyAction;
+    // user-registered drivers, loaded once and refreshed after the Register dialog
+    private List<CustomDriverInfo> customDrivers = new ArrayList<>();
 
     private SettingsSnapshot baseline;
     private boolean loading;
@@ -179,20 +195,30 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         portSpinner.setModel(new SpinnerNumberModel(3306, 80, 65536, 1));
         portSpinner.setEditor(new JSpinner.NumberEditor(portSpinner, "#"));
 
-        driverTypeComboBox.setModel(new DefaultComboBoxModel(DriverTypeEnum.values()));
-//        driverTypeComboBox.addItemListener(e -> {
-//            DriverTypeEnum item = (DriverTypeEnum) e.getItem();
-//            driverPanel.setVisible(DriverTypeEnum.Custom.equals(item));
-//            hostPanel.setVisible(!DriverTypeEnum.Custom.equals(item));
-//            portSpinner.setValue(item.getDefaultPort());
-//        });
+        // registered drivers, used by the Add menu and the driver dropdown
+        customDrivers = settingsHandler.loadCustomDrivers();
+
+        // model is (re)built per selected connection: scoped to its driver family for
+        // built-in drivers, or to the registered drivers for a registered connection
+        driverTypeComboBox.addItemListener(e -> {
+            if (loading || e.getStateChange() != ItemEvent.SELECTED) {
+                return;
+            }
+            onDriverChanged(e.getItem());
+        });
+        downloadDriverLink.setListener((source, data) -> doDownloadDriver(), null);
         driverTypeComboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                DriverTypeEnum item = (DriverTypeEnum) value;
-                if (item.getIcon() != null) {
-                    setIcon(MybatisIcons.load(item.getIcon()));
+                if (value instanceof DriverTypeEnum item) {
+                    setText(item.getDisplayName());
+                    if (item.getIcon() != null) {
+                        setIcon(MybatisIcons.load(item.getIcon()));
+                    }
+                } else if (value instanceof CustomDriverInfo item) {
+                    setText(item.getName());
+                    setIcon(MybatisIcons.CONNECTION);
                 }
                 return this;
             }
@@ -221,14 +247,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     }
 
     private void initConnectionListToolbar() {
-        DefaultActionGroup addGroup = new DefaultActionGroup("Add", true);
-        addGroup.getTemplatePresentation().setIcon(AllIcons.General.Add);
-        for (DriverTypeEnum type : DriverTypeEnum.values()) {
-            addGroup.add(new NewConnectionAction(type));
-        }
-
         DefaultActionGroup group = new DefaultActionGroup();
-        group.add(addGroup);
+        group.add(new AddConnectionActionGroup());
         group.add(new RemoveConnectionAction());
         group.add(new MoveUpConnectionAction());
         group.add(new MoveDownConnectionAction());
@@ -394,8 +414,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         private final DriverTypeEnum type;
 
         NewConnectionAction(DriverTypeEnum type) {
-            super(type.name(),
-                    "Add a new " + type.name() + " connection",
+            super(type.getDisplayName(),
+                    "Add a new " + type.getDisplayName() + " connection",
                     MybatisIcons.load(type.getIcon()));
             this.type = type;
         }
@@ -403,6 +423,89 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             doAdd(connectionList, type);
+        }
+
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.EDT;
+        }
+    }
+
+    /**
+     * Popup "Add" group: built-in drivers grouped by family, then the registered
+     * drivers, then "Register driver…". Children are rebuilt on each open so newly
+     * registered drivers show up immediately.
+     */
+    private class AddConnectionActionGroup extends ActionGroup {
+        AddConnectionActionGroup() {
+            super("Add", true);
+            getTemplatePresentation().setIcon(AllIcons.General.Add);
+        }
+
+        @Override
+        public AnAction[] getChildren(@Nullable AnActionEvent e) {
+            List<AnAction> actions = new ArrayList<>();
+            Map<String, List<DriverTypeEnum>> byFamily = new LinkedHashMap<>();
+            for (DriverTypeEnum type : DriverTypeEnum.values()) {
+                byFamily.computeIfAbsent(type.getFamily(), k -> new ArrayList<>()).add(type);
+            }
+            for (Map.Entry<String, List<DriverTypeEnum>> entry : byFamily.entrySet()) {
+                List<DriverTypeEnum> drivers = entry.getValue();
+                if (drivers.size() == 1) {
+                    actions.add(new NewConnectionAction(drivers.get(0)));
+                } else {
+                    DefaultActionGroup familyGroup = new DefaultActionGroup(entry.getKey(), true);
+                    familyGroup.getTemplatePresentation().setIcon(MybatisIcons.load(drivers.get(0).getIcon()));
+                    for (DriverTypeEnum type : drivers) {
+                        familyGroup.add(new NewConnectionAction(type));
+                    }
+                    actions.add(familyGroup);
+                }
+            }
+            if (!customDrivers.isEmpty()) {
+                actions.add(Separator.getInstance());
+                for (CustomDriverInfo driver : customDrivers) {
+                    actions.add(new NewCustomConnectionAction(driver));
+                }
+            }
+            actions.add(Separator.getInstance());
+            actions.add(new RegisterDriverAction());
+            return actions.toArray(AnAction.EMPTY_ARRAY);
+        }
+
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.EDT;
+        }
+    }
+
+    private class NewCustomConnectionAction extends AnAction {
+        private final CustomDriverInfo driver;
+
+        NewCustomConnectionAction(CustomDriverInfo driver) {
+            super(driver.getName(), "Add a new " + driver.getName() + " connection", MybatisIcons.CONNECTION);
+            this.driver = driver;
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            doAddCustom(driver);
+        }
+
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.EDT;
+        }
+    }
+
+    private class RegisterDriverAction extends AnAction {
+        RegisterDriverAction() {
+            super("Register Driver…", "Register a custom JDBC driver", AllIcons.General.Settings);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            doRegisterDrivers();
         }
 
         @Override
@@ -507,7 +610,184 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     private void doTest() {
         getData(current);
+        DriverTypeEnum type = current.getDriverType();
+        if (type != null && type.isDownloadable() && !DriverDownloader.getInstance().isPresent(type)) {
+            Messages.showWarningDialog(project,
+                    "The " + type.getDisplayName() + " driver has not been downloaded yet. Click \"Download driver\" first.",
+                    "Driver Required");
+            return;
+        }
         settingsHandler.testConnection(current);
+    }
+
+    private void onDriverChanged(Object item) {
+        if (item instanceof DriverTypeEnum type) {
+            onDriverTypeChanged(type);
+        } else if (item instanceof CustomDriverInfo driver) {
+            onCustomDriverChanged(driver);
+        }
+    }
+
+    /**
+     * Re-fill defaults and toggle field visibility when the built-in driver changes.
+     */
+    private void onDriverTypeChanged(DriverTypeEnum type) {
+        if (type == null) {
+            return;
+        }
+        applyLayout(type.getLayout());
+        Integer defaultPort = type.getDefaultPort();
+        if (defaultPort != null && defaultPort > 0) {
+            portSpinner.setValue(defaultPort);
+        }
+        // built-in / managed driver: clear any leftover overrides so the resolved
+        // driver class and url pattern are used instead.
+        urlText.setText("");
+        driverClassText.setText("");
+        driverLibraryText.setText("");
+        refreshDriverStatus(type);
+    }
+
+    /**
+     * Re-fill defaults when switching to another registered driver.
+     */
+    private void onCustomDriverChanged(CustomDriverInfo driver) {
+        applyLayout(DriverTypeEnum.Layout.HOST);
+        if (driver.getDefaultPort() != null && driver.getDefaultPort() > 0) {
+            portSpinner.setValue(driver.getDefaultPort());
+        }
+        // url is built from the registered driver's template + host/port/db
+        urlText.setText("");
+        driverClassText.setText(nullToEmpty(driver.getDriverClass()));
+        driverLibraryText.setText(nullToEmpty(driver.getDriverLibrary()));
+        refreshCustomDriverStatus(driver);
+    }
+
+    /**
+     * Rebuild the driver dropdown so it lists only the drivers of the given family.
+     */
+    @SuppressWarnings("unchecked")
+    private void rebuildDriverCombo(String family) {
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+        for (DriverTypeEnum t : DriverTypeEnum.values()) {
+            if (t.getFamily().equals(family)) {
+                model.addElement(t);
+            }
+        }
+        driverTypeComboBox.setModel(model);
+    }
+
+    /**
+     * Rebuild the driver dropdown to list the registered drivers (for a custom connection).
+     */
+    @SuppressWarnings("unchecked")
+    private void rebuildCustomDriverCombo() {
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+        for (CustomDriverInfo driver : customDrivers) {
+            model.addElement(driver);
+        }
+        driverTypeComboBox.setModel(model);
+    }
+
+    private CustomDriverInfo findRegisteredDriver(String id) {
+        if (id == null) {
+            return null;
+        }
+        for (CustomDriverInfo driver : customDrivers) {
+            if (id.equals(driver.getId())) {
+                return driver;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Show host/port or file-path fields depending on the layout.
+     */
+    private void applyLayout(DriverTypeEnum.Layout layout) {
+        boolean host = layout == DriverTypeEnum.Layout.HOST;
+        boolean file = layout == DriverTypeEnum.Layout.FILE;
+
+        driverPanel.setVisible(false);
+        hostLabel.setVisible(host);
+        hostText.setVisible(host);
+        portLabel.setVisible(host);
+        portSpinner.setVisible(host);
+        databaseLabel.setText(file ? "File" : "Database");
+    }
+
+    private void refreshDriverStatus(DriverTypeEnum type) {
+        DriverDownloader downloader = DriverDownloader.getInstance();
+        if (type.isBundled()) {
+            driverStatusLabel.setText("Driver: bundled");
+            downloadDriverLink.setVisible(false);
+        } else { // downloadable
+            if (downloader.isPresent(type)) {
+                driverStatusLabel.setText("Driver: " + downloader.jarName(type));
+                downloadDriverLink.setText("Re-download");
+            } else {
+                driverStatusLabel.setText("Driver not downloaded");
+                downloadDriverLink.setText("Download driver");
+            }
+            downloadDriverLink.setVisible(true);
+        }
+    }
+
+    private void refreshCustomDriverStatus(CustomDriverInfo driver) {
+        String library = driver == null ? null : driver.getDriverLibrary();
+        if (StringUtil.stringHasValue(library)) {
+            driverStatusLabel.setText("Driver library: " + new java.io.File(library).getName());
+        } else {
+            driverStatusLabel.setText("Registered driver — no library set");
+        }
+        downloadDriverLink.setVisible(false);
+    }
+
+    private void doDownloadDriver() {
+        Object selected = driverTypeComboBox.getSelectedItem();
+        if (!(selected instanceof DriverTypeEnum) || !((DriverTypeEnum) selected).isDownloadable()) {
+            return;
+        }
+        DriverTypeEnum type = (DriverTypeEnum) selected;
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Downloading " + type.getDisplayName() + " Driver", true) {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                try {
+                    DriverDownloader.getInstance().download(type, indicator);
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            }
+
+            @Override
+            public void onSuccess() {
+                // only refresh if the user is still on the same type
+                if (type == driverTypeComboBox.getSelectedItem()) {
+                    refreshDriverStatus(type);
+                }
+            }
+
+            @Override
+            public void onThrowable(@NotNull Throwable error) {
+                Messages.showErrorDialog(project, error.getMessage(), "Driver Download Failed");
+            }
+        });
+    }
+
+    private void doRegisterDrivers() {
+        RegisterDriverDialog dialog = new RegisterDriverDialog(project, customDrivers);
+        if (dialog.showAndGet()) {
+            customDrivers = dialog.getDrivers();
+            settingsHandler.saveCustomDrivers(customDrivers);
+            // reflect any edits (driver class / library / url) in the current connection view
+            if (current != null && current.getDriverType() == null) {
+                setData(current);
+            }
+        }
+    }
+
+    private static String nullToEmpty(String s) {
+        return s == null ? "" : s;
     }
 
     private void doSelect(JList list) {
@@ -552,7 +832,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private void doAdd(JList list, DriverTypeEnum type) {
         ConnectionInfo blank = new ConnectionInfo();
         blank.setId(UUID.randomUUID().toString().replace("-", ""));
-        blank.setName("unnamed " + type.name());
+        blank.setName("unnamed " + type.getDisplayName());
         blank.setDriverType(type);
         blank.setPort(type.getDefaultPort());
         blank.setProperties(new LinkedHashMap<>(type.getDefaultProperties()));
@@ -560,6 +840,26 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         DefaultListModel model = (DefaultListModel) list.getModel();
         model.addElement(blank);
         list.setSelectedIndex(model.getSize() - 1);
+    }
+
+    private void doAddCustom(CustomDriverInfo driver) {
+        ConnectionInfo blank = new ConnectionInfo();
+        blank.setId(UUID.randomUUID().toString().replace("-", ""));
+        blank.setName("unnamed " + driver.getName());
+        // registered driver: driverType is null, snapshot the driver definition
+        blank.setDriverType(null);
+        blank.setCustomDriverId(driver.getId());
+        blank.setDriverClass(driver.getDriverClass());
+        blank.setDriverLibrary(driver.getDriverLibrary());
+        blank.setUrlPattern(driver.getUrlPattern());
+        if (driver.getDefaultPort() != null) {
+            blank.setPort(driver.getDefaultPort());
+        }
+        blank.setProperties(new LinkedHashMap<>());
+
+        DefaultListModel model = (DefaultListModel) connectionList.getModel();
+        model.addElement(blank);
+        connectionList.setSelectedIndex(model.getSize() - 1);
     }
 
     private void saveAll() {
@@ -687,14 +987,28 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
         connectionNameText.setText(data.getName());
         descriptionText.setText(data.getDescription());
-        if (data.getDriverType() != null) {
-            driverTypeComboBox.setSelectedItem(data.getDriverType());
+
+        DriverTypeEnum type = data.getDriverType();
+        if (type != null) {
+            // built-in driver: scope the dropdown to the family (e.g. MySQL 5 / 8 / MariaDB)
+            rebuildDriverCombo(type.getFamily());
+            driverTypeComboBox.setSelectedItem(type);
+            applyLayout(type.getLayout());
+            refreshDriverStatus(type);
         } else {
-            driverTypeComboBox.setSelectedIndex(0);
+            // registered driver: re-sync the snapshot from the (possibly edited) registry
+            CustomDriverInfo driver = findRegisteredDriver(data.getCustomDriverId());
+            if (driver != null) {
+                data.setDriverClass(driver.getDriverClass());
+                data.setDriverLibrary(driver.getDriverLibrary());
+                data.setUrlPattern(driver.getUrlPattern());
+            }
+            rebuildCustomDriverCombo();
+            driverTypeComboBox.setSelectedItem(driver); // null -> no selection (dangling)
+            applyLayout(DriverTypeEnum.Layout.HOST);
+            refreshCustomDriverStatus(driver);
         }
 
-        boolean customized = DriverTypeEnum.Custom.equals(data.getDriverType());
-        driverPanel.setVisible(customized);
         driverLibraryText.setText(data.getDriverLibrary());
         driverClassText.setText(data.getDriverClass());
         urlText.setText(data.getUrl());
@@ -703,11 +1017,6 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         if (data.getPort() != null) {
             portSpinner.setValue(data.getPort());
         }
-        // hide for custom
-        hostLabel.setVisible(!customized);
-        hostText.setVisible(!customized);
-        portLabel.setVisible(!customized);
-        portSpinner.setVisible(!customized);
 
         userText.setText(data.getUserName());
         passwordText.setText(data.getPassword());
@@ -732,10 +1041,25 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         data.setName(connectionNameText.getText());
         data.setDescription(descriptionText.getText());
 
-        data.setDriverType((DriverTypeEnum) driverTypeComboBox.getSelectedItem());
-        data.setDriverLibrary(driverLibraryText.getText());
-        data.setDriverClass(driverClassText.getText());
-        data.setUrl(urlText.getText());
+        Object selected = driverTypeComboBox.getSelectedItem();
+        if (selected instanceof DriverTypeEnum type) {
+            data.setDriverType(type);
+            data.setCustomDriverId(null);
+            data.setUrlPattern(null);
+            data.setDriverLibrary(driverLibraryText.getText());
+            data.setDriverClass(driverClassText.getText());
+            data.setUrl(urlText.getText());
+        } else if (selected instanceof CustomDriverInfo driver) {
+            // registered driver: snapshot its definition onto the connection
+            data.setDriverType(null);
+            data.setCustomDriverId(driver.getId());
+            data.setDriverClass(driver.getDriverClass());
+            data.setDriverLibrary(driver.getDriverLibrary());
+            data.setUrlPattern(driver.getUrlPattern());
+        } else {
+            // no selection (dangling registered driver): keep the existing snapshot
+            data.setDriverType(null);
+        }
 
         data.setHost(hostText.getText());
         data.setPort((Integer) portSpinner.getValue());
@@ -805,5 +1129,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         // place custom component creation code here
         urlLabel = new LinkLabel<>("URL", AllIcons.Ide.External_link_arrow, (aSource, aLinkData) -> BrowserUtil.browse("https://chuntung.com/jdbc-url"));
         urlLabel.setToolTipText("Click to view URL syntax for common databases");
+
+        downloadDriverLink = new LinkLabel<>("Download driver", AllIcons.Actions.Download);
     }
 }

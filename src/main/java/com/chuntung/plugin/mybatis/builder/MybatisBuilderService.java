@@ -61,6 +61,31 @@ public class MybatisBuilderService {
         return manager.getSettings().getConnectionInfoList();
     }
 
+    // return cloned registered drivers
+    public List<CustomDriverInfo> loadCustomDrivers() {
+        List<CustomDriverInfo> list = new ArrayList<>();
+        for (CustomDriverInfo driver : manager.getSettings().getCustomDrivers()) {
+            list.add(driver.clone());
+        }
+        return list;
+    }
+
+    public void saveCustomDrivers(List<CustomDriverInfo> customDrivers) {
+        manager.getSettings().setCustomDrivers(customDrivers);
+    }
+
+    public CustomDriverInfo findCustomDriver(String customDriverId) {
+        if (customDriverId == null) {
+            return null;
+        }
+        for (CustomDriverInfo driver : manager.getSettings().getCustomDrivers()) {
+            if (customDriverId.equals(driver.getId())) {
+                return driver;
+            }
+        }
+        return null;
+    }
+
     // return cloned connections with password
     public List<ConnectionInfo> loadConnectionInfoListWithPassword() {
         List<ConnectionInfo> list = new ArrayList<>();

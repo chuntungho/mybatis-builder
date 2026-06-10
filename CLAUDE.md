@@ -36,8 +36,8 @@ The plugin is roughly three layers: an **IntelliJ extension/action layer** regis
 ### Generator wrapper (`generator/`)
 
 - `GeneratorToolWrapper` — converts a `GeneratorParamWrapper` into MBG's `Configuration` and runs `MyBatisGenerator.generate(...)`. It forces SLF4J logging and temporarily overrides the `javax.xml.parsers.DocumentBuilderFactory` system property to work around an MBG XML-parsing issue — preserve those guards if refactoring.
-- `generator/plugins/` — custom MBG plugins (`LombokPlugin`, `MapperAnnotationPlugin`, `RenamePlugin`, `ExampleRowBoundsPlugin`, `DsqlRuntimePatchPlugin`, `selectwithlock/SelectWithLockPlugin`). Each plugin's configurable fields are annotated with `@PluginConfig` (`generator/annotation/PluginConfig.java`); the dialogs introspect those annotations reflectively to render UI and read defaults, so add new options via the annotation rather than hard-coding form fields.
-- `generator/callback/JavaMergerShellCallback` — implements the "merge existing MyBatis files" feature by re-parsing existing Java/XML sources before MBG overwrites them.
+- `generator/plugins/` — custom MBG plugins (`LombokPlugin`, `MapperAnnotationPlugin`, `RenamePlugin`, `ExampleRowBoundsPlugin`, `selectwithlock/SelectWithLockPlugin`). Each plugin's configurable fields are annotated with `@PluginConfig` (`generator/annotation/PluginConfig.java`); the dialogs introspect those annotations reflectively to render UI and read defaults, so add new options via the annotation rather than hard-coding form fields.
+- **Merging existing files** — `GeneratorToolWrapper` enables MBG's built-in Java/XML merge (`MyBatisGenerator.Builder.withJavaFileMergeEnabled(true)`). MBG's `JavaFileMergerJavaParserImpl` preserves custom members (those *without* the `@Generated` annotation) and regenerates the rest. For this to work, `CustomCommentGenerator` stamps every generated member with `@Generated("org.mybatis.generator.api.MyBatisGenerator")` (the value MBG's merger matches on); legacy Example `Criteria` extension points are marked with `comments="do_not_delete_during_merge"`. Do not strip these annotations — they are the merge markers.
 
 ### UI (`view/`)
 

@@ -5,7 +5,6 @@
 package com.chuntung.plugin.mybatis.builder.generator;
 
 import com.chuntung.plugin.mybatis.builder.generator.annotation.PluginConfig;
-import com.chuntung.plugin.mybatis.builder.generator.plugins.DsqlRuntimePatchPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.RenamePlugin;
 import com.chuntung.plugin.mybatis.builder.model.ColumnActionEnum;
 import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
@@ -59,6 +58,9 @@ public class GeneratorToolWrapper {
                     .withShellCallback(new DefaultShellCallback())
                     .withProgressCallback(progressCallback)
                     .withOverwriteEnabled(true)
+                    // merge existing files: MBG's JavaParser merger preserves custom members
+                    // (those without the @Generated annotation) and regenerates the rest
+                    .withJavaFileMergeEnabled(true)
                     .build()
                     .generateAndWrite();
         } finally {
@@ -176,8 +178,6 @@ public class GeneratorToolWrapper {
 
         // DSQL patches
         if (GeneratorParamWrapper.MY_BATIS_3_DYNAMIC_SQL.equals(paramWrapper.getTargetRuntime())) {
-            contextBuilder.withPluginConfiguration(createPluginConfig(DsqlRuntimePatchPlugin.class.getName(), null));
-
             TableConfigurationWrapper tableConfig = paramWrapper.getDefaultTableConfigWrapper();
             if (!tableConfig.isInsertStatementEnabled()) {
                 contextBuilder.withPluginConfiguration(createPluginConfig(DisableInsertPlugin.class.getName(), null));
@@ -281,6 +281,7 @@ public class GeneratorToolWrapper {
                     .withShellCallback(new DefaultShellCallback())
                     .withProgressCallback(processCallback)
                     .withOverwriteEnabled(true)
+                    .withJavaFileMergeEnabled(true)
                     .build()
                     .generateAndWrite();
 

@@ -8,6 +8,7 @@ import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
 import com.chuntung.plugin.mybatis.builder.MybatisIcons;
 import com.chuntung.plugin.mybatis.builder.database.ConnectionProperties;
 import com.chuntung.plugin.mybatis.builder.database.ConnectionUrlBuilder;
+import com.chuntung.plugin.mybatis.builder.database.DriverDownloader;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
@@ -193,9 +194,10 @@ public class BuildAction extends DumbAwareAction {
     }
 
     private void populateConnection(GeneratorParamWrapper paramWrapper, ConnectionInfo connectionInfo) {
-        // dynamic library
-        if (StringUtil.stringHasValue(connectionInfo.getDriverLibrary())) {
-            paramWrapper.setDriverLibrary(connectionInfo.getDriverLibrary());
+        // dynamic library: user-supplied (Custom) or downloaded driver jar; empty for bundled
+        String driverLibrary = DriverDownloader.getInstance().resolveDriverLibrary(connectionInfo);
+        if (StringUtil.stringHasValue(driverLibrary)) {
+            paramWrapper.setDriverLibrary(driverLibrary);
         } else {
             paramWrapper.setDriverLibrary(null);
         }
@@ -203,7 +205,8 @@ public class BuildAction extends DumbAwareAction {
         JdbcConnectionConfig jdbcConfig = paramWrapper.getJdbcConfig();
         // the known driver class or custom driver class
         String driverClass = StringUtil.stringHasValue(connectionInfo.getDriverClass()) ?
-                connectionInfo.getDriverClass() : connectionInfo.getDriverType().getDriverClass();
+                connectionInfo.getDriverClass() :
+                (connectionInfo.getDriverType() != null ? connectionInfo.getDriverType().getDriverClass() : "");
         jdbcConfig.setDriverClass(driverClass);
 
         // connection url, should contain database

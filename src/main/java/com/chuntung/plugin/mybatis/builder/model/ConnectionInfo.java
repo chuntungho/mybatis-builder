@@ -19,9 +19,15 @@ public class ConnectionInfo implements Cloneable {
     private String description;
     private Boolean active = Boolean.TRUE;
     private DriverTypeEnum driverType;
+    // id of the registered driver when this connection uses a user-registered driver
+    // (driverType is null in that case)
+    private String customDriverId;
     private String driverLibrary;
     private String driverClass;
+    // literal url override; when blank the url is built from urlPattern + host/port/db
     private String url;
+    // url template, populated for registered-driver connections (driverType == null)
+    private String urlPattern;
     private String host;
     private Integer port;
     private String database;
@@ -69,6 +75,14 @@ public class ConnectionInfo implements Cloneable {
         this.driverType = driverType;
     }
 
+    public String getCustomDriverId() {
+        return customDriverId;
+    }
+
+    public void setCustomDriverId(String customDriverId) {
+        this.customDriverId = customDriverId;
+    }
+
     public String getDriverLibrary() {
         return driverLibrary;
     }
@@ -91,6 +105,14 @@ public class ConnectionInfo implements Cloneable {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getUrlPattern() {
+        return urlPattern;
+    }
+
+    public void setUrlPattern(String urlPattern) {
+        this.urlPattern = urlPattern;
     }
 
     public String getHost() {
@@ -150,9 +172,11 @@ public class ConnectionInfo implements Cloneable {
         sb.append(", description='").append(description).append('\'');
         sb.append(", active=").append(active);
         sb.append(", driverType=").append(driverType);
+        sb.append(", customDriverId='").append(customDriverId).append('\'');
         sb.append(", driverLibrary='").append(driverLibrary).append('\'');
         sb.append(", driverClass='").append(driverClass).append('\'');
         sb.append(", url='").append(url).append('\'');
+        sb.append(", urlPattern='").append(urlPattern).append('\'');
         sb.append(", host='").append(host).append('\'');
         sb.append(", port=").append(port);
         sb.append(", database='").append(database).append('\'');
