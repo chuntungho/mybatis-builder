@@ -189,8 +189,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
         showEmptyState(true);
 
-        driverPanel.setVisible(false);
         driverLibraryText.addBrowseFolderListener("Choose Library", "Library should contain java.sql.Driver implement ", project, LIBRARY_FILE_DESCRIPTOR);
+        driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Override (optional)"));
 
         portSpinner.setModel(new SpinnerNumberModel(3306, 80, 65536, 1));
         portSpinner.setEditor(new JSpinner.NumberEditor(portSpinner, "#"));
@@ -645,6 +645,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         urlText.setText("");
         driverClassText.setText("");
         driverLibraryText.setText("");
+        setDriverPanelEditable(true);
+        driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Override (optional)"));
         refreshDriverStatus(type);
     }
 
@@ -660,7 +662,16 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         urlText.setText("");
         driverClassText.setText(nullToEmpty(driver.getDriverClass()));
         driverLibraryText.setText(nullToEmpty(driver.getDriverLibrary()));
+        setDriverPanelEditable(false);
+        driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Driver Info"));
         refreshCustomDriverStatus(driver);
+    }
+
+    private void setDriverPanelEditable(boolean editable) {
+        driverClassText.setEnabled(editable);
+        driverLibraryText.setEnabled(editable);
+        driverLibraryText.getButton().setEnabled(editable);
+        urlText.setEnabled(editable);
     }
 
     /**
@@ -708,7 +719,6 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         boolean host = layout == DriverTypeEnum.Layout.HOST;
         boolean file = layout == DriverTypeEnum.Layout.FILE;
 
-        driverPanel.setVisible(false);
         hostLabel.setVisible(host);
         hostText.setVisible(host);
         portLabel.setVisible(host);
@@ -995,6 +1005,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
             driverTypeComboBox.setSelectedItem(type);
             applyLayout(type.getLayout());
             refreshDriverStatus(type);
+            setDriverPanelEditable(true);
+            driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Override (optional)"));
         } else {
             // registered driver: re-sync the snapshot from the (possibly edited) registry
             CustomDriverInfo driver = findRegisteredDriver(data.getCustomDriverId());
@@ -1007,6 +1019,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
             driverTypeComboBox.setSelectedItem(driver); // null -> no selection (dangling)
             applyLayout(DriverTypeEnum.Layout.HOST);
             refreshCustomDriverStatus(driver);
+            setDriverPanelEditable(false);
+            driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Driver Info"));
         }
 
         driverLibraryText.setText(data.getDriverLibrary());

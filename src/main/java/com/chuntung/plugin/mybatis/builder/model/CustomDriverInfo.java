@@ -20,6 +20,8 @@ public class CustomDriverInfo implements Cloneable {
     private String urlPattern;
     // path to the driver jar
     private String driverLibrary;
+    // optional Maven coordinate, e.g. "com.oracle.database.jdbc:ojdbc11:23.4.0.24.05"
+    private String mavenCoordinate;
     private Integer defaultPort;
 
     public String getId() {
@@ -60,6 +62,14 @@ public class CustomDriverInfo implements Cloneable {
 
     public void setDriverLibrary(String driverLibrary) {
         this.driverLibrary = driverLibrary;
+    }
+
+    public String getMavenCoordinate() {
+        return mavenCoordinate;
+    }
+
+    public void setMavenCoordinate(String mavenCoordinate) {
+        this.mavenCoordinate = mavenCoordinate;
     }
 
     public Integer getDefaultPort() {

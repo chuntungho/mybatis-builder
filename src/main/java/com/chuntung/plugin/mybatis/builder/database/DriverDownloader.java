@@ -6,6 +6,7 @@ package com.chuntung.plugin.mybatis.builder.database;
 
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.model.DriverTypeEnum;
+import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.util.io.HttpRequests;
@@ -64,21 +65,75 @@ public class DriverDownloader {
     }
 
     /**
+     * Expected local jar path for any maven coordinate string, e.g. "com.mysql:mysql-connector-j:8.3.0"
+     */
+    public Path localJar(String mavenCoordinate) {
+        if (mavenCoordinate == null || mavenCoordinate.trim().isEmpty()) return null;
+        String[] gav = mavenCoordinate.split(":");
+        if (gav.length < 3) return null;
+        return getDriversDir().resolve(gav[1] + "-" + gav[2] + ".jar");
+    }
+
+    /**
+     * Returns true when the jar for this maven coordinate already exists on disk.
+     */
+    public boolean isPresent(String mavenCoordinate) {
+        Path jar = localJar(mavenCoordinate);
+        return jar != null && Files.isRegularFile(jar);
+    }
+
+    /**
      * Resolves the driver library path to load for a connection:
+     * explicit driverLibrary on the connection always takes precedence (user override);
      * registered driver (driverType == null) -> the connection's snapshot library;
      * bundled -> empty (plugin classpath); downloadable -> path of the downloaded jar.
      */
     public String resolveDriverLibrary(ConnectionInfo connectionInfo) {
+        // explicit library on the connection always takes precedence (user override)
+        if (StringUtil.stringHasValue(connectionInfo.getDriverLibrary())) {
+            return connectionInfo.getDriverLibrary();
+        }
         DriverTypeEnum type = connectionInfo.getDriverType();
         if (type == null) {
-            return connectionInfo.getDriverLibrary();
+            return ""; // registered driver with no library — caller handles error
         }
         if (type.isDownloadable()) {
             Path jar = localJar(type);
             return jar != null ? jar.toString() : "";
         }
-        // bundled - loaded from the plugin classpath
-        return "";
+        return ""; // bundled — loaded from plugin classpath
+    }
+
+    /**
+     * Downloads the driver jar for a raw maven coordinate from Maven Central.
+     *
+     * @throws IOException when the download or file move fails
+     */
+    public void download(String mavenCoordinate, ProgressIndicator indicator) throws IOException {
+        if (mavenCoordinate == null || mavenCoordinate.trim().isEmpty()) {
+            throw new IOException("No Maven coordinate specified");
+        }
+        String[] gav = mavenCoordinate.split(":");
+        if (gav.length < 3) throw new IOException("Invalid Maven coordinate: " + mavenCoordinate);
+        String groupPath = gav[0].replace('.', '/');
+        String artifact = gav[1];
+        String version = gav[2];
+        String fileName = artifact + "-" + version + ".jar";
+        String url = MAVEN_CENTRAL + groupPath + '/' + artifact + '/' + version + '/' + fileName;
+
+        Path dir = getDriversDir();
+        Files.createDirectories(dir);
+        Path target = dir.resolve(fileName);
+
+        File tmp = Files.createTempFile(dir, artifact, ".part").toFile();
+        try {
+            HttpRequests.request(url).saveToFile(tmp, indicator);
+            Files.move(tmp.toPath(), target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException e) {
+            throw new IOException("Failed to download driver from " + url + " - " + e.getMessage(), e);
+        } finally {
+            if (tmp.exists()) tmp.delete();
+        }
     }
 
     /**
@@ -91,31 +146,7 @@ public class DriverDownloader {
         if (type == null || !type.isDownloadable()) {
             throw new IOException("No downloadable driver for type " + type);
         }
-        String[] gav = type.getMavenCoordinate().split(":");
-        String groupPath = gav[0].replace('.', '/');
-        String artifact = gav[1];
-        String version = gav[2];
-        String fileName = artifact + "-" + version + ".jar";
-        String url = MAVEN_CENTRAL + groupPath + '/' + artifact + '/' + version + '/' + fileName;
-
-        Path dir = getDriversDir();
-        Files.createDirectories(dir);
-        Path target = dir.resolve(fileName);
-
-        // download to a temp file first, then move into place atomically
-        File tmp = Files.createTempFile(dir, artifact, ".part").toFile();
-        try {
-            HttpRequests.request(url).saveToFile(tmp, indicator);
-            Files.move(tmp.toPath(), target,
-                    StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException e) {
-            throw new IOException("Failed to download driver from " + url + " - " + e.getMessage(), e);
-        } finally {
-            if (tmp.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                tmp.delete();
-            }
-        }
+        download(type.getMavenCoordinate(), indicator);
     }
 
     /**

@@ -4,11 +4,16 @@
 
 package com.chuntung.plugin.mybatis.builder.view;
 
+import com.chuntung.plugin.mybatis.builder.database.DriverDownloader;
 import com.chuntung.plugin.mybatis.builder.model.CustomDriverInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.ToolbarDecorator;
@@ -16,11 +21,14 @@ import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBUI;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +48,8 @@ public class RegisterDriverDialog extends DialogWrapper {
     private final JBTextField nameField = new JBTextField();
     private final JBTextField classField = new JBTextField();
     private final JBTextField urlField = new JBTextField();
+    private final JBTextField mavenCoordField = new JBTextField();
+    private JButton downloadButton;
     private final TextFieldWithBrowseButton libraryField = new TextFieldWithBrowseButton();
     private final JBTextField portField = new JBTextField();
 
@@ -61,6 +71,9 @@ public class RegisterDriverDialog extends DialogWrapper {
         libraryField.addBrowseFolderListener("Choose Driver Library",
                 "Select the JDBC driver jar", project, JAR_DESCRIPTOR);
 
+        downloadButton = new JButton("Download");
+        downloadButton.addActionListener(e -> doDownload());
+
         init();
 
         if (!listModel.isEmpty()) {
@@ -79,10 +92,15 @@ public class RegisterDriverDialog extends DialogWrapper {
                 .createPanel();
         listPanel.setPreferredSize(new Dimension(180, 320));
 
+        JPanel mavenPanel = new JPanel(new BorderLayout(4, 0));
+        mavenPanel.add(mavenCoordField, BorderLayout.CENTER);
+        mavenPanel.add(downloadButton, BorderLayout.EAST);
+
         JPanel form = FormBuilder.createFormBuilder()
                 .addLabeledComponent("Name:", nameField)
                 .addLabeledComponent("Driver class:", classField)
                 .addLabeledComponent("URL template:", urlField)
+                .addLabeledComponent("Maven coordinate:", mavenPanel)
                 .addLabeledComponent("Driver library:", libraryField)
                 .addLabeledComponent("Default port:", portField)
                 .addComponentFillVertically(new JPanel(), 0)
@@ -136,6 +154,7 @@ public class RegisterDriverDialog extends DialogWrapper {
             nameField.setText(driver == null ? "" : nullToEmpty(driver.getName()));
             classField.setText(driver == null ? "" : nullToEmpty(driver.getDriverClass()));
             urlField.setText(driver == null ? "" : nullToEmpty(driver.getUrlPattern()));
+            mavenCoordField.setText(driver == null ? "" : nullToEmpty(driver.getMavenCoordinate()));
             libraryField.setText(driver == null ? "" : nullToEmpty(driver.getDriverLibrary()));
             portField.setText(driver == null || driver.getDefaultPort() == null
                     ? "" : String.valueOf(driver.getDefaultPort()));
@@ -151,6 +170,7 @@ public class RegisterDriverDialog extends DialogWrapper {
         currentDriver.setName(nameField.getText().trim());
         currentDriver.setDriverClass(classField.getText().trim());
         currentDriver.setUrlPattern(urlField.getText().trim());
+        currentDriver.setMavenCoordinate(mavenCoordField.getText().trim());
         currentDriver.setDriverLibrary(libraryField.getText().trim());
         currentDriver.setDefaultPort(parsePort(portField.getText()));
         // refresh the list label in case the name changed
@@ -161,6 +181,8 @@ public class RegisterDriverDialog extends DialogWrapper {
         nameField.setEnabled(enabled);
         classField.setEnabled(enabled);
         urlField.setEnabled(enabled);
+        mavenCoordField.setEnabled(enabled);
+        downloadButton.setEnabled(enabled);
         libraryField.setEnabled(enabled);
         portField.setEnabled(enabled);
     }
@@ -177,11 +199,48 @@ public class RegisterDriverDialog extends DialogWrapper {
             if (!StringUtil.stringHasValue(d.getDriverClass())) {
                 return new ValidationInfo("Driver class is required for \"" + d.getName() + "\"", classField);
             }
-            if (!StringUtil.stringHasValue(d.getDriverLibrary())) {
-                return new ValidationInfo("Driver library is required for \"" + d.getName() + "\"", libraryField);
+            boolean hasLibrary = StringUtil.stringHasValue(d.getDriverLibrary());
+            boolean hasCoordinate = StringUtil.stringHasValue(d.getMavenCoordinate());
+            if (!hasLibrary && !hasCoordinate) {
+                return new ValidationInfo(
+                        "Driver library or Maven coordinate is required for \"" + d.getName() + "\"",
+                        libraryField);
             }
         }
         return null;
+    }
+
+    private void doDownload() {
+        flushForm();
+        if (currentDriver == null) return;
+        String coord = currentDriver.getMavenCoordinate();
+        if (!StringUtil.stringHasValue(coord)) {
+            Messages.showWarningDialog(project, "Please enter a Maven coordinate first (e.g. com.oracle.database.jdbc:ojdbc11:23.4.0.24.05)", "No Coordinate");
+            return;
+        }
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Downloading Driver", true) {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                try {
+                    DriverDownloader.getInstance().download(coord, indicator);
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            }
+            @Override
+            public void onSuccess() {
+                Path jar = DriverDownloader.getInstance().localJar(coord);
+                if (jar != null && currentDriver != null) {
+                    currentDriver.setDriverLibrary(jar.toString());
+                    loadForm(currentDriver);
+                    driverList.repaint();
+                }
+            }
+            @Override
+            public void onThrowable(@NotNull Throwable error) {
+                Messages.showErrorDialog(project, error.getMessage(), "Driver Download Failed");
+            }
+        });
     }
 
     /**
