@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
+ * Copyright (c) 2026 Chuntung Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.view;
@@ -35,7 +35,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.labels.LinkLabel;
@@ -69,11 +68,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JList connectionList;
     private JTextField connectionNameText;
     private JComboBox driverTypeComboBox;
-    private TextFieldWithBrowseButton driverLibraryText;
-    private JTextField driverClassText;
-    private JTextField urlText;
+//    private TextFieldWithBrowseButton driverLibraryText;
     private JTextField descriptionText;
-    private JPanel driverPanel;
     private JTextField hostText;
     private JSpinner portSpinner;
     private JTextField userText;
@@ -91,12 +87,11 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JTextField mapperTypePatternText;
     private JTextField exampleTypePatternText;
     private JTextField sqlFileNamePatternText;
-    private JTextField generatedCommentText;
     private JCheckBox forceBigDecimalsCheckbox;
     private JSpinner historySizeSpinner;
     private JButton clearAllButton;
     private JCheckBox useJSR310TypesCheckBox;
-    private JLabel urlLabel;
+//    private JLabel urlLabel;
     private JPanel listPanel;
     private JTabbedPane connectionTabs;
     private JPanel generalTab;
@@ -109,11 +104,9 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private JLabel hostLabel;
     private JLabel portLabel;
     private JLabel databaseLabel;
-    private JPanel driverStatusPanel;
-    private JLabel driverStatusLabel;
     private LinkLabel downloadDriverLink;
 
-    private final SettingsPresenter settingsHandler;
+    private final SettingsPresenter settingsPresenter;
     private Project project;
     private ConnectionInfo current;
     private Action applyAction;
@@ -140,7 +133,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     public MybatisBuilderSettingsDialog(@Nullable Project project) {
         super(project);
         this.project = project;
-        settingsHandler = SettingsPresenter.getInstance(project);
+        settingsPresenter = SettingsPresenter.getInstance(project);
 
         initGUI();
 
@@ -154,7 +147,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         initDefaultParameterPane();
 
         // connection info list
-        List<ConnectionInfo> connectionInfoList = settingsHandler.loadConnectionInfoList();
+        List<ConnectionInfo> connectionInfoList = settingsPresenter.loadConnectionInfoList();
         DefaultListModel<ConnectionInfo> listModel = new DefaultListModel();
         for (ConnectionInfo connectionInfo : connectionInfoList) {
             listModel.addElement(connectionInfo);
@@ -189,14 +182,14 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
         showEmptyState(true);
 
-        driverLibraryText.addBrowseFolderListener("Choose Library", "Library should contain java.sql.Driver implement ", project, LIBRARY_FILE_DESCRIPTOR);
-        driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Override (optional)"));
+//        driverLibraryText.addBrowseFolderListener("Choose Library", "Library should contain java.sql.Driver implement ", project, LIBRARY_FILE_DESCRIPTOR);
+//        driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Override (optional)"));
 
         portSpinner.setModel(new SpinnerNumberModel(3306, 80, 65536, 1));
         portSpinner.setEditor(new JSpinner.NumberEditor(portSpinner, "#"));
 
         // registered drivers, used by the Add menu and the driver dropdown
-        customDrivers = settingsHandler.loadCustomDrivers();
+        customDrivers = settingsPresenter.loadCustomDrivers();
 
         // model is (re)built per selected connection: scoped to its driver family for
         // built-in drivers, or to the registered drivers for a registered connection
@@ -239,7 +232,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         model.setMaximum(100);
 
         // clear all history
-        clearAllButton.addActionListener(e -> settingsHandler.clearHistory());
+        clearAllButton.addActionListener(e -> settingsPresenter.clearHistory());
 
         baseline = snapshot();
         installDirtyListeners(contentPanel);
@@ -583,7 +576,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         defaultModelTypeComboBox.setModel(new DefaultComboBoxModel(ModelType.values()));
 
         // set data
-        DefaultParameters defaultParameters = settingsHandler.getDefaultParameters();
+        DefaultParameters defaultParameters = settingsPresenter.getDefaultParameters();
         setData(defaultParameters);
     }
 
@@ -617,7 +610,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
                     "Driver Required");
             return;
         }
-        settingsHandler.testConnection(current);
+        settingsPresenter.testConnection(current);
     }
 
     private void onDriverChanged(Object item) {
@@ -642,11 +635,11 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         }
         // built-in / managed driver: clear any leftover overrides so the resolved
         // driver class and url pattern are used instead.
-        urlText.setText("");
-        driverClassText.setText("");
-        driverLibraryText.setText("");
-        setDriverPanelEditable(true);
-        driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Override (optional)"));
+//        urlText.setText("");
+//        driverClassText.setText("");
+//        driverLibraryText.setText("");
+//        setDriverPanelEditable(true);
+//        driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Override (optional)"));
         refreshDriverStatus(type);
     }
 
@@ -659,20 +652,20 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
             portSpinner.setValue(driver.getDefaultPort());
         }
         // url is built from the registered driver's template + host/port/db
-        urlText.setText("");
-        driverClassText.setText(nullToEmpty(driver.getDriverClass()));
-        driverLibraryText.setText(nullToEmpty(driver.getDriverLibrary()));
-        setDriverPanelEditable(false);
-        driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Driver Info"));
-        refreshCustomDriverStatus(driver);
+//        urlText.setText("");
+//        driverClassText.setText(nullToEmpty(driver.getDriverClass()));
+//        driverLibraryText.setText(nullToEmpty(driver.getDriverLibrary()));
+//        setDriverPanelEditable(false);
+//        driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Driver Info"));
+//        refreshCustomDriverStatus(driver);
     }
 
-    private void setDriverPanelEditable(boolean editable) {
-        driverClassText.setEnabled(editable);
-        driverLibraryText.setEnabled(editable);
-        driverLibraryText.getButton().setEnabled(editable);
-        urlText.setEnabled(editable);
-    }
+//    private void setDriverPanelEditable(boolean editable) {
+//        driverClassText.setEnabled(editable);
+//        driverLibraryText.setEnabled(editable);
+//        driverLibraryText.getButton().setEnabled(editable);
+//        urlText.setEnabled(editable);
+//    }
 
     /**
      * Rebuild the driver dropdown so it lists only the drivers of the given family.
@@ -729,28 +722,18 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     private void refreshDriverStatus(DriverTypeEnum type) {
         DriverDownloader downloader = DriverDownloader.getInstance();
         if (type.isBundled()) {
-            driverStatusLabel.setText("Driver: bundled");
+//            driverStatusLabel.setText("Driver: bundled");
             downloadDriverLink.setVisible(false);
         } else { // downloadable
             if (downloader.isPresent(type)) {
-                driverStatusLabel.setText("Driver: " + downloader.jarName(type));
+//                driverStatusLabel.setText("Driver: " + downloader.jarName(type));
                 downloadDriverLink.setText("Re-download");
             } else {
-                driverStatusLabel.setText("Driver not downloaded");
+//                driverStatusLabel.setText("Driver not downloaded");
                 downloadDriverLink.setText("Download driver");
             }
             downloadDriverLink.setVisible(true);
         }
-    }
-
-    private void refreshCustomDriverStatus(CustomDriverInfo driver) {
-        String library = driver == null ? null : driver.getDriverLibrary();
-        if (StringUtil.stringHasValue(library)) {
-            driverStatusLabel.setText("Driver library: " + new java.io.File(library).getName());
-        } else {
-            driverStatusLabel.setText("Registered driver — no library set");
-        }
-        downloadDriverLink.setVisible(false);
     }
 
     private void doDownloadDriver() {
@@ -788,7 +771,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         RegisterDriverDialog dialog = new RegisterDriverDialog(project, customDrivers);
         if (dialog.showAndGet()) {
             customDrivers = dialog.getDrivers();
-            settingsHandler.saveCustomDrivers(customDrivers);
+            settingsPresenter.saveCustomDrivers(customDrivers);
             // reflect any edits (driver class / library / url) in the current connection view
             if (current != null && current.getDriverType() == null) {
                 setData(current);
@@ -886,7 +869,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         DefaultParameters defaultParameters = new DefaultParameters();
         getData(defaultParameters);
 
-        settingsHandler.saveAll(list, defaultParameters);
+        settingsPresenter.saveAll(list, defaultParameters);
     }
 
     @Override
@@ -941,7 +924,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
         javaFileEncodingText.setText(defaultParameters.getJavaFileEncoding());
 
-        generatedCommentText.setText(defaultParameters.getGeneratedComment());
+//        generatedCommentText.setText(defaultParameters.getGeneratedComment());
 
         forceBigDecimalsCheckbox.setSelected(defaultParameters.getForceBigDecimals());
         useJSR310TypesCheckBox.setSelected(defaultParameters.getUseJSR310Types());
@@ -964,7 +947,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     public void getData(DefaultParameters defaultParameters) {
         defaultParameters.setDefaultModelType((ModelType) defaultModelTypeComboBox.getSelectedItem());
         defaultParameters.setJavaFileEncoding(javaFileEncodingText.getText());
-        defaultParameters.setGeneratedComment(generatedCommentText.getText());
+//        defaultParameters.setGeneratedComment(generatedCommentText.getText());
         defaultParameters.setForceBigDecimals(forceBigDecimalsCheckbox.isSelected());
         defaultParameters.setUseJSR310Types(useJSR310TypesCheckBox.isSelected());
         defaultParameters.setHistorySize((Integer) historySizeSpinner.getValue());
@@ -1005,8 +988,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
             driverTypeComboBox.setSelectedItem(type);
             applyLayout(type.getLayout());
             refreshDriverStatus(type);
-            setDriverPanelEditable(true);
-            driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Override (optional)"));
+//            setDriverPanelEditable(true);
+//            driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Override (optional)"));
         } else {
             // registered driver: re-sync the snapshot from the (possibly edited) registry
             CustomDriverInfo driver = findRegisteredDriver(data.getCustomDriverId());
@@ -1018,14 +1001,14 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
             rebuildCustomDriverCombo();
             driverTypeComboBox.setSelectedItem(driver); // null -> no selection (dangling)
             applyLayout(DriverTypeEnum.Layout.HOST);
-            refreshCustomDriverStatus(driver);
-            setDriverPanelEditable(false);
-            driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Driver Info"));
+//            refreshCustomDriverStatus(driver);
+//            setDriverPanelEditable(false);
+//            driverPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Driver Info"));
         }
 
-        driverLibraryText.setText(data.getDriverLibrary());
-        driverClassText.setText(data.getDriverClass());
-        urlText.setText(data.getUrl());
+//        driverLibraryText.setText(data.getDriverLibrary());
+//        driverClassText.setText(data.getDriverClass());
+//        urlText.setText(data.getUrl());
 
         hostText.setText(data.getHost());
         if (data.getPort() != null) {
@@ -1060,9 +1043,9 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
             data.setDriverType(type);
             data.setCustomDriverId(null);
             data.setUrlPattern(null);
-            data.setDriverLibrary(driverLibraryText.getText());
-            data.setDriverClass(driverClassText.getText());
-            data.setUrl(urlText.getText());
+//            data.setDriverLibrary(driverLibraryText.getText());
+//            data.setDriverClass(type.getDriverClass());
+//            data.setUrl(urlText.getText());
         } else if (selected instanceof CustomDriverInfo driver) {
             // registered driver: snapshot its definition onto the connection
             data.setDriverType(null);
@@ -1141,8 +1124,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     private void createUIComponents() {
         // place custom component creation code here
-        urlLabel = new LinkLabel<>("URL", AllIcons.Ide.External_link_arrow, (aSource, aLinkData) -> BrowserUtil.browse("https://chuntung.com/jdbc-url"));
-        urlLabel.setToolTipText("Click to view URL syntax for common databases");
+//        urlLabel = new LinkLabel<>("URL", AllIcons.Ide.External_link_arrow, (aSource, aLinkData) -> BrowserUtil.browse("https://chuntung.com/jdbc-url"));
+//        urlLabel.setToolTipText("Click to view URL syntax for common databases");
 
         downloadDriverLink = new LinkLabel<>("Download driver", AllIcons.Actions.Download);
     }

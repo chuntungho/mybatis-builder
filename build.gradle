@@ -51,7 +51,9 @@ dependencies {
         exclude group: 'org.junit.platform'
         exclude group: 'org.assertj'
     }
-    implementation group: 'com.github.javaparser', name: 'javaparser-core', version: '3.19.0'
+    // must match the version MBG 2.0.0 was built against (javaparser-core is provided/optional in its pom);
+    // older versions lack DefaultLexicalPreservingPrinter, which the Java file merger requires at runtime
+    implementation group: 'com.github.javaparser', name: 'javaparser-core', version: '3.28.0'
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.10'
     implementation group: 'mysql', name: 'mysql-connector-java', version: '5.1.47'
 

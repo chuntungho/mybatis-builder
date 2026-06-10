@@ -87,23 +87,9 @@
                       </component>
                       <component id="20a8f" class="javax.swing.JTextField" binding="connectionNameText">
                         <constraints>
-                          <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                          <grid row="0" column="5" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                             <preferred-size width="150" height="-1"/>
                           </grid>
-                        </constraints>
-                        <properties/>
-                      </component>
-                      <component id="e890d" class="javax.swing.JLabel">
-                        <constraints>
-                          <grid row="0" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text value="Type"/>
-                        </properties>
-                      </component>
-                      <component id="77c5c" class="javax.swing.JComboBox" binding="driverTypeComboBox">
-                        <constraints>
-                          <grid row="0" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties/>
                       </component>
@@ -132,7 +118,7 @@
                         <properties/>
                         <border type="none"/>
                         <children>
-                          <grid id="gentab" binding="generalTab" layout-manager="GridLayoutManager" row-count="3" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                          <grid id="gentab" binding="generalTab" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                             <margin top="0" left="0" bottom="0" right="0"/>
                             <constraints>
                               <tabbedpane title="General"/>
@@ -140,7 +126,7 @@
                             <properties/>
                             <border type="none"/>
                             <children>
-                              <grid id="ae5f5" binding="driverPanel" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                              <grid id="edd7b" binding="hostPanel" layout-manager="GridLayoutManager" row-count="5" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                                 <margin top="0" left="0" bottom="0" right="0"/>
                                 <constraints>
                                   <grid row="0" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -148,71 +134,9 @@
                                 <properties/>
                                 <border type="none"/>
                                 <children>
-                                  <component id="1e715" class="javax.swing.JLabel">
-                                    <constraints>
-                                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                                        <preferred-size width="90" height="-1"/>
-                                      </grid>
-                                    </constraints>
-                                    <properties>
-                                      <text value="Driver library"/>
-                                    </properties>
-                                  </component>
-                                  <component id="81851" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="driverLibraryText">
-                                    <constraints>
-                                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                                        <preferred-size width="150" height="-1"/>
-                                      </grid>
-                                    </constraints>
-                                    <properties/>
-                                  </component>
-                                  <component id="2430b" class="javax.swing.JLabel">
-                                    <constraints>
-                                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                                        <preferred-size width="90" height="-1"/>
-                                      </grid>
-                                    </constraints>
-                                    <properties>
-                                      <text value="Driver class"/>
-                                    </properties>
-                                  </component>
-                                  <component id="bd514" class="javax.swing.JTextField" binding="driverClassText">
-                                    <constraints>
-                                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-                                    </constraints>
-                                    <properties/>
-                                  </component>
-                                  <component id="f2d04" class="javax.swing.JLabel" binding="urlLabel" custom-create="true">
-                                    <constraints>
-                                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                                        <preferred-size width="90" height="-1"/>
-                                      </grid>
-                                    </constraints>
-                                    <properties>
-                                      <text value="URL"/>
-                                    </properties>
-                                  </component>
-                                  <component id="12296" class="javax.swing.JTextField" binding="urlText">
-                                    <constraints>
-                                      <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                                        <preferred-size width="150" height="-1"/>
-                                      </grid>
-                                    </constraints>
-                                    <properties/>
-                                  </component>
-                                </children>
-                              </grid>
-                              <grid id="edd7b" binding="hostPanel" layout-manager="GridLayoutManager" row-count="4" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                                <margin top="0" left="0" bottom="0" right="0"/>
-                                <constraints>
-                                  <grid row="1" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties/>
-                                <border type="none"/>
-                                <children>
                                   <component id="b998c" class="javax.swing.JLabel" binding="hostLabel">
                                     <constraints>
-                                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
                                         <preferred-size width="90" height="-1"/>
                                       </grid>
                                     </constraints>
@@ -222,7 +146,7 @@
                                   </component>
                                   <component id="d9558" class="javax.swing.JTextField" binding="hostText">
                                     <constraints>
-                                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
                                         <preferred-size width="150" height="-1"/>
                                       </grid>
                                     </constraints>
@@ -230,7 +154,7 @@
                                   </component>
                                   <component id="e2df2" class="javax.swing.JSpinner" binding="portSpinner">
                                     <constraints>
-                                      <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false">
+                                      <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false">
                                         <preferred-size width="80" height="-1"/>
                                         <maximum-size width="80" height="-1"/>
                                       </grid>
@@ -239,7 +163,7 @@
                                   </component>
                                   <component id="7152f" class="javax.swing.JLabel" binding="portLabel">
                                     <constraints>
-                                      <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                                      <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                                     </constraints>
                                     <properties>
                                       <text value="Port"/>
@@ -247,7 +171,7 @@
                                   </component>
                                   <component id="bbe58" class="javax.swing.JLabel">
                                     <constraints>
-                                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
                                         <preferred-size width="90" height="-1"/>
                                       </grid>
                                     </constraints>
@@ -257,7 +181,7 @@
                                   </component>
                                   <component id="d70c3" class="javax.swing.JTextField" binding="userText">
                                     <constraints>
-                                      <grid row="1" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                                      <grid row="2" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                                         <preferred-size width="150" height="-1"/>
                                       </grid>
                                     </constraints>
@@ -265,7 +189,7 @@
                                   </component>
                                   <component id="214fc" class="javax.swing.JLabel">
                                     <constraints>
-                                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                                     </constraints>
                                     <properties>
                                       <text value="Password"/>
@@ -273,7 +197,7 @@
                                   </component>
                                   <component id="c197b" class="javax.swing.JLabel" binding="databaseLabel">
                                     <constraints>
-                                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                                     </constraints>
                                     <properties>
                                       <text value="Database"/>
@@ -281,7 +205,7 @@
                                   </component>
                                   <component id="52479" class="javax.swing.JPasswordField" binding="passwordText">
                                     <constraints>
-                                      <grid row="2" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                                      <grid row="3" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                                         <preferred-size width="150" height="-1"/>
                                       </grid>
                                     </constraints>
@@ -289,23 +213,13 @@
                                   </component>
                                   <component id="42922" class="javax.swing.JTextField" binding="databaseText">
                                     <constraints>
-                                      <grid row="3" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                                      <grid row="4" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                                         <preferred-size width="150" height="-1"/>
                                       </grid>
                                     </constraints>
                                     <properties/>
                                   </component>
-                                </children>
-                              </grid>
-                              <grid id="dstat" binding="driverStatusPanel" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                                <margin top="0" left="0" bottom="0" right="0"/>
-                                <constraints>
-                                  <grid row="2" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties/>
-                                <border type="none"/>
-                                <children>
-                                  <component id="dstl" class="javax.swing.JLabel" binding="driverStatusLabel">
+                                  <component id="dstl" class="javax.swing.JLabel">
                                     <constraints>
                                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
                                         <preferred-size width="90" height="-1"/>
@@ -315,17 +229,18 @@
                                       <text value="Driver"/>
                                     </properties>
                                   </component>
-                                  <component id="dstdl" class="com.intellij.ui.components.labels.LinkLabel" binding="downloadDriverLink" custom-create="true">
+                                  <component id="77c5c" class="javax.swing.JComboBox" binding="driverTypeComboBox">
                                     <constraints>
-                                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                                     </constraints>
                                     <properties/>
                                   </component>
-                                  <hspacer id="dsts">
+                                  <component id="dstdl" class="com.intellij.ui.components.labels.LinkLabel" binding="downloadDriverLink" custom-create="true">
                                     <constraints>
-                                      <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                                      <grid row="0" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                                     </constraints>
-                                  </hspacer>
+                                    <properties/>
+                                  </component>
                                 </children>
                               </grid>
                             </children>
@@ -401,7 +316,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <grid id="9a2a3" layout-manager="GridLayoutManager" row-count="4" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="9a2a3" layout-manager="GridLayoutManager" row-count="3" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -439,24 +354,6 @@
                     </constraints>
                     <properties>
                       <text value="UTF-8"/>
-                    </properties>
-                  </component>
-                  <component id="10d83" class="javax.swing.JLabel">
-                    <constraints>
-                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text value="Generated comment"/>
-                    </properties>
-                  </component>
-                  <component id="afe60" class="javax.swing.JTextField" binding="generatedCommentText">
-                    <constraints>
-                      <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="150" height="-1"/>
-                      </grid>
-                    </constraints>
-                    <properties>
-                      <toolTipText value="@mgb.generated subsequent comment"/>
                     </properties>
                   </component>
                   <component id="75df9" class="javax.swing.JLabel">

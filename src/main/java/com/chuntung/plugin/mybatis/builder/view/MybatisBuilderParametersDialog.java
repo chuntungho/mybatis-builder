@@ -277,9 +277,9 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         });
 
         // package chooser
-        javaModelPackageText.addActionListener(getPackageActionListener(project, javaModelPackageText, javaModelProjectText, true));
-        javaClientPackageText.addActionListener(getPackageActionListener(project, javaClientPackageText, javaClientProjectText, true));
-        sqlMapPackageText.addActionListener(getPackageActionListener(project, sqlMapPackageText, sqlMapProjectText, false));
+        javaModelPackageText.addActionListener(getPackageActionListener(project, "Model", javaModelPackageText, javaModelProjectText, true));
+        javaClientPackageText.addActionListener(getPackageActionListener(project, "Mapper", javaClientPackageText, javaClientProjectText, true));
+        sqlMapPackageText.addActionListener(getPackageActionListener(project, "XML", sqlMapPackageText, sqlMapProjectText, false));
     }
 
     private void installPathValidator(TextFieldWithBrowseButton field, String label) {
@@ -305,9 +305,11 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     }
 
     @NotNull
-    private ActionListener getPackageActionListener(Project project, TextFieldWithHistoryWithBrowseButton packageText, TextFieldWithBrowseButton sourceText, boolean javaPackage) {
+    private ActionListener getPackageActionListener(Project project, String type,
+                                                    TextFieldWithHistoryWithBrowseButton packageText,
+                                                    TextFieldWithBrowseButton sourceText, boolean javaPackage) {
         return e -> {
-            CustomPackageChooserDialog chooser = new CustomPackageChooserDialog("Choose target package", project,
+            CustomPackageChooserDialog chooser = new CustomPackageChooserDialog("Choose target package for " + type, project,
                     javaPackage ? JavaModuleSourceRootTypes.SOURCES : JavaModuleSourceRootTypes.RESOURCES, sourceText.getText());
             chooser.selectPackage(packageText.getText());
             boolean ok = chooser.showAndGet();

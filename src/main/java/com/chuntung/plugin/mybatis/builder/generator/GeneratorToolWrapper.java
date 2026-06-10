@@ -76,10 +76,12 @@ public class GeneratorToolWrapper {
             configuration.addClasspathEntry(paramWrapper.getDriverLibrary());
         }
 
-        JavaTypeResolverConfiguration javaTypeResolverConfig = new JavaTypeResolverConfiguration.Builder()
+        // MBG 2.0.0 forces JSR-310 java.time types; use a custom resolver that honours the user preference
+        JavaTypeResolverConfiguration.Builder javaTypeResolverBuilder = new JavaTypeResolverConfiguration.Builder()
                 .withProperty(new Property(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, defaultParameters.getForceBigDecimals().toString()))
-                .withProperty(new Property(PropertyRegistry.TYPE_RESOLVER_USE_JSR310_TYPES, defaultParameters.getUseJSR310Types().toString()))
-                .build();
+                .withProperty(new Property(JSR310AwareJavaTypeResolver.USE_JSR310_TYPES, defaultParameters.getUseJSR310Types().toString()));
+        javaTypeResolverBuilder.withConfigurationType(JSR310AwareJavaTypeResolver.class.getName());
+        JavaTypeResolverConfiguration javaTypeResolverConfig = javaTypeResolverBuilder.build();
 
         Context.Builder contextBuilder = new Context.Builder()
                 .withId("mybatis-builder")
@@ -161,14 +163,16 @@ public class GeneratorToolWrapper {
     }
 
     private CommentGeneratorConfiguration buildCommentConfig() {
-        CommentGeneratorConfiguration.Builder builder = new CommentGeneratorConfiguration.Builder()
+        // CustomCommentGenerator extends MBG's DefaultCommentGenerator, inheriting the @Generated merge
+        // markers stamped on every member while folding the per-column details into the field's
+        // @Generated comments. minimizeComments keeps method annotations (getters/setters, mapper
+        // methods) to the bare @Generated("...") form instead of the verbose "Source Table: ..." note.
+        return new CommentGeneratorConfiguration.Builder()
                 .withConfigurationType(CustomCommentGenerator.class.getName())
-                .withProperty(new Property(CustomCommentGenerator.ADD_DATABASE_REMARK, paramWrapper.getDatabaseRemark().toString()));
-        String generatedComment = paramWrapper.getDefaultParameters().getGeneratedComment();
-        if (generatedComment != null) {
-            builder.withProperty(new Property(CustomCommentGenerator.GENERATED_COMMENT, generatedComment));
-        }
-        return builder.build();
+                .withProperty(new Property(PropertyRegistry.COMMENT_GENERATOR_MINIMIZE_COMMENTS, "true"))
+                .withProperty(new Property(CustomCommentGenerator.ADD_DATABASE_REMARK,
+                        paramWrapper.getDatabaseRemark().toString()))
+                .build();
     }
 
     private void populatePlugins(Context.Builder contextBuilder) {
