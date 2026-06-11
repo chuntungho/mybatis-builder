@@ -1,8 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-  <rect width="16" height="16" rx="3" fill="#0078D4"/>
-  <!-- stacked cylinders representing a database server -->
-  <ellipse cx="8" cy="5" rx="4.5" ry="1.5" fill="none" stroke="white" stroke-width="1.2"/>
-  <line x1="3.5" y1="5" x2="3.5" y2="11" stroke="white" stroke-width="1.2"/>
-  <line x1="12.5" y1="5" x2="12.5" y2="11" stroke="white" stroke-width="1.2"/>
-  <ellipse cx="8" cy="11" rx="4.5" ry="1.5" fill="none" stroke="white" stroke-width="1.2"/>
+  <!-- SQL Server: Microsoft dark-red with database cylinder -->
+  <rect width="16" height="16" rx="2" fill="#CC2927"/>
+  <!-- cylinder top ellipse -->
+  <ellipse cx="8" cy="5" rx="4.5" ry="1.5" fill="none" stroke="white" stroke-width="1.3"/>
+  <!-- cylinder sides -->
+  <line x1="3.5" y1="5" x2="3.5" y2="11" stroke="white" stroke-width="1.3"/>
+  <line x1="12.5" y1="5" x2="12.5" y2="11" stroke="white" stroke-width="1.3"/>
+  <!-- cylinder bottom ellipse -->
+  <ellipse cx="8" cy="11" rx="4.5" ry="1.5" fill="none" stroke="white" stroke-width="1.3"/>
 </svg>

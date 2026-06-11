@@ -24,7 +24,7 @@ public enum DriverTypeEnum {
             "com.mysql.jdbc.Driver",
             "jdbc:mysql://${host}:${port}/${db}",
             3306,
-            "/images/MySQL.png",
+            "/images/MySQL.svg",
             Layout.HOST,
             null,
             mysqlDefaults()),
@@ -32,7 +32,7 @@ public enum DriverTypeEnum {
             "com.mysql.cj.jdbc.Driver",
             "jdbc:mysql://${host}:${port}/${db}",
             3306,
-            "/images/MySQL.png",
+            "/images/MySQL.svg",
             Layout.HOST,
             "com.mysql:mysql-connector-j:8.3.0",
             mysqlDefaults()),
@@ -44,13 +44,21 @@ public enum DriverTypeEnum {
             Layout.HOST,
             "org.mariadb.jdbc:mariadb-java-client:3.3.3",
             Collections.emptyMap()),
+    TiDB("TiDB", "MySQL",
+            "com.mysql.cj.jdbc.Driver",
+            "jdbc:mysql://${host}:${port}/${db}",
+            4000,
+            "/images/TiDB.svg",
+            Layout.HOST,
+            "com.mysql:mysql-connector-j:8.3.0",
+            tidbDefaults()),
 
     // --- PostgreSQL family ---
     PostgreSQL("PostgreSQL", "PostgreSQL",
             "org.postgresql.Driver",
             "jdbc:postgresql://${host}:${port}/${db}",
             5432,
-            "/images/PostgreSQL.png",
+            "/images/PostgreSQL.svg",
             Layout.HOST,
             null,
             postgresqlDefaults()),
@@ -208,6 +216,13 @@ public enum DriverTypeEnum {
     private static Map<String, String> postgresqlDefaults() {
         Map<String, String> m = new LinkedHashMap<>();
         m.put("loginTimeout", "5");
+        return m;
+    }
+
+    private static Map<String, String> tidbDefaults() {
+        Map<String, String> m = new LinkedHashMap<>(mysqlDefaults());
+        // TiDB does not support the old mysql_native_password auth plugin
+        m.remove("allowPublicKeyRetrieval");
         return m;
     }
 }

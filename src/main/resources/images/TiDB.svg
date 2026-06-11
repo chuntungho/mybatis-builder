@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- TiDB: brand orange-red, stylised T diamond mark -->
+  <rect width="16" height="16" rx="2" fill="#E05C22"/>
+  <!-- diamond / rhombus outline suggesting TiDB's logo geometry -->
+  <polygon points="8,2 13.5,8 8,14 2.5,8" fill="none" stroke="white" stroke-width="1.3"/>
+  <!-- inner T mark -->
+  <line x1="5.5" y1="6.5" x2="10.5" y2="6.5" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+  <line x1="8" y1="6.5" x2="8" y2="10.5" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

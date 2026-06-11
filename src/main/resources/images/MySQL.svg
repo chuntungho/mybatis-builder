@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- MySQL: orange background, blue dolphin (Sakila) -->
+  <rect width="16" height="16" rx="2" fill="#F29111"/>
+  <!-- dolphin body, swimming right -->
+  <path d="M3 10C4 7 7 5.5 10.5 6C13 6.5 14.5 8 14 9C13.5 10 11 10.5 9 10C7 9.5 5.5 11.5 4 12C3 11.5 2.5 10.5 3 10Z" fill="#005C84"/>
+  <!-- dorsal fin -->
+  <path d="M8.5 6.2L10.5 3L12 6Z" fill="#005C84"/>
+  <!-- tail fork upper -->
+  <path d="M3 10L1 8L3 9Z" fill="#005C84"/>
+  <!-- tail fork lower -->
+  <path d="M3 10L1 12L3 11Z" fill="#005C84"/>
+  <!-- eye -->
+  <circle cx="13.5" cy="8.2" r="0.6" fill="white"/>
+</svg>

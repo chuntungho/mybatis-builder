@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-  <rect width="16" height="16" rx="3" fill="#E67E22"/>
-  <text x="8" y="12" font-size="8" font-weight="bold" font-family="Arial,sans-serif" text-anchor="middle" fill="white">H2</text>
+  <!-- H2 Database: dark blue background, white H2 -->
+  <rect width="16" height="16" rx="2" fill="#1565C0"/>
+  <text x="8" y="12" font-size="9" font-weight="bold" font-family="Arial,sans-serif" text-anchor="middle" fill="white">H2</text>
 </svg>

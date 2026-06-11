@@ -1,4 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-  <rect width="16" height="16" rx="3" fill="#4479A1"/>
-  <text x="8" y="12" font-size="8" font-weight="bold" font-family="Arial,sans-serif" text-anchor="middle" fill="white">SL</text>
+  <!-- SQLite: dark blue with white feather/leaf (their actual logo shape) -->
+  <rect width="16" height="16" rx="2" fill="#0F4C81"/>
+  <!-- central feather stem -->
+  <line x1="8" y1="14" x2="8" y2="4" stroke="white" stroke-width="1" stroke-linecap="round"/>
+  <!-- left vanes -->
+  <path d="M8 6C6 5 4.5 5.5 4 7" fill="none" stroke="white" stroke-width="1" stroke-linecap="round"/>
+  <path d="M8 8C5.5 7 4 7.5 3.5 9" fill="none" stroke="white" stroke-width="1" stroke-linecap="round"/>
+  <path d="M8 10C6 9.5 4.5 10 4 11.5" fill="none" stroke="white" stroke-width="1" stroke-linecap="round"/>
+  <!-- right vanes -->
+  <path d="M8 5C9.5 4 11 4.5 11.5 6" fill="none" stroke="white" stroke-width="1" stroke-linecap="round"/>
+  <path d="M8 7.5C10 6.5 12 7 12 8.5" fill="none" stroke="white" stroke-width="1" stroke-linecap="round"/>
+  <path d="M8 10C10 9.5 11.5 10 12 11.5" fill="none" stroke="white" stroke-width="1" stroke-linecap="round"/>
+  <!-- tip -->
+  <circle cx="8" cy="4" r="0.7" fill="white"/>
 </svg>

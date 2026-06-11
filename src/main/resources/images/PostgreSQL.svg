@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- PostgreSQL: dark blue background, white Slonik elephant -->
+  <rect width="16" height="16" rx="2" fill="#336791"/>
+  <!-- head -->
+  <path d="M4 5C4 2 12 2 13 5C14 7.5 13 11.5 11 12.5C9.5 13 8 13 6.5 12.5C4.5 11.5 3.5 8 4 5Z" fill="white"/>
+  <!-- left ear -->
+  <path d="M4 5C3 3 1 4 1 6.5C1 9 3 9.5 5 9C4 7.5 3 6 3.5 5Z" fill="white"/>
+  <!-- trunk -->
+  <path d="M6.5 12.5C6 14 6.5 16 7.5 16C8.5 16 8.5 14 8 12.5Z" fill="white"/>
+  <!-- eye -->
+  <circle cx="10" cy="7" r="1" fill="#336791"/>
+  <circle cx="10.4" cy="6.6" r="0.35" fill="white"/>
+</svg>
