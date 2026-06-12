@@ -9,7 +9,6 @@ import com.chuntung.plugin.mybatis.builder.generator.DefaultParameters;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatis.builder.model.*;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ public class MybatisBuilderService {
     private MybatisBuilderSettingsManager manager;
 
     public static MybatisBuilderService getInstance(Project project) {
-        return ServiceManager.getService(project, MybatisBuilderService.class);
+        return project.getService(MybatisBuilderService.class);
     }
 
     public MybatisBuilderService(Project project) {
@@ -60,6 +59,31 @@ public class MybatisBuilderService {
 
     public List<ConnectionInfo> loadConnectionInfoList() {
         return manager.getSettings().getConnectionInfoList();
+    }
+
+    // return cloned registered drivers
+    public List<CustomDriverInfo> loadCustomDrivers() {
+        List<CustomDriverInfo> list = new ArrayList<>();
+        for (CustomDriverInfo driver : manager.getSettings().getCustomDrivers()) {
+            list.add(driver.clone());
+        }
+        return list;
+    }
+
+    public void saveCustomDrivers(List<CustomDriverInfo> customDrivers) {
+        manager.getSettings().setCustomDrivers(customDrivers);
+    }
+
+    public CustomDriverInfo findCustomDriver(String customDriverId) {
+        if (customDriverId == null) {
+            return null;
+        }
+        for (CustomDriverInfo driver : manager.getSettings().getCustomDrivers()) {
+            if (customDriverId.equals(driver.getId())) {
+                return driver;
+            }
+        }
+        return null;
     }
 
     // return cloned connections with password

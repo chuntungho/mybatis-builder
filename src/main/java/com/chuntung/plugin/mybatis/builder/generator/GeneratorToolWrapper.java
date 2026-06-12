@@ -5,8 +5,6 @@
 package com.chuntung.plugin.mybatis.builder.generator;
 
 import com.chuntung.plugin.mybatis.builder.generator.annotation.PluginConfig;
-import com.chuntung.plugin.mybatis.builder.generator.callback.ShellCallbackFactory;
-import com.chuntung.plugin.mybatis.builder.generator.plugins.DsqlRuntimePatchPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.RenamePlugin;
 import com.chuntung.plugin.mybatis.builder.model.ColumnActionEnum;
 import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
@@ -15,11 +13,11 @@ import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ProgressCallback;
-import org.mybatis.generator.api.ShellCallback;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
+import org.mybatis.generator.internal.DefaultShellCallback;
 import org.mybatis.generator.plugins.dsql.DisableDeletePlugin;
 import org.mybatis.generator.plugins.dsql.DisableInsertPlugin;
 import org.mybatis.generator.plugins.dsql.DisableUpdatePlugin;
@@ -38,11 +36,6 @@ import java.util.*;
  * @author Tony Ho
  */
 public class GeneratorToolWrapper {
-    // disable log4j logging
-    // http://mybatis.org/generator/reference/logging.html
-    static {
-        org.mybatis.generator.logging.LogFactory.forceSlf4jLogging();
-    }
 
     private GeneratorParamWrapper paramWrapper;
     private ProgressCallback progressCallback;
@@ -60,192 +53,218 @@ public class GeneratorToolWrapper {
             Configuration configuration = new Configuration();
             populateConfiguration(configuration);
 
-            // start invocation
-            ShellCallback shellCallback = ShellCallbackFactory.createInstance(configuration.getContexts().get(0).getTargetRuntime());
-
-            List<String> warnings = new ArrayList<>();
-            Set<String> fullyQualifiedTables = new HashSet<>();
-            Set<String> contexts = new HashSet<>();
-
-            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(configuration, shellCallback, warnings);
-            myBatisGenerator.generate(progressCallback, contexts, fullyQualifiedTables);
-
-            return warnings;
+            return new MyBatisGenerator.Builder()
+                    .withConfiguration(configuration)
+                    .withShellCallback(new DefaultShellCallback())
+                    .withProgressCallback(progressCallback)
+                    .withOverwriteEnabled(true)
+                    // merge existing files: MBG's JavaParser merger preserves custom members
+                    // (those without the @Generated annotation) and regenerates the rest
+                    .withJavaFileMergeEnabled(true)
+                    .build()
+                    .generateAndWrite();
         } finally {
-            // restore
             if (origin != null) {
                 System.setProperty("javax.xml.parsers.DocumentBuilderFactory", origin);
             }
         }
     }
 
-    // discard export function since the library does not support anymore
-//    public void export(File file) throws IOException {
-//        Configuration configuration = new Configuration();
-//        populateConfiguration(configuration);
-//
-//        // NOTE: hard code to fix the issue that url property contains '&';
-//        JDBCConnectionConfiguration jdbcConfig = configuration.getContexts().get(0).getJdbcConnectionConfiguration();
-//        String url = jdbcConfig.getConnectionURL().replace("&", "&amp;");
-//        jdbcConfig.setConnectionURL(url);
-//
-//        String content = configuration.toDocument().getFormattedContent();
-//        FileUtils.write(file, content, "UTF-8");
-//    }
-
     private void populateConfiguration(Configuration configuration) {
         DefaultParameters defaultParameters = paramWrapper.getDefaultParameters();
         if (StringUtil.stringHasValue(paramWrapper.getDriverLibrary())) {
             configuration.addClasspathEntry(paramWrapper.getDriverLibrary());
         }
-        Context context = new Context(defaultParameters.getDefaultModelType());
-        configuration.addContext(context);
 
-        context.setId("mybatis-builder");
-        context.setTargetRuntime(paramWrapper.getTargetRuntime());
-        context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, defaultParameters.getJavaFileEncoding());
+        // MBG 2.0.0 forces JSR-310 java.time types; use a custom resolver that honours the user preference
+        JavaTypeResolverConfiguration.Builder javaTypeResolverBuilder = new JavaTypeResolverConfiguration.Builder()
+                .withProperty(new Property(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, defaultParameters.getForceBigDecimals().toString()))
+                .withProperty(new Property(JSR310AwareJavaTypeResolver.USE_JSR310_TYPES, defaultParameters.getUseJSR310Types().toString()));
+        javaTypeResolverBuilder.withConfigurationType(JSR310AwareJavaTypeResolver.class.getName());
+        JavaTypeResolverConfiguration javaTypeResolverConfig = javaTypeResolverBuilder.build();
 
-        context.addProperty(PropertyRegistry.CONTEXT_AUTO_DELIMIT_KEYWORDS, "true");
-        context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, paramWrapper.getBeginningDelimiter());
-        context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, paramWrapper.getEndingDelimiter());
+        Context.Builder contextBuilder = new Context.Builder()
+                .withId("mybatis-builder")
+                .withDefaultModelType(defaultParameters.getDefaultModelType())
+                .withTargetRuntime(paramWrapper.getTargetRuntime())
+                .withProperty(new Property(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, defaultParameters.getJavaFileEncoding()))
+                .withProperty(new Property(PropertyRegistry.CONTEXT_AUTO_DELIMIT_KEYWORDS, "true"))
+                .withProperty(new Property(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, paramWrapper.getBeginningDelimiter()))
+                .withProperty(new Property(PropertyRegistry.CONTEXT_ENDING_DELIMITER, paramWrapper.getEndingDelimiter()))
+                .withJavaTypeResolverConfiguration(javaTypeResolverConfig)
+                .withJdbcConnectionConfiguration(buildJdbcConfig())
+                .withModelGeneratorConfiguration(buildModelConfig())
+                .withClientGeneratorConfiguration(buildClientConfig())
+                .withSqlMapGeneratorConfiguration(buildSqlMapConfig())
+                .withCommentGeneratorConfiguration(buildCommentConfig());
 
-        // java type resolver, force big decimals
-        JavaTypeResolverConfiguration javaTypeResolverConfig = new JavaTypeResolverConfiguration();
-        javaTypeResolverConfig.addProperty(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, defaultParameters.getForceBigDecimals().toString());
-        javaTypeResolverConfig.addProperty(PropertyRegistry.TYPE_RESOLVER_USE_JSR310_TYPES, defaultParameters.getUseJSR310Types().toString());
-        context.setJavaTypeResolverConfiguration(javaTypeResolverConfig);
+        populatePlugins(contextBuilder);
 
-        // JDBC config
-        context.setJdbcConnectionConfiguration(paramWrapper.getJdbcConfig());
-
-        // java model config,  trim strings
-        if (Boolean.TRUE.equals(paramWrapper.getTrimStrings())) {
-            paramWrapper.getJavaModelConfig().addProperty(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS, "true");
-        }
-        context.setJavaModelGeneratorConfiguration(paramWrapper.getJavaModelConfig());
-
-        // java client config
-        context.setJavaClientGeneratorConfiguration(paramWrapper.getJavaClientConfig());
-
-        // sql map config
-        context.setSqlMapGeneratorConfiguration(paramWrapper.getSqlMapConfig());
-
-        // add each table config
         for (TableInfo tableInfo : paramWrapper.getSelectedTables()) {
-            TableConfiguration tableConfig = paramWrapper.getDefaultTableConfigWrapper().createTableConfig(context);
-            populateTableConfig(tableConfig, tableInfo);
-            context.addTableConfiguration(tableConfig);
+            contextBuilder.withTableConfiguration(buildTableConfig(tableInfo));
         }
 
-        // comment config
-        populateCommentConfig(context);
-
-        // custom plugin
-        populatePlugins(context);
+        configuration.addContext(contextBuilder.build());
     }
 
-    private void populateCommentConfig(Context context) {
-        CommentGeneratorConfiguration commentConfig = new CommentGeneratorConfiguration();
-        commentConfig.setConfigurationType(CustomCommentGenerator.class.getName());
-        commentConfig.addProperty(CustomCommentGenerator.ADD_DATABASE_REMARK, paramWrapper.getDatabaseRemark().toString());
-        commentConfig.addProperty(CustomCommentGenerator.GENERATED_COMMENT, paramWrapper.getDefaultParameters().getGeneratedComment());
-        context.setCommentGeneratorConfiguration(commentConfig);
+    private JDBCConnectionConfiguration buildJdbcConfig() {
+        JdbcConnectionConfig src = paramWrapper.getJdbcConfig();
+        JDBCConnectionConfiguration.Builder builder = new JDBCConnectionConfiguration.Builder()
+                .withDriverClass(src.getDriverClass())
+                .withConnectionURL(src.getConnectionURL())
+                .withProperties(src.getProperties());
+        if (src.getUserId() != null) builder.withUserId(src.getUserId());
+        if (src.getPassword() != null) builder.withPassword(src.getPassword());
+        return builder.build();
     }
 
-    private void populatePlugins(Context context) {
-        {
-            // support rename plugin by default
-            PluginConfiguration pluginConfig = new PluginConfiguration();
-            pluginConfig.setConfigurationType(RenamePlugin.class.getName());
-            pluginConfig.addProperty("type", RenamePlugin.class.getName());
-            populatePluginConfig(new PluginConfigWrapper(paramWrapper.getDefaultParameters().getRenameConfig()), pluginConfig);
-            context.addPluginConfiguration(pluginConfig);
+    private ModelGeneratorConfiguration buildModelConfig() {
+        JavaModelGeneratorConfig src = paramWrapper.getJavaModelConfig();
+        ModelGeneratorConfiguration.Builder builder = new ModelGeneratorConfiguration.Builder()
+                .withTargetPackage(src.getTargetPackage())
+                .withTargetProject(src.getTargetProject())
+                .withProperties(src.getProperties());
+        if (Boolean.TRUE.equals(paramWrapper.getTrimStrings())) {
+            builder.withProperty(new Property(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS, "true"));
         }
+        return builder.build();
+    }
 
-        // add patch plugin for dynamic sql runtime
-        if (GeneratorParamWrapper.MY_BATIS_3_DYNAMIC_SQL.equals(context.getTargetRuntime())) {
-            context.addPluginConfiguration(createPluginConfig(DsqlRuntimePatchPlugin.class));
+    private ClientGeneratorConfiguration buildClientConfig() {
+        JavaClientGeneratorConfig src = paramWrapper.getJavaClientConfig();
+        ClientGeneratorConfiguration.Builder builder = new ClientGeneratorConfiguration.Builder()
+                .withTargetPackage(src.getTargetPackage())
+                .withTargetProject(src.getTargetProject())
+                .withProperties(src.getProperties());
+        ClientGeneratorConfiguration.LegacyClientType legacyType = mapLegacyClientType(src.getConfigurationType());
+        if (legacyType != null) {
+            builder.withLegacyClientType(legacyType);
+        }
+        return builder.build();
+    }
 
-            // Disable Insert/Update/Delete
+    private static ClientGeneratorConfiguration.LegacyClientType mapLegacyClientType(String type) {
+        if (type == null) return null;
+        switch (type.toUpperCase(Locale.ROOT)) {
+            case "XMLMAPPER": return ClientGeneratorConfiguration.LegacyClientType.XML_MAPPER;
+            case "ANNOTATEDMAPPER": return ClientGeneratorConfiguration.LegacyClientType.ANNOTATED_MAPPER;
+            case "MIXEDMAPPER": return ClientGeneratorConfiguration.LegacyClientType.MIXED_MAPPER;
+            default: return null;
+        }
+    }
+
+    private SqlMapGeneratorConfiguration buildSqlMapConfig() {
+        SqlMapGeneratorConfig src = paramWrapper.getSqlMapConfig();
+        return new SqlMapGeneratorConfiguration.Builder()
+                .withTargetPackage(src.getTargetPackage())
+                .withTargetProject(src.getTargetProject())
+                .withProperties(src.getProperties())
+                .build();
+    }
+
+    private CommentGeneratorConfiguration buildCommentConfig() {
+        // CustomCommentGenerator extends MBG's DefaultCommentGenerator, inheriting the @Generated merge
+        // markers stamped on every member while folding the per-column details into the field's
+        // @Generated comments. minimizeComments keeps method annotations (getters/setters, mapper
+        // methods) to the bare @Generated("...") form instead of the verbose "Source Table: ..." note.
+        return new CommentGeneratorConfiguration.Builder()
+                .withConfigurationType(CustomCommentGenerator.class.getName())
+                .withProperty(new Property(PropertyRegistry.COMMENT_GENERATOR_MINIMIZE_COMMENTS, "true"))
+                .withProperty(new Property(CustomCommentGenerator.ADD_DATABASE_REMARK,
+                        paramWrapper.getDatabaseRemark().toString()))
+                .build();
+    }
+
+    private void populatePlugins(Context.Builder contextBuilder) {
+        // RenamePlugin is always present
+        contextBuilder.withPluginConfiguration(
+                createPluginConfig(RenamePlugin.class.getName(),
+                        new PluginConfigWrapper(paramWrapper.getDefaultParameters().getRenameConfig())));
+
+        // DSQL patches
+        if (GeneratorParamWrapper.MY_BATIS_3_DYNAMIC_SQL.equals(paramWrapper.getTargetRuntime())) {
             TableConfigurationWrapper tableConfig = paramWrapper.getDefaultTableConfigWrapper();
             if (!tableConfig.isInsertStatementEnabled()) {
-                context.addPluginConfiguration(createPluginConfig(DisableInsertPlugin.class));
+                contextBuilder.withPluginConfiguration(createPluginConfig(DisableInsertPlugin.class.getName(), null));
             }
             if (!tableConfig.isUpdateByPrimaryKeyStatementEnabled()) {
-                context.addPluginConfiguration(createPluginConfig(DisableUpdatePlugin.class));
+                contextBuilder.withPluginConfiguration(createPluginConfig(DisableUpdatePlugin.class.getName(), null));
             }
             if (!tableConfig.isDeleteByPrimaryKeyStatementEnabled()) {
-                context.addPluginConfiguration(createPluginConfig(DisableDeletePlugin.class));
+                contextBuilder.withPluginConfiguration(createPluginConfig(DisableDeletePlugin.class.getName(), null));
             }
-        }
-
-        if (paramWrapper.getSelectedPlugins().isEmpty()) {
-            return;
         }
 
         for (Map.Entry<String, PluginConfigWrapper> entry : paramWrapper.getSelectedPlugins().entrySet()) {
-            PluginConfiguration pluginConfig = new PluginConfiguration();
-            pluginConfig.setConfigurationType(entry.getKey());
-            pluginConfig.addProperty("type", entry.getKey());
-            populatePluginConfig(entry.getValue(), pluginConfig);
-
-            context.addPluginConfiguration(pluginConfig);
+            contextBuilder.withPluginConfiguration(createPluginConfig(entry.getKey(), entry.getValue()));
         }
     }
 
     @NotNull
-    private PluginConfiguration createPluginConfig(Class pluginClass) {
-        PluginConfiguration pluginConfig = new PluginConfiguration();
-        pluginConfig.setConfigurationType(pluginClass.getName());
-        pluginConfig.addProperty("type", pluginClass.getName());
-        return pluginConfig;
+    private PluginConfiguration createPluginConfig(String pluginClass, PluginConfigWrapper configWrapper) {
+        PluginConfiguration.Builder builder = new PluginConfiguration.Builder()
+                .withConfigurationType(pluginClass)
+                .withProperty(new Property("type", pluginClass));
+        if (configWrapper != null) {
+            populatePluginConfig(configWrapper, builder);
+        }
+        return builder.build();
     }
 
-    private void populatePluginConfig(PluginConfigWrapper configWrapper, PluginConfiguration pluginConfig) {
-        if (configWrapper != null) {
-            Object config = configWrapper.getPluginConfig();
-            for (Field field : config.getClass().getFields()) {
-                PluginConfig annotation = field.getAnnotation(PluginConfig.class);
-                if (Modifier.isStatic(field.getModifiers()) || annotation == null) {
-                    continue;
+    private void populatePluginConfig(PluginConfigWrapper configWrapper, PluginConfiguration.Builder builder) {
+        if (configWrapper == null) return;
+        Object config = configWrapper.getPluginConfig();
+        for (Field field : config.getClass().getFields()) {
+            PluginConfig annotation = field.getAnnotation(PluginConfig.class);
+            if (Modifier.isStatic(field.getModifiers()) || annotation == null) {
+                continue;
+            }
+            try {
+                Object val = field.get(config);
+                if (val != null && StringUtil.stringHasValue(String.valueOf(val))) {
+                    builder.withProperty(new Property(annotation.configKey(), String.valueOf(val)));
+                } else if (StringUtil.stringHasValue(annotation.defaultValue())) {
+                    builder.withProperty(new Property(annotation.configKey(), annotation.defaultValue()));
                 }
-
-                try {
-                    Object val = field.get(config);
-                    if (val != null && StringUtil.stringHasValue(String.valueOf(val))) {
-                        pluginConfig.addProperty(annotation.configKey(), String.valueOf(val));
-                    } else if (StringUtil.stringHasValue(annotation.defaultValue())) {
-                        pluginConfig.addProperty(annotation.configKey(), annotation.defaultValue());
-                    }
-                } catch (IllegalAccessException e) {
-                    // NOOP
-                }
+            } catch (IllegalAccessException e) {
+                // NOOP
             }
         }
     }
 
-    private void populateTableConfig(TableConfiguration tableConfig, TableInfo tableInfo) {
-        tableConfig.setTableName(tableInfo.getTableName());
+    private TableConfiguration buildTableConfig(TableInfo tableInfo) {
+        TableConfiguration.Builder builder = paramWrapper.getDefaultTableConfigWrapper().createTableConfigBuilder();
+
+        builder.withTableName(tableInfo.getTableName());
         if (StringUtil.stringHasValue(tableInfo.getDomainName())) {
-            tableConfig.setDomainObjectName(tableInfo.getDomainName());
+            builder.withDomainObjectName(tableInfo.getDomainName());
         }
 
         GeneratedKeyWrapper generatedKeyWrapper = paramWrapper.getDefaultTableConfigWrapper().getGeneratedKeyWrapper();
-        tableConfig.setGeneratedKey(generatedKeyWrapper.createGeneratedKey(tableInfo));
+        GeneratedKey generatedKey = generatedKeyWrapper.createGeneratedKey(tableInfo);
+        if (generatedKey != null) {
+            builder.withGeneratedKey(generatedKey);
+        }
 
-        // column setting
         if (tableInfo.getCustomColumns() != null) {
             for (ColumnInfo customColumn : tableInfo.getCustomColumns()) {
                 if (ColumnActionEnum.OVERRIDE.equals(customColumn.getAction())) {
-                    ColumnOverride columnOverride = new ColumnOverride(customColumn.getColumnName());
-                    columnOverride.setJavaType(customColumn.getJavaType());
-                    columnOverride.setJavaProperty(customColumn.getJavaProperty());
-                    tableConfig.addColumnOverride(columnOverride);
+                    ColumnOverride.Builder coBuilder = new ColumnOverride.Builder()
+                            .withColumnName(customColumn.getColumnName());
+                    if (StringUtil.stringHasValue(customColumn.getJavaType())) {
+                        coBuilder.withJavaType(customColumn.getJavaType());
+                    }
+                    if (StringUtil.stringHasValue(customColumn.getJavaProperty())) {
+                        coBuilder.withJavaProperty(customColumn.getJavaProperty());
+                    }
+                    builder.withColumnOverride(coBuilder.build());
                 } else if (ColumnActionEnum.IGNORE.equals(customColumn.getAction())) {
-                    tableConfig.addIgnoredColumn(new IgnoredColumn(customColumn.getColumnName()));
+                    builder.withIgnoredColumn(new IgnoredColumn(customColumn.getColumnName(), false));
                 }
             }
         }
+
+        return builder.build();
     }
 
     public static List<String> runWithConfigurationFile(String path, Properties properties, ProgressCallback processCallback)
@@ -254,26 +273,31 @@ public class GeneratorToolWrapper {
         String origin = System.getProperty("javax.xml.parsers.DocumentBuilderFactory");
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
         try {
-            List<String> warnings = new ArrayList<>();
-            ConfigurationParser parser = new ConfigurationParser(warnings);
+            // Pass properties so ConfigurationParser substitutes ${...} tokens during parse
+            ConfigurationParser parser = new ConfigurationParser(properties);
             Configuration configuration = parser.parseConfiguration(new File(path));
             validateClassPath(configuration.getClassPathEntries(), properties);
 
             Context context = configuration.getContexts().get(0);
-            context.getProperties().putAll(properties);
             validateTargetProject(context);
 
-            ShellCallback shellCallback = ShellCallbackFactory.createInstance(context.getTargetRuntime());
-            MyBatisGenerator generator = new MyBatisGenerator(configuration, shellCallback, warnings);
-            generator.generate(processCallback);
-            return warnings;
+            List<String> warnings = new MyBatisGenerator.Builder()
+                    .withConfiguration(configuration)
+                    .withShellCallback(new DefaultShellCallback())
+                    .withProgressCallback(processCallback)
+                    .withOverwriteEnabled(true)
+                    .withJavaFileMergeEnabled(true)
+                    .build()
+                    .generateAndWrite();
+
+            List<String> allWarnings = new ArrayList<>(warnings);
+            allWarnings.addAll(parser.getWarnings());
+            return allWarnings;
         } finally {
-            // restore
             if (origin != null) {
                 System.setProperty("javax.xml.parsers.DocumentBuilderFactory", origin);
             }
         }
-
     }
 
     private static void validateClassPath(List<String> classPathEntries, Properties properties) throws IOException {
@@ -292,26 +316,26 @@ public class GeneratorToolWrapper {
     }
 
     private static void validateTargetProject(Context context) throws IOException {
-        JavaClientGeneratorConfiguration javaClientConfig = context.getJavaClientGeneratorConfiguration();
-        javaClientConfig.setTargetProject(resolve(javaClientConfig.getTargetProject(), context.getProperties()));
-        File file = new File(javaClientConfig.getTargetProject());
-        if (!file.exists()) {
-            throw new FileNotFoundException("Target project not found: " + file.getCanonicalPath());
+        ModelGeneratorConfiguration modelConfig = context.getModelGeneratorConfiguration();
+        if (!new File(modelConfig.getTargetProject()).exists()) {
+            throw new FileNotFoundException("Target project not found: " + new File(modelConfig.getTargetProject()).getCanonicalPath());
         }
 
-        JavaModelGeneratorConfiguration javaModelConfig = context.getJavaModelGeneratorConfiguration();
-        javaModelConfig.setTargetProject(resolve(javaModelConfig.getTargetProject(), context.getProperties()));
-        file = new File(javaModelConfig.getTargetProject());
-        if (!file.exists()) {
-            throw new FileNotFoundException("Target project not found: " + file.getCanonicalPath());
-        }
+        Optional<ClientGeneratorConfiguration> clientConfigOpt = context.getClientGeneratorConfiguration();
+        if (clientConfigOpt.isPresent()) {
+            ClientGeneratorConfiguration clientConfig = clientConfigOpt.get();
+            if (!new File(clientConfig.getTargetProject()).exists()) {
+                throw new FileNotFoundException("Target project not found: " + new File(clientConfig.getTargetProject()).getCanonicalPath());
+            }
 
-        if (!"ANNOTATEDMAPPER".equalsIgnoreCase(javaClientConfig.getConfigurationType())) {
-            SqlMapGeneratorConfiguration sqlMapConfig = context.getSqlMapGeneratorConfiguration();
-            sqlMapConfig.setTargetProject(resolve(sqlMapConfig.getTargetProject(), context.getProperties()));
-            file = new File(sqlMapConfig.getTargetProject());
-            if (!file.exists()) {
-                throw new FileNotFoundException("Target project not found: " + file.getCanonicalPath());
+            if (clientConfig.requiresXmlMapper()) {
+                Optional<SqlMapGeneratorConfiguration> sqlMapConfigOpt = context.getSqlMapGeneratorConfiguration();
+                if (sqlMapConfigOpt.isPresent()) {
+                    String sqlMapProject = sqlMapConfigOpt.get().getTargetProject();
+                    if (!new File(sqlMapProject).exists()) {
+                        throw new FileNotFoundException("Target project not found: " + new File(sqlMapProject).getCanonicalPath());
+                    }
+                }
             }
         }
     }

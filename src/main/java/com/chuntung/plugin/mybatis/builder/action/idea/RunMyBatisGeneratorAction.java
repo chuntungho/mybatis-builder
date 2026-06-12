@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorToolWrapper;
 import com.chuntung.plugin.mybatis.builder.generator.callback.IndicatorProcessCallback;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
@@ -57,7 +58,7 @@ public class RunMyBatisGeneratorAction extends AnAction {
                     String error = null;
                     try {
                         List<String> warnings = GeneratorToolWrapper.runWithConfigurationFile(vFile.getPath(), properties, new IndicatorProcessCallback(progressIndicator));
-                        String msg = "Generation was done.";
+                        String msg = MybatisBuilderBundle.message("message.generation.done");
                         if (!warnings.isEmpty()) {
                             msg = msg + "\n" + String.join("\n", warnings);
                         }

@@ -4,16 +4,18 @@
 
 package com.chuntung.plugin.mybatis.builder.view;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.action.ColumnsSettingHandler;
 import com.chuntung.plugin.mybatis.builder.model.ColumnActionEnum;
 import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
 import com.chuntung.plugin.mybatis.builder.model.ObjectTableModel;
 import com.chuntung.plugin.mybatis.builder.model.TableInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
-import org.mybatis.generator.config.ColumnRenamingRule;
+import com.chuntung.plugin.mybatis.builder.generator.RenamingRule;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import javax.swing.*;
@@ -36,17 +38,19 @@ public class ColumnsSettingDialog extends DialogWrapper {
     private String connectionId;
     private TableInfo tableInfo;
     private ColumnsSettingHandler handler;
+    private Project project;
 
     public ColumnsSettingDialog(String connectionId, TableInfo tableInfo, Project project) {
         super(project, false);
         this.connectionId = connectionId;
         this.tableInfo = tableInfo;
+        this.project = project;
         handler = ColumnsSettingHandler.getInstance(project);
 
-        this.setTitle("MyBatis Builder - Columns setting");
+        this.setTitle(MybatisBuilderBundle.message("dialog.columns.title"));
 
         TitledBorder border = (TitledBorder) columnsPanel.getBorder();
-        border.setTitle("Columns setting for " + tableInfo.getTableName());
+        border.setTitle(MybatisBuilderBundle.message("border.columns.setting", tableInfo.getTableName()));
 
         setData(tableInfo);
 
@@ -89,8 +93,16 @@ public class ColumnsSettingDialog extends DialogWrapper {
         init();
     }
 
+    @SuppressWarnings("unchecked")
     private void setData(TableInfo tableInfo) {
-        List<ColumnInfo> columns = handler.fetchColumns(connectionId, tableInfo.getDatabase(), tableInfo.getTableName());
+        List<ColumnInfo>[] holder = new List[1];
+        ProgressManager.getInstance().runProcessWithProgressSynchronously(
+                () -> holder[0] = handler.fetchColumns(connectionId, tableInfo.getDatabase(), tableInfo.getTableName()),
+                MybatisBuilderBundle.message("message.fetching.columns"), false, project);
+        List<ColumnInfo> columns = holder[0];
+        if (columns == null) {
+            return;
+        }
         // convert to map
         Map<String, ColumnInfo> columnMap = new HashMap<>();
         if (tableInfo.getCustomColumns() != null && !tableInfo.getCustomColumns().isEmpty()) {
@@ -113,7 +125,7 @@ public class ColumnsSettingDialog extends DialogWrapper {
 
         handler.initTable(columnsTable, columns);
 
-        ColumnRenamingRule columnRenamingRule = tableInfo.getColumnRenamingRule();
+        RenamingRule columnRenamingRule = tableInfo.getColumnRenamingRule();
         if (columnRenamingRule != null) {
             searchText.setText(columnRenamingRule.getSearchString());
             replaceText.setText(columnRenamingRule.getReplaceString());
@@ -131,7 +143,7 @@ public class ColumnsSettingDialog extends DialogWrapper {
         tableInfo.setCustomColumns(customColumns);
 
         if (StringUtil.stringHasValue(searchText.getText())) {
-            ColumnRenamingRule rule = new ColumnRenamingRule();
+            RenamingRule rule = new RenamingRule();
             rule.setSearchString(searchText.getText());
             rule.setReplaceString(replaceText.getText() == null ? "" : replaceText.getText());
             tableInfo.setColumnRenamingRule(rule);

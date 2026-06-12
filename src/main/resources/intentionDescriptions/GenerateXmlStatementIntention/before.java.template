@@ -1,0 +1,3 @@
+public interface UserMapper {
+    User <spot>selectByPrimaryKey</spot>(Long id);
+}

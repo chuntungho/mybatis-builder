@@ -1,3 +1,8 @@
 <ul>
-<li>Fix for IC 2024.2</li>
+  <li>Upgrade MyBatis Generator core to <b>2.0</b></li>
+  <li><b>Mapper navigation</b>: gutter line markers and namespace/id reference resolution for Mapper interface &lt;-&gt; Mapper XML, with rename support</li>
+  <li><b>Type validation</b>: validate <code>parameterType</code> / <code>resultType</code> on XML statements against the matching mapper method</li>
+  <li><b>Statement intention</b>: generate a statement stub (select/insert/update/delete) from a mapper method, creating the XML mapper file when none exists</li>
+  <li><b>Per-connection JDBC properties</b>: configure driver properties in the Settings dialog, forwarded to both JDBC connections and MyBatis Generator config</li>
+  <li><b>Fix</b>: avoid slow operation on EDT when fetching columns</li>
 </ul>

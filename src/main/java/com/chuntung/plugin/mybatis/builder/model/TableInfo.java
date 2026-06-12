@@ -4,7 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.model;
 
-import org.mybatis.generator.config.ColumnRenamingRule;
+import com.chuntung.plugin.mybatis.builder.generator.RenamingRule;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class TableInfo {
 
     private List<ColumnInfo> customColumns;
     // save search/replace text
-    private ColumnRenamingRule columnRenamingRule;
+    private RenamingRule columnRenamingRule;
 
     public TableInfo() {
     }
@@ -77,11 +77,11 @@ public class TableInfo {
         this.customColumns = customColumns;
     }
 
-    public ColumnRenamingRule getColumnRenamingRule() {
+    public RenamingRule getColumnRenamingRule() {
         return columnRenamingRule;
     }
 
-    public void setColumnRenamingRule(ColumnRenamingRule columnRenamingRule) {
+    public void setColumnRenamingRule(RenamingRule columnRenamingRule) {
         this.columnRenamingRule = columnRenamingRule;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2026 Chuntung Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.util;
@@ -27,16 +27,14 @@ public class ConfigUtil {
         initTypeFields(type);
         T config = null;
         try {
-            config = type.newInstance();
+            config = type.getDeclaredConstructor().newInstance();
             Map<String, Field> fieldMap = fieldCache.get(type);
             for (Field field : fieldMap.values()) {
                 PluginConfig annotation = field.getAnnotation(PluginConfig.class);
                 String val = properties.getProperty(annotation.configKey(), annotation.defaultValue());
                 field.set(config, convert(val, field.getType()));
             }
-        } catch (InstantiationException e) {
-            logger.error("Failed to load config from properties", e);
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             logger.error("Failed to load config from properties", e);
         }
 

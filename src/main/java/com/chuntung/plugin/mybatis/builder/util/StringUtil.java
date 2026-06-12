@@ -1,11 +1,10 @@
 /*
- * Copyright (c) 2019 Tony Ho. Some rights reserved.
+ * Copyright (c) 2026 Chuntung Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.util;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -16,7 +15,7 @@ public class StringUtil {
     }
 
     public static boolean isBlank(String str) {
-        return StringUtils.isBlank(str);
+        return com.intellij.openapi.util.text.StringUtil.isEmptyOrSpaces(str);
     }
 
     /**

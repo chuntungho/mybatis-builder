@@ -1,0 +1,12 @@
+<html>
+<body>
+Reports parameter names in MyBatis mapper XML files that do not match any binding
+available to the statement: <code>#{...}</code> / <code>${...}</code> expressions,
+<code>test</code> attributes of <code>&lt;if&gt;</code>/<code>&lt;when&gt;</code> tags
+and <code>collection</code> attributes of <code>&lt;foreach&gt;</code> tags are checked
+against the mapper method's <code>@Param</code> names, parameter names, bean properties
+and enclosing <code>&lt;foreach&gt;</code> item/index variables. Statements whose
+bindings cannot be statically determined (e.g. a single <code>Map</code> parameter or an
+unresolvable mapper method) are not reported.
+</body>
+</html>

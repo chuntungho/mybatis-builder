@@ -17,6 +17,8 @@ import java.util.*;
 public class MybatisBuilderSettings {
     // connection repo
     private List<ConnectionInfo> connectionInfoList = new ArrayList<>();
+    // user-registered driver repo
+    private List<CustomDriverInfo> customDrivers = new ArrayList<>();
     // default config repo
     private DefaultParameters defaultParameters = new DefaultParameters();
     // last param repo
@@ -34,6 +36,14 @@ public class MybatisBuilderSettings {
 
     public void setConnectionInfoList(List<ConnectionInfo> connectionInfoList) {
         this.connectionInfoList = connectionInfoList;
+    }
+
+    public List<CustomDriverInfo> getCustomDrivers() {
+        return customDrivers;
+    }
+
+    public void setCustomDrivers(List<CustomDriverInfo> customDrivers) {
+        this.customDrivers = customDrivers != null ? customDrivers : new ArrayList<>();
     }
 
     public DefaultParameters getDefaultParameters() {

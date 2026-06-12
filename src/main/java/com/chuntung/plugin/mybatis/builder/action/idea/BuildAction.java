@@ -1,11 +1,15 @@
 /*
- * Copyright (c) 2019-2021 Tony Ho. Some rights reserved.
+ * Copyright (c) 2026 Chuntung Ho. Some rights reserved.
  */
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
+import com.chuntung.plugin.mybatis.builder.MybatisIcons;
+import com.chuntung.plugin.mybatis.builder.database.ConnectionProperties;
 import com.chuntung.plugin.mybatis.builder.database.ConnectionUrlBuilder;
+import com.chuntung.plugin.mybatis.builder.database.DriverDownloader;
 import com.chuntung.plugin.mybatis.builder.generator.GeneratorParamWrapper;
 import com.chuntung.plugin.mybatis.builder.model.ConnectionInfo;
 import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
@@ -24,8 +28,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import org.jetbrains.annotations.NotNull;
-import org.mybatis.generator.config.JDBCConnectionConfiguration;
-import org.mybatis.generator.config.PropertyHolder;
+import com.chuntung.plugin.mybatis.builder.generator.JdbcConnectionConfig;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.slf4j.Logger;
@@ -39,17 +42,21 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The key building controller.
  *
- * @author Tony Ho
  */
 public class BuildAction extends DumbAwareAction {
     private static final Logger logger = LoggerFactory.getLogger(BuildAction.class);
 
     // NOTE: action id should be consistent with plugin.xml
     private static final String ACTION_ID = "MyBatisBuilder.Build";
+
+    public BuildAction() {
+        super(MybatisBuilderBundle.message("action.build.text"), MybatisBuilderBundle.message("action.build.description"), MybatisIcons.BUILD);
+    }
 
     public static AnAction getInstance(Project project) {
         return ActionManager.getInstance().getAction(ACTION_ID);
@@ -82,13 +89,16 @@ public class BuildAction extends DumbAwareAction {
         paramWrapper.setHistoryMap(service.getHistoryMap());
 
         // enable sub packages by default
-        enableSubPackages(paramWrapper.getJavaModelConfig(), paramWrapper.getJavaClientConfig(), paramWrapper.getSqlMapConfig());
+        String subPkgKey = PropertyRegistry.ANY_ENABLE_SUB_PACKAGES;
+        paramWrapper.getJavaModelConfig().addProperty(subPkgKey, "true");
+        paramWrapper.getJavaClientConfig().addProperty(subPkgKey, "true");
+        paramWrapper.getSqlMapConfig().addProperty(subPkgKey, "true");
 
         // populate selected tables
         ConnectionInfo connectionInfo = new ConnectionInfo();
         String msg = populateSelectedTables(service, paramWrapper, connectionInfo, tree.getSelectionModel());
         if (msg != null) {
-            Messages.showWarningDialog(msg, "Building Failed");
+            Messages.showWarningDialog(msg, MybatisBuilderBundle.message("error.building.failed"));
             return;
         }
 
@@ -101,7 +111,11 @@ public class BuildAction extends DumbAwareAction {
             populateConnection(paramWrapper, savedConnectionIfo);
         } catch (SQLException e) {
             logger.warn("Failed to connect to database", e);
-            Messages.showErrorDialog(e.getMessage(), "Building Error");
+            String message = e.getMessage();
+            if (e.getCause() instanceof java.net.UnknownHostException) {
+                message = MybatisBuilderBundle.message("info.unknown.host", e.getCause().getMessage());
+            }
+            Messages.showErrorDialog(message, MybatisBuilderBundle.message("error.building.error"));
             return;
         }
 
@@ -116,7 +130,7 @@ public class BuildAction extends DumbAwareAction {
                                           ConnectionInfo info, TreeSelectionModel selectionModel) {
         String msg = null;
         if (selectionModel == null) {
-            msg = "Please open tool window first";
+            msg = MybatisBuilderBundle.message("info.please.open.tool.window");
             return msg;
         }
 
@@ -134,7 +148,7 @@ public class BuildAction extends DumbAwareAction {
                         if (info.getDatabase() == null) {
                             info.setDatabase(database);
                         } else {
-                            msg = "Only support the tables in the same database";
+                            msg = MybatisBuilderBundle.message("info.same.database.only");
                             break;
                         }
                     }
@@ -146,7 +160,7 @@ public class BuildAction extends DumbAwareAction {
                         if (info.getId() == null) {
                             info.setId(connectionId);
                         } else {
-                            msg = "Only support the tables in the same connection";
+                            msg = MybatisBuilderBundle.message("info.same.connection.only");
                             break;
                         }
                     }
@@ -174,24 +188,26 @@ public class BuildAction extends DumbAwareAction {
         paramWrapper.setSelectedTables(tables);
 
         if (tables.isEmpty()) {
-            msg = "There is no table selected";
+            msg = MybatisBuilderBundle.message("info.no.table.selected");
         }
 
         return msg;
     }
 
     private void populateConnection(GeneratorParamWrapper paramWrapper, ConnectionInfo connectionInfo) {
-        // dynamic library
-        if (StringUtil.stringHasValue(connectionInfo.getDriverLibrary())) {
-            paramWrapper.setDriverLibrary(connectionInfo.getDriverLibrary());
+        // dynamic library: user-supplied (Custom) or downloaded driver jar; empty for bundled
+        String driverLibrary = DriverDownloader.getInstance().resolveDriverLibrary(connectionInfo);
+        if (StringUtil.stringHasValue(driverLibrary)) {
+            paramWrapper.setDriverLibrary(driverLibrary);
         } else {
             paramWrapper.setDriverLibrary(null);
         }
 
-        JDBCConnectionConfiguration jdbcConfig = paramWrapper.getJdbcConfig();
+        JdbcConnectionConfig jdbcConfig = paramWrapper.getJdbcConfig();
         // the known driver class or custom driver class
         String driverClass = StringUtil.stringHasValue(connectionInfo.getDriverClass()) ?
-                connectionInfo.getDriverClass() : connectionInfo.getDriverType().getDriverClass();
+                connectionInfo.getDriverClass() :
+                (connectionInfo.getDriverType() != null ? connectionInfo.getDriverType().getDriverClass() : "");
         jdbcConfig.setDriverClass(driverClass);
 
         // connection url, should contain database
@@ -200,11 +216,8 @@ public class BuildAction extends DumbAwareAction {
 
         jdbcConfig.setUserId(connectionInfo.getUserName());
         jdbcConfig.setPassword(connectionInfo.getPassword());
-    }
-
-    private void enableSubPackages(PropertyHolder... holders) {
-        for (PropertyHolder holder : holders) {
-            holder.addProperty(PropertyRegistry.ANY_ENABLE_SUB_PACKAGES, "true");
+        for (Map.Entry<String, String> entry : ConnectionProperties.resolve(connectionInfo).entrySet()) {
+            jdbcConfig.addProperty(entry.getKey(), entry.getValue());
         }
     }
 

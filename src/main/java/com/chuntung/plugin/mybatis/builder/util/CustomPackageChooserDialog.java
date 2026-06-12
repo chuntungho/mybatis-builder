@@ -28,7 +28,7 @@ import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.fileChooser.ex.FileChooserDialogImpl;
 import com.intellij.openapi.fileChooser.ex.TextFieldAction;
-import com.intellij.openapi.fileTypes.StdFileTypes;
+import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.FileIndex;
@@ -37,7 +37,7 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.PackageChooser;
-import com.intellij.openapi.util.Comparing;
+import java.util.Objects;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.ui.EditorTextField;
@@ -110,7 +110,6 @@ public class CustomPackageChooserDialog extends PackageChooser {
         createTreeModel();
         myTree = new Tree(myModel);
 
-        UIUtil.setLineStyleAngled(myTree);
         myTree.setCellRenderer(
                 new DefaultTreeCellRenderer() {
                     public Component getTreeCellRendererComponent(
@@ -149,7 +148,7 @@ public class CustomPackageChooserDialog extends PackageChooser {
             if (object instanceof PsiPackage) return ((PsiPackage) object).getName();
             else
                 return "";
-        });
+        }, true);
 
         myTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
@@ -182,7 +181,7 @@ public class CustomPackageChooserDialog extends PackageChooser {
                 toggleShowPathComponent(northPanel, this);
             }
         }, BorderLayout.EAST);
-        myPathEditor = new EditorTextField(JavaReferenceEditorUtil.createDocument("", myProject, false), myProject, StdFileTypes.JAVA);
+        myPathEditor = new EditorTextField(JavaReferenceEditorUtil.createDocument("", myProject, false), myProject, JavaFileType.INSTANCE);
         myPathEditor.addDocumentListener(new DocumentListener() {
             @Override
             public void documentChanged(DocumentEvent e) {
@@ -327,7 +326,7 @@ public class CustomPackageChooserDialog extends PackageChooser {
             final DefaultMutableTreeNode child = (DefaultMutableTreeNode) rootNode.getChildAt(i);
             final PsiPackage nodePackage = (PsiPackage) child.getUserObject();
             if (nodePackage != null) {
-                if (Comparing.equal(nodePackage.getQualifiedName(), qualifiedName)) return child;
+                if (Objects.equals(nodePackage.getQualifiedName(), qualifiedName)) return child;
             }
         }
         return null;
@@ -342,7 +341,7 @@ public class CustomPackageChooserDialog extends PackageChooser {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) o;
                 PsiPackage nodePackage = (PsiPackage) node.getUserObject();
                 if (nodePackage != null) {
-                    if (Comparing.equal(nodePackage.getQualifiedName(), qualifiedPackageName)) return node;
+                    if (Objects.equals(nodePackage.getQualifiedName(), qualifiedPackageName)) return node;
                 }
             }
         }
@@ -370,7 +369,7 @@ public class CustomPackageChooserDialog extends PackageChooser {
 
                         try {
                             String newQualifiedName = selectedPackage.getQualifiedName();
-                            if (!Comparing.strEqual(newQualifiedName, "")) newQualifiedName += ".";
+                            if (!newQualifiedName.isEmpty()) newQualifiedName += ".";
                             newQualifiedName += newPackageName;
                             final PsiDirectory dir = PackageUtil.findOrCreateDirectoryForPackage(myProject, newQualifiedName, null, false);
                             if (dir == null) return;

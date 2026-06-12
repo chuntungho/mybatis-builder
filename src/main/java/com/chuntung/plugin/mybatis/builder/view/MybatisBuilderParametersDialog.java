@@ -4,8 +4,9 @@
 
 package com.chuntung.plugin.mybatis.builder.view;
 
-import com.chuntung.plugin.mybatis.builder.action.ParametersHandler;
-import com.chuntung.plugin.mybatis.builder.action.SettingsHandler;
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
+import com.chuntung.plugin.mybatis.builder.action.BuildingPresenter;
+import com.chuntung.plugin.mybatis.builder.action.SettingsPresenter;
 import com.chuntung.plugin.mybatis.builder.generator.*;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.ExampleRowBoundsPlugin;
 import com.chuntung.plugin.mybatis.builder.generator.plugins.LombokPlugin;
@@ -22,22 +23,24 @@ import com.chuntung.plugin.mybatis.builder.util.ViewUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.ComponentValidator;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.psi.PsiPackage;
 import com.intellij.ui.TextFieldWithHistoryWithBrowseButton;
+import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
-import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
-import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
-import org.mybatis.generator.config.SqlMapGeneratorConfiguration;
+import com.chuntung.plugin.mybatis.builder.generator.JavaClientGeneratorConfig;
+import com.chuntung.plugin.mybatis.builder.generator.JavaModelGeneratorConfig;
+import com.chuntung.plugin.mybatis.builder.generator.SqlMapGeneratorConfig;
 import org.mybatis.generator.internal.db.DatabaseDialects;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.plaf.basic.BasicToggleButtonUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -45,8 +48,9 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.HierarchyEvent;
 import java.io.File;
 import java.util.List;
 
@@ -68,8 +72,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JCheckBox selectByExampleCheckbox;
     private JCheckBox withRowBoundsCheckBox;
     private JTable selectedTables;
-    private JTextField endingDelimiterText;
-    private JTextField beginningDelimiterText;
+    private JBTextField endingDelimiterText;
+    private JBTextField beginningDelimiterText;
     private JCheckBox mapperAnnotationSupportCheckBox;
     private JTextField columnText;
     private JComboBox statementComboBox;
@@ -85,7 +89,6 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JCheckBox selectByPrimaryKeyCheckBox;
     private JCheckBox deleteByPrimaryKeyCheckBox;
     private JCheckBox selectByExampleWithLockCheckBox;
-    private JLabel basicStatementLabel;
     private JPanel basicPanel;
     private JPanel examplePanel;
     private JCheckBox lockAllCheckBox;
@@ -96,15 +99,10 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private JButton replaceButton;
     private JButton resetButton;
     private JTabbedPane tabbedPane;
-    private JComboBox targetRuntimeComboBox;
-    private JToggleButton tableButton;
-    private JToggleButton othersButton;
-    private JPanel cardContainer;
+    private JComboBox targetRuntimeComboBox = new JComboBox();
     private JPanel othersPanel;
     private JButton syncBtn;
     private JButton syncButton;
-
-    private boolean morePanelVisible = false;
 
     private static final String[] targetRuntimes = {"MyBatis3DynamicSql", "MyBatis3", "MyBatis3Simple"};
     private String[] javaClientTypes = {"XMLMAPPER", "ANNOTATEDMAPPER", "MIXEDMAPPER"};
@@ -112,13 +110,13 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
 
     private String[] fieldNames = new String[]{"tableName", "domainName", "keyColumn", ""};
     private String[] editableFieldNames = new String[]{"domainName", "keyColumn", ""};
-    private String[] columnNames = new String[]{"Table name", "Domain name", "Key column", "Columns setting"};
+    private String[] columnNames = new String[]{MybatisBuilderBundle.message("column.table.name"), MybatisBuilderBundle.message("column.domain.name"), MybatisBuilderBundle.message("column.key.column"), MybatisBuilderBundle.message("column.columns.setting")};
 
     private Project project;
     private String connectionId;
     private GeneratorParamWrapper paramWrapper;
-    private final SettingsHandler settingsHandler;
-    private final ParametersHandler parametersHandler;
+    private final SettingsPresenter settingsHandler;
+    private final BuildingPresenter parametersHandler;
 
     private class NameCellRenderer extends DefaultTableCellRenderer {
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -135,7 +133,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         JPanel panel = new JPanel();
 
         ButtonCellRenderer() {
-            JButton button = new JButton(new AbstractAction("Open") {
+            JButton button = new JButton(new AbstractAction(MybatisBuilderBundle.message("button.open")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     ButtonCellRenderer.this.fireEditingCanceled();
@@ -171,8 +169,8 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         this.project = project;
         this.paramWrapper = paramWrapper;
         this.connectionId = connectionId;
-        this.settingsHandler = SettingsHandler.getInstance(project);
-        this.parametersHandler = ParametersHandler.getInstance(project);
+        this.settingsHandler = SettingsPresenter.getInstance(project);
+        this.parametersHandler = BuildingPresenter.getInstance(project);
 
         initGUI(project);
         setData(paramWrapper);
@@ -181,33 +179,13 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     }
 
     private void initGUI(Project project) {
-        setTitle("MyBatis Builder - Parameters");
+        setTitle(MybatisBuilderBundle.message("dialog.parameters.title"));
         Cursor hand = new Cursor(Cursor.HAND_CURSOR);
 
-        // reset UI to make background customizable
-        BasicToggleButtonUI basicUi = new BasicToggleButtonUI();
-        tableButton.setUI(basicUi);
-        tableButton.setCursor(hand);
-        othersButton.setUI(basicUi);
-        othersButton.setCursor(hand);
-
-        ItemListener itemListener = e -> {
-            JToggleButton btn = (JToggleButton) e.getSource();
-            btn.setBackground(ItemEvent.SELECTED == e.getStateChange() ? SystemColor.controlLtHighlight : null);
-
-            if (ItemEvent.SELECTED == e.getStateChange()) {
-                String cmd = btn.getActionCommand();
-                CardLayout layout = (CardLayout) (cardContainer.getLayout());
-                layout.show(cardContainer, cmd);
-            }
-        };
-        tableButton.addItemListener(itemListener);
-        othersButton.addItemListener(itemListener);
-
-        // select first button to trigger listener
-        tableButton.setSelected(true);
-
-        targetRuntimeComboBox.setModel(new DefaultComboBoxModel(targetRuntimes));
+        // float Runtime combobox over the right of the tab strip (platform JTabbedPane
+        // uses DarculaTabbedPaneUI, which ignores JTabbedPane.trailingComponent)
+        targetRuntimeComboBox.setModel(new DefaultComboBoxModel<>(targetRuntimes));
+        installRuntimeOverlay();
         // set null to trigger listener
         targetRuntimeComboBox.setSelectedItem(null);
         targetRuntimeComboBox.addItemListener(e -> {
@@ -245,10 +223,10 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
 
         // generated key
         identityCheckBox.setCursor(hand);
-        DefaultComboBoxModel statementModel = new DefaultComboBoxModel(DatabaseDialects.values());
+        DefaultComboBoxModel<Object> statementModel = new DefaultComboBoxModel<>(DatabaseDialects.values());
         statementModel.insertElementAt("JDBC", 0);
         statementComboBox.setModel(statementModel);
-        keyTypeComboBox.setModel(new DefaultComboBoxModel(keyTypes));
+        keyTypeComboBox.setModel(new DefaultComboBoxModel<>(keyTypes));
 
         // rename domain
         replaceButton.addActionListener(e -> {
@@ -274,13 +252,22 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         ViewUtil.setCheckboxCursor(othersPanel);
         
         // java client Combo box
-        javaClientTypeComboBox.setModel(new DefaultComboBoxModel(javaClientTypes));
+        javaClientTypeComboBox.setModel(new DefaultComboBoxModel<>(javaClientTypes));
         javaClientTypeComboBox.addItemListener(e -> sqlMapGeneratorPanel.setVisible(!"ANNOTATEDMAPPER".equals(e.getItem())));
 
+        // delimiter hints
+        beginningDelimiterText.getEmptyText().setText("Begin");
+        endingDelimiterText.getEmptyText().setText("End");
+
         // directory chooser
-        javaModelProjectText.addBrowseFolderListener("Choose source path", "", null, FOLDER_DESCRIPTOR);
-        javaClientProjectText.addBrowseFolderListener("Choose source path", "", null, FOLDER_DESCRIPTOR);
-        sqlMapProjectText.addBrowseFolderListener("Choose resource path", "", null, FOLDER_DESCRIPTOR);
+        javaModelProjectText.addBrowseFolderListener(MybatisBuilderBundle.message("choose.source.path"), "", project, FOLDER_DESCRIPTOR);
+        javaClientProjectText.addBrowseFolderListener(MybatisBuilderBundle.message("choose.source.path"), "", project, FOLDER_DESCRIPTOR);
+        sqlMapProjectText.addBrowseFolderListener(MybatisBuilderBundle.message("choose.resource.path"), "", project, FOLDER_DESCRIPTOR);
+
+        // inline path validation
+        installPathValidator(javaModelProjectText, "Source path");
+        installPathValidator(javaClientProjectText, "Source path");
+        installPathValidator(sqlMapProjectText, "Resource path");
 
         syncButton.addActionListener(e->{
             javaClientProjectText.setText(javaModelProjectText.getText());
@@ -291,15 +278,39 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         });
 
         // package chooser
-        javaModelPackageText.addActionListener(getPackageActionListener(project, javaModelPackageText, javaModelProjectText, true));
-        javaClientPackageText.addActionListener(getPackageActionListener(project, javaClientPackageText, javaClientProjectText, true));
-        sqlMapPackageText.addActionListener(getPackageActionListener(project, sqlMapPackageText, sqlMapProjectText, false));
+        javaModelPackageText.addActionListener(getPackageActionListener(project, "Model", javaModelPackageText, javaModelProjectText, true));
+        javaClientPackageText.addActionListener(getPackageActionListener(project, "Mapper", javaClientPackageText, javaClientProjectText, true));
+        sqlMapPackageText.addActionListener(getPackageActionListener(project, "XML", sqlMapPackageText, sqlMapProjectText, false));
+    }
+
+    private void installPathValidator(TextFieldWithBrowseButton field, String label) {
+        Runnable revalidate = new ComponentValidator(getDisposable())
+                .withValidator(() -> {
+                    String path = field.getText();
+                    if (StringUtil.isBlank(path)) {
+                        return new ValidationInfo(MybatisBuilderBundle.message("validation.path.not.specified", label), field);
+                    }
+                    if (!new File(path).exists()) {
+                        return new ValidationInfo(MybatisBuilderBundle.message("validation.path.not.exist", label), field);
+                    }
+                    return null;
+                })
+                .installOn(field)
+                ::revalidate;
+        field.getTextField().getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull javax.swing.event.DocumentEvent e) {
+                revalidate.run();
+            }
+        });
     }
 
     @NotNull
-    private ActionListener getPackageActionListener(Project project, TextFieldWithHistoryWithBrowseButton packageText, TextFieldWithBrowseButton sourceText, boolean javaPackage) {
+    private ActionListener getPackageActionListener(Project project, String type,
+                                                    TextFieldWithHistoryWithBrowseButton packageText,
+                                                    TextFieldWithBrowseButton sourceText, boolean javaPackage) {
         return e -> {
-            CustomPackageChooserDialog chooser = new CustomPackageChooserDialog("Choose target package", project,
+            CustomPackageChooserDialog chooser = new CustomPackageChooserDialog(MybatisBuilderBundle.message("choose.package.for", type), project,
                     javaPackage ? JavaModuleSourceRootTypes.SOURCES : JavaModuleSourceRootTypes.RESOURCES, sourceText.getText());
             chooser.selectPackage(packageText.getText());
             boolean ok = chooser.showAndGet();
@@ -314,6 +325,70 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         return mainPanel;
+    }
+
+    private JComponent runtimeOverlay;
+
+    /**
+     * Floats the Runtime label + combobox over the empty right side of the tab strip.
+     * The platform installs DarculaTabbedPaneUI for JTabbedPane, which does not honor
+     * the FlatLaf "JTabbedPane.trailingComponent" client property, so we attach the
+     * control to the dialog's layered pane and keep it aligned with the tab strip.
+     */
+    private void installRuntimeOverlay() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        panel.setOpaque(false);
+        panel.add(new JLabel(MybatisBuilderBundle.message("label.runtime")));
+        panel.add(targetRuntimeComboBox);
+        panel.setSize(panel.getPreferredSize());
+        runtimeOverlay = panel;
+
+        tabbedPane.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                positionRuntimeOverlay();
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                positionRuntimeOverlay();
+            }
+        });
+        tabbedPane.addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && tabbedPane.isShowing()) {
+                JRootPane root = SwingUtilities.getRootPane(tabbedPane);
+                if (root != null && runtimeOverlay.getParent() != root.getLayeredPane()) {
+                    root.getLayeredPane().add(runtimeOverlay, JLayeredPane.PALETTE_LAYER);
+                }
+                positionRuntimeOverlay();
+            }
+        });
+    }
+
+    private void positionRuntimeOverlay() {
+        if (runtimeOverlay == null || !tabbedPane.isShowing()) {
+            return;
+        }
+        Container parent = runtimeOverlay.getParent();
+        if (parent == null) {
+            return;
+        }
+        Dimension pref = runtimeOverlay.getPreferredSize();
+        // align vertically within the tab strip band when available
+        int stripY = 0, stripH = pref.height;
+        if (tabbedPane.getTabCount() > 0) {
+            Rectangle b = tabbedPane.getBoundsAt(0);
+            if (b != null) {
+                stripY = b.y;
+                stripH = b.height;
+            }
+        }
+        Point origin = SwingUtilities.convertPoint(tabbedPane, 0, 0, parent);
+        int x = origin.x + tabbedPane.getWidth() - pref.width - 8;
+        int y = origin.y + stripY + Math.max(0, (stripH - pref.height) / 2);
+        runtimeOverlay.setBounds(x, y, pref.width, pref.height);
+        parent.revalidate();
+        parent.repaint();
     }
 
     private void setData(GeneratorParamWrapper data) {
@@ -340,6 +415,9 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         mapperAnnotationSupportCheckBox.setSelected(mapperAnnotationEnabled);
         String customAnnotationType = defaultParameters.getMapperAnnotationConfig().customAnnotationType;
         mapperAnnotationSupportCheckBox.setToolTipText(customAnnotationType);
+        if (!StringUtil.isBlank(customAnnotationType)) {
+            mapperAnnotationSupportCheckBox.setText(MybatisBuilderBundle.message("mapper.annotation.support"));
+        }
 
         boolean lombokEnabled = data.getSelectedPlugins().containsKey(LombokPlugin.class.getName());
         lombokSupportCheckBox.setSelected(lombokEnabled);
@@ -378,7 +456,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         GeneratedKeyWrapper generatedKeyWrapper = defaultTableConfig.getGeneratedKeyWrapper();
         columnText.setText(generatedKeyWrapper.getColumn());
         identityCheckBox.setSelected(generatedKeyWrapper.isIdentity());
-        DatabaseDialects statement = DatabaseDialects.getDatabaseDialect(generatedKeyWrapper.getStatement());
+        DatabaseDialects statement = DatabaseDialects.getDatabaseDialect(generatedKeyWrapper.getStatement()).orElse(null);
         if (statement != null) {
             statementComboBox.setSelectedItem(statement);
         } else {
@@ -395,7 +473,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         TitledBorder border = (TitledBorder) selectedTablePanel.getBorder();
         border.setTitle(border.getTitle() + ": " + data.getSelectedTables().size());
 
-        ObjectTableModel<TableInfo> tableModel = new ObjectTableModel(data.getSelectedTables(), fieldNames, columnNames);
+        ObjectTableModel<TableInfo> tableModel = new ObjectTableModel<>(data.getSelectedTables(), fieldNames, columnNames);
         tableModel.setEditableFieldNames(editableFieldNames);
         selectedTables.setModel(tableModel);
         selectedTables.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -411,7 +489,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
 
         List<String> history = null;
         // model
-        JavaModelGeneratorConfiguration modelConfig = data.getJavaModelConfig();
+        JavaModelGeneratorConfig modelConfig = data.getJavaModelConfig();
         javaModelProjectText.setText(modelConfig.getTargetProject());
 
         history = paramWrapper.getHistoryMap().get(HistoryCategoryEnum.JAVA_MODEL_PACKAGE.toString());
@@ -421,7 +499,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         javaModelPackageText.setText(modelConfig.getTargetPackage());
 
         // client
-        JavaClientGeneratorConfiguration javaClientConfig = data.getJavaClientConfig();
+        JavaClientGeneratorConfig javaClientConfig = data.getJavaClientConfig();
         if (javaClientConfig.getConfigurationType() == null) {
             javaClientTypeComboBox.setSelectedIndex(0);
         } else {
@@ -436,7 +514,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         javaClientPackageText.setText(javaClientConfig.getTargetPackage());
 
         // sqlmap
-        SqlMapGeneratorConfiguration sqlMapConfig = data.getSqlMapConfig();
+        SqlMapGeneratorConfig sqlMapConfig = data.getSqlMapConfig();
         sqlMapProjectText.setText(sqlMapConfig.getTargetProject());
 
         history = paramWrapper.getHistoryMap().get(HistoryCategoryEnum.SQL_MAP_PACKAGE.toString());
@@ -506,18 +584,18 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         }
 
         // model config
-        JavaModelGeneratorConfiguration javaModelConfig = data.getJavaModelConfig();
+        JavaModelGeneratorConfig javaModelConfig = data.getJavaModelConfig();
         javaModelConfig.setTargetProject(javaModelProjectText.getText());
         javaModelConfig.setTargetPackage(javaModelPackageText.getText());
 
         // client config
-        JavaClientGeneratorConfiguration javaClientConfig = data.getJavaClientConfig();
+        JavaClientGeneratorConfig javaClientConfig = data.getJavaClientConfig();
         javaClientConfig.setConfigurationType((String) javaClientTypeComboBox.getSelectedItem());
         javaClientConfig.setTargetProject(javaClientProjectText.getText());
         javaClientConfig.setTargetPackage(javaClientPackageText.getText());
 
         // sqlmap config
-        SqlMapGeneratorConfiguration sqlMapConfig = data.getSqlMapConfig();
+        SqlMapGeneratorConfig sqlMapConfig = data.getSqlMapConfig();
         sqlMapConfig.setTargetProject(sqlMapProjectText.getText());
         sqlMapConfig.setTargetPackage(sqlMapPackageText.getText());
     }
@@ -566,7 +644,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         return info;
     }
 
-    private Action stashAction = new AbstractAction("Stash") {
+    private Action stashAction = new AbstractAction(MybatisBuilderBundle.message("button.stash")) {
         @Override
         public void actionPerformed(ActionEvent e) {
             getData(paramWrapper);
@@ -574,21 +652,6 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
             close(CLOSE_EXIT_CODE);
         }
     };
-
-//    private Action exportAction = new AbstractAction("Export...") {
-//        @Override
-//        public void actionPerformed(ActionEvent e) {
-//            FileSaverDialog saver = FileChooserFactory.getInstance()
-//                    .createSaveFileDialog(new FileSaverDescriptor("Export configuration", "Export to", "xml"), project);
-//            VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
-//            VirtualFileWrapper target = saver.save(projectDir, "mybatis-generator.xml");
-//            if (target != null) {
-//                File file = target.getFile();
-//                getData(paramWrapper);
-//                parametersHandler.exportConfiguration(paramWrapper, file, project);
-//            }
-//        }
-//    };
 
     @Override
     protected Action[] createLeftSideActions() {
