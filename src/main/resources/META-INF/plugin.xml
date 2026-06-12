@@ -118,6 +118,15 @@
         <!-- Annotator: validate parameterType / resultType against the mapper method -->
         <annotator language="XML"
             implementationClass="com.chuntung.plugin.mybatis.builder.annotator.MapperTypeAnnotator"/>
+
+        <!-- Inspection: unresolved #{} / test / collection parameter names -->
+        <localInspection language="XML" groupName="MyBatis Builder" displayName="Unresolved MyBatis parameter"
+            shortName="MybatisUnresolvedParam" enabledByDefault="true" level="WARNING"
+            implementationClass="com.chuntung.plugin.mybatis.builder.inspection.SqlParamInspection"/>
+
+        <!-- Completion: #{} params, if/when test, foreach collection, resultMap / refid ids -->
+        <completion.contributor language="XML"
+            implementationClass="com.chuntung.plugin.mybatis.builder.completion.MapperXmlCompletionContributor"/>
     </extensions>
 
 </idea-plugin>
