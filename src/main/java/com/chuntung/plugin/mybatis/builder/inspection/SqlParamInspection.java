@@ -3,6 +3,7 @@
  */
 package com.chuntung.plugin.mybatis.builder.inspection;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.reference.MapperNamespaceReferenceContributor;
 import com.chuntung.plugin.mybatis.builder.util.MapperParamUtil;
 import com.intellij.codeInspection.LocalInspectionTool;
@@ -134,6 +135,6 @@ public class SqlParamInspection extends LocalInspectionTool {
         List<String> sorted = new ArrayList<>(names);
         sorted.sort(String::compareTo);
         String available = sorted.isEmpty() ? "(none)" : String.join(", ", sorted);
-        return "Unknown parameter '" + name + "'; available: " + available;
+        return MybatisBuilderBundle.message("inspection.unresolved.param", name, available);
     }
 }

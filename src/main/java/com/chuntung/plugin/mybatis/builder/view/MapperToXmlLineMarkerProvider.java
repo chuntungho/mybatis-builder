@@ -3,6 +3,7 @@
  */
 package com.chuntung.plugin.mybatis.builder.view;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.MybatisIcons;
 import com.chuntung.plugin.mybatis.builder.util.MapperXmlIndex;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo;
@@ -50,7 +51,7 @@ public class MapperToXmlLineMarkerProvider extends RelatedItemLineMarkerProvider
         }
         result.add(NavigationGutterIconBuilder.create(MybatisIcons.MAPPER_TO_XML)
                 .setTargets(targets)
-                .setTooltipText("Navigate to MyBatis XML mapper")
+                .setTooltipText(MybatisBuilderBundle.message("tooltip.navigate.to.xml.mapper"))
                 .setAlignment(GutterIconRenderer.Alignment.RIGHT)
                 .createLineMarkerInfo(identifier));
     }
@@ -72,7 +73,7 @@ public class MapperToXmlLineMarkerProvider extends RelatedItemLineMarkerProvider
         if (targets.isEmpty()) return;
         result.add(NavigationGutterIconBuilder.create(MybatisIcons.MAPPER_TO_XML)
                 .setTargets(targets)
-                .setTooltipText("Navigate to MyBatis XML statement")
+                .setTooltipText(MybatisBuilderBundle.message("tooltip.navigate.to.xml.statement"))
                 .setAlignment(GutterIconRenderer.Alignment.RIGHT)
                 .createLineMarkerInfo(identifier));
     }

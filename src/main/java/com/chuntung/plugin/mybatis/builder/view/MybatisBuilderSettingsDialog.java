@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.view;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.MybatisIcons;
 import com.chuntung.plugin.mybatis.builder.action.SettingsPresenter;
 import com.chuntung.plugin.mybatis.builder.database.DriverDownloader;
@@ -141,7 +142,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     }
 
     private void initGUI() {
-        setTitle("MyBatis Builder - Settings");
+        setTitle(MybatisBuilderBundle.message("dialog.settings.title"));
 
         // default parameters
         initDefaultParameterPane();
@@ -256,7 +257,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
     }
 
     private static final String[] PROPERTY_FIELD_NAMES = {"name", "value"};
-    private static final String[] PROPERTY_COLUMN_NAMES = {"Property", "Value"};
+    private static final String[] PROPERTY_COLUMN_NAMES = {MybatisBuilderBundle.message("label.property"), MybatisBuilderBundle.message("label.value")};
 
     private void initPropertiesTable() {
         ObjectTableModel<PropertyEntry> model =
@@ -283,7 +284,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     private class AddPropertyAction extends AnAction {
         AddPropertyAction() {
-            super("Add", "Add a property", AllIcons.General.Add);
+            super(MybatisBuilderBundle.message("button.add"), MybatisBuilderBundle.message("toolbar.add.property"), AllIcons.General.Add);
         }
 
         @Override
@@ -305,7 +306,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     private class RemovePropertyAction extends AnAction {
         RemovePropertyAction() {
-            super("Remove", "Remove the selected property", AllIcons.General.Remove);
+            super(MybatisBuilderBundle.message("button.remove"), MybatisBuilderBundle.message("toolbar.remove.property"), AllIcons.General.Remove);
         }
 
         @Override
@@ -493,7 +494,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     private class RegisterDriverAction extends AnAction {
         RegisterDriverAction() {
-            super("Register Driver…", "Register a custom JDBC driver", AllIcons.General.Settings);
+            super(MybatisBuilderBundle.message("button.register.driver"), "Register a custom JDBC driver", AllIcons.General.Settings);
         }
 
         @Override
@@ -509,7 +510,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     private class RemoveConnectionAction extends AnAction {
         RemoveConnectionAction() {
-            super("Remove", "Remove the selected connection", AllIcons.General.Remove);
+            super(MybatisBuilderBundle.message("button.remove"), MybatisBuilderBundle.message("toolbar.remove.connection"), AllIcons.General.Remove);
         }
 
         @Override
@@ -530,7 +531,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     private class MoveUpConnectionAction extends AnAction {
         MoveUpConnectionAction() {
-            super("Move Up", "Move the selected connection up", AllIcons.Actions.MoveUp);
+            super(MybatisBuilderBundle.message("button.move.up"), MybatisBuilderBundle.message("toolbar.move.up"), AllIcons.Actions.MoveUp);
         }
 
         @Override
@@ -551,7 +552,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     private class MoveDownConnectionAction extends AnAction {
         MoveDownConnectionAction() {
-            super("Move Down", "Move the selected connection down", AllIcons.Actions.MoveDown);
+            super(MybatisBuilderBundle.message("button.move.down"), MybatisBuilderBundle.message("toolbar.move.down"), AllIcons.Actions.MoveDown);
         }
 
         @Override
@@ -606,8 +607,8 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         DriverTypeEnum type = current.getDriverType();
         if (type != null && type.isDownloadable() && !DriverDownloader.getInstance().isPresent(type)) {
             Messages.showWarningDialog(project,
-                    "The " + type.getDisplayName() + " driver has not been downloaded yet. Click \"Download driver\" first.",
-                    "Driver Required");
+                    MybatisBuilderBundle.message("warning.driver.required.message", type.getDisplayName()),
+                    MybatisBuilderBundle.message("warning.driver.required.title"));
             return;
         }
         settingsPresenter.testConnection(current);
@@ -716,7 +717,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         hostText.setVisible(host);
         portLabel.setVisible(host);
         portSpinner.setVisible(host);
-        databaseLabel.setText(file ? "File" : "Database");
+        databaseLabel.setText(file ? MybatisBuilderBundle.message("label.file") : MybatisBuilderBundle.message("label.database"));
     }
 
     private void refreshDriverStatus(DriverTypeEnum type) {
@@ -727,10 +728,10 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
         } else { // downloadable
             if (downloader.isPresent(type)) {
 //                driverStatusLabel.setText("Driver: " + downloader.jarName(type));
-                downloadDriverLink.setText("Re-download");
+                downloadDriverLink.setText(MybatisBuilderBundle.message("button.re.download"));
             } else {
 //                driverStatusLabel.setText("Driver not downloaded");
-                downloadDriverLink.setText("Download driver");
+                downloadDriverLink.setText(MybatisBuilderBundle.message("button.download.driver"));
             }
             downloadDriverLink.setVisible(true);
         }
@@ -762,7 +763,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
             @Override
             public void onThrowable(@NotNull Throwable error) {
-                Messages.showErrorDialog(project, error.getMessage(), "Driver Download Failed");
+                Messages.showErrorDialog(project, error.getMessage(), MybatisBuilderBundle.message("error.driver.download.failed"));
             }
         });
     }
@@ -898,7 +899,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 
     private Action getApplyAction() {
         if (applyAction == null) {
-            applyAction = new AbstractAction("Apply") {
+            applyAction = new AbstractAction(MybatisBuilderBundle.message("button.apply")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     doApplyAction(e);
@@ -1096,7 +1097,7 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
             String pattern = textField.getText();
             if (StringUtil.stringHasValue(pattern)) {
                 if (!pattern.contains(RenamePlugin.DOMAIN_NAME)) {
-                    info = new ValidationInfo("Pattern should contain " + RenamePlugin.DOMAIN_NAME, textField);
+                    info = new ValidationInfo(MybatisBuilderBundle.message("validation.pattern.should.contain", RenamePlugin.DOMAIN_NAME), textField);
                     break;
                 }
             }
@@ -1127,6 +1128,6 @@ public class MybatisBuilderSettingsDialog extends DialogWrapper {
 //        urlLabel = new LinkLabel<>("URL", AllIcons.Ide.External_link_arrow, (aSource, aLinkData) -> BrowserUtil.browse("https://chuntung.com/jdbc-url"));
 //        urlLabel.setToolTipText("Click to view URL syntax for common databases");
 
-        downloadDriverLink = new LinkLabel<>("Download driver", AllIcons.Actions.Download);
+        downloadDriverLink = new LinkLabel<>(MybatisBuilderBundle.message("button.download.driver"), AllIcons.Actions.Download);
     }
 }

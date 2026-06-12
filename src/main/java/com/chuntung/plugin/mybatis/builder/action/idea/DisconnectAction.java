@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -21,7 +22,7 @@ public class DisconnectAction extends DumbAwareAction {
     private final JTree tree;
 
     public DisconnectAction(Supplier<TreePath> currentPath, JTree tree) {
-        super("Disconnect");
+        super(MybatisBuilderBundle.message("action.disconnect.text"));
         this.currentPath = currentPath;
         this.tree = tree;
     }

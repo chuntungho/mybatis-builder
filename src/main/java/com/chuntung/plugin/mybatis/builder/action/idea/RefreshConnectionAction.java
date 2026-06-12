@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.action.TreeNodeLoader;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -20,7 +21,7 @@ public class RefreshConnectionAction extends DumbAwareAction {
     private final TreeNodeLoader loader;
 
     public RefreshConnectionAction(Supplier<TreePath> currentPath, TreeNodeLoader loader) {
-        super("Refresh");
+        super(MybatisBuilderBundle.message("action.refresh.text"));
         this.currentPath = currentPath;
         this.loader = loader;
     }
@@ -30,7 +31,7 @@ public class RefreshConnectionAction extends DumbAwareAction {
         TreePath path = currentPath.get();
         if (path == null) return;
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-        new Task.Backgroundable(null, "Loading database objects ...") {
+        new Task.Backgroundable(null, MybatisBuilderBundle.message("message.loading.objects")) {
             @Override
             public void run(@NotNull ProgressIndicator pi) {
                 loader.load(node, true);

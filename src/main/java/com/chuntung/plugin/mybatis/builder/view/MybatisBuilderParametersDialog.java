@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.view;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.action.BuildingPresenter;
 import com.chuntung.plugin.mybatis.builder.action.SettingsPresenter;
 import com.chuntung.plugin.mybatis.builder.generator.*;
@@ -109,7 +110,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
 
     private String[] fieldNames = new String[]{"tableName", "domainName", "keyColumn", ""};
     private String[] editableFieldNames = new String[]{"domainName", "keyColumn", ""};
-    private String[] columnNames = new String[]{"Table name", "Domain name", "Key column", "Columns setting"};
+    private String[] columnNames = new String[]{MybatisBuilderBundle.message("column.table.name"), MybatisBuilderBundle.message("column.domain.name"), MybatisBuilderBundle.message("column.key.column"), MybatisBuilderBundle.message("column.columns.setting")};
 
     private Project project;
     private String connectionId;
@@ -132,7 +133,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         JPanel panel = new JPanel();
 
         ButtonCellRenderer() {
-            JButton button = new JButton(new AbstractAction("Open") {
+            JButton button = new JButton(new AbstractAction(MybatisBuilderBundle.message("button.open")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     ButtonCellRenderer.this.fireEditingCanceled();
@@ -178,7 +179,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     }
 
     private void initGUI(Project project) {
-        setTitle("MyBatis Builder - Parameters");
+        setTitle(MybatisBuilderBundle.message("dialog.parameters.title"));
         Cursor hand = new Cursor(Cursor.HAND_CURSOR);
 
         // float Runtime combobox over the right of the tab strip (platform JTabbedPane
@@ -259,9 +260,9 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         endingDelimiterText.getEmptyText().setText("End");
 
         // directory chooser
-        javaModelProjectText.addBrowseFolderListener("Choose source path", "", project, FOLDER_DESCRIPTOR);
-        javaClientProjectText.addBrowseFolderListener("Choose source path", "", project, FOLDER_DESCRIPTOR);
-        sqlMapProjectText.addBrowseFolderListener("Choose resource path", "", project, FOLDER_DESCRIPTOR);
+        javaModelProjectText.addBrowseFolderListener(MybatisBuilderBundle.message("choose.source.path"), "", project, FOLDER_DESCRIPTOR);
+        javaClientProjectText.addBrowseFolderListener(MybatisBuilderBundle.message("choose.source.path"), "", project, FOLDER_DESCRIPTOR);
+        sqlMapProjectText.addBrowseFolderListener(MybatisBuilderBundle.message("choose.resource.path"), "", project, FOLDER_DESCRIPTOR);
 
         // inline path validation
         installPathValidator(javaModelProjectText, "Source path");
@@ -287,10 +288,10 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
                 .withValidator(() -> {
                     String path = field.getText();
                     if (StringUtil.isBlank(path)) {
-                        return new ValidationInfo(label + " not specified", field);
+                        return new ValidationInfo(MybatisBuilderBundle.message("validation.path.not.specified", label), field);
                     }
                     if (!new File(path).exists()) {
-                        return new ValidationInfo(label + " does not exist", field);
+                        return new ValidationInfo(MybatisBuilderBundle.message("validation.path.not.exist", label), field);
                     }
                     return null;
                 })
@@ -309,7 +310,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
                                                     TextFieldWithHistoryWithBrowseButton packageText,
                                                     TextFieldWithBrowseButton sourceText, boolean javaPackage) {
         return e -> {
-            CustomPackageChooserDialog chooser = new CustomPackageChooserDialog("Choose target package for " + type, project,
+            CustomPackageChooserDialog chooser = new CustomPackageChooserDialog(MybatisBuilderBundle.message("choose.package.for", type), project,
                     javaPackage ? JavaModuleSourceRootTypes.SOURCES : JavaModuleSourceRootTypes.RESOURCES, sourceText.getText());
             chooser.selectPackage(packageText.getText());
             boolean ok = chooser.showAndGet();
@@ -337,7 +338,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
     private void installRuntimeOverlay() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         panel.setOpaque(false);
-        panel.add(new JLabel("Runtime"));
+        panel.add(new JLabel(MybatisBuilderBundle.message("label.runtime")));
         panel.add(targetRuntimeComboBox);
         panel.setSize(panel.getPreferredSize());
         runtimeOverlay = panel;
@@ -415,7 +416,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         String customAnnotationType = defaultParameters.getMapperAnnotationConfig().customAnnotationType;
         mapperAnnotationSupportCheckBox.setToolTipText(customAnnotationType);
         if (!StringUtil.isBlank(customAnnotationType)) {
-            mapperAnnotationSupportCheckBox.setText("Mapper annotation support (custom)");
+            mapperAnnotationSupportCheckBox.setText(MybatisBuilderBundle.message("mapper.annotation.support"));
         }
 
         boolean lombokEnabled = data.getSelectedPlugins().containsKey(LombokPlugin.class.getName());
@@ -643,7 +644,7 @@ public class MybatisBuilderParametersDialog extends DialogWrapper {
         return info;
     }
 
-    private Action stashAction = new AbstractAction("Stash") {
+    private Action stashAction = new AbstractAction(MybatisBuilderBundle.message("button.stash")) {
         @Override
         public void actionPerformed(ActionEvent e) {
             getData(paramWrapper);

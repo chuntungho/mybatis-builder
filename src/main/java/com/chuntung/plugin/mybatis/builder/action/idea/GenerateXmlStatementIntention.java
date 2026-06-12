@@ -3,6 +3,7 @@
  */
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.util.MapperXmlIndex;
 import com.chuntung.plugin.mybatis.builder.util.StatementTypeInferrer;
 import com.intellij.codeInsight.intention.IntentionAction;
@@ -57,14 +58,14 @@ public class GenerateXmlStatementIntention implements IntentionAction {
     @NotNull
     @Override
     public String getText() {
-        return "Generate MyBatis XML statement";
+        return MybatisBuilderBundle.message("action.generate.xml.text");
     }
 
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull
     @Override
     public String getFamilyName() {
-        return "MyBatis Builder";
+        return MybatisBuilderBundle.message("action.intention.family");
     }
 
     @Override

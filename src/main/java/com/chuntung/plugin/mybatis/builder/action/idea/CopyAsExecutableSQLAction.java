@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
@@ -45,7 +46,7 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
 
         String selectedText = editor.getSelectionModel().getSelectedText();
         if (selectedText == null || !selectedText.contains(PREPARING) && !selectedText.contains(PARAMETERS)) {
-            String error = "Keywords \"" + PREPARING + "\" and \"" + PARAMETERS + "\" are required";
+            String error = MybatisBuilderBundle.message("info.copy.sql.keywords.required", PREPARING, PARAMETERS);
             HintManager.getInstance().showErrorHint(editor, error);
             return;
         }
@@ -56,7 +57,7 @@ public class CopyAsExecutableSQLAction extends DumbAwareAction {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(new StringSelection(sql), null);
 
-        NotificationHelper.getInstance().notifyInfo("Executable SQL copied to clipboard", event.getProject());
+        NotificationHelper.getInstance().notifyInfo(MybatisBuilderBundle.message("message.sql.copied"), event.getProject());
     }
 
     @NotNull

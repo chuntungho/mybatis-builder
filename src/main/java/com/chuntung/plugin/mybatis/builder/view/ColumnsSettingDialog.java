@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.view;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.action.ColumnsSettingHandler;
 import com.chuntung.plugin.mybatis.builder.model.ColumnActionEnum;
 import com.chuntung.plugin.mybatis.builder.model.ColumnInfo;
@@ -46,10 +47,10 @@ public class ColumnsSettingDialog extends DialogWrapper {
         this.project = project;
         handler = ColumnsSettingHandler.getInstance(project);
 
-        this.setTitle("MyBatis Builder - Columns setting");
+        this.setTitle(MybatisBuilderBundle.message("dialog.columns.title"));
 
         TitledBorder border = (TitledBorder) columnsPanel.getBorder();
-        border.setTitle("Columns setting for " + tableInfo.getTableName());
+        border.setTitle(MybatisBuilderBundle.message("border.columns.setting", tableInfo.getTableName()));
 
         setData(tableInfo);
 
@@ -97,7 +98,7 @@ public class ColumnsSettingDialog extends DialogWrapper {
         List<ColumnInfo>[] holder = new List[1];
         ProgressManager.getInstance().runProcessWithProgressSynchronously(
                 () -> holder[0] = handler.fetchColumns(connectionId, tableInfo.getDatabase(), tableInfo.getTableName()),
-                "Fetching columns...", false, project);
+                MybatisBuilderBundle.message("message.fetching.columns"), false, project);
         List<ColumnInfo> columns = holder[0];
         if (columns == null) {
             return;

@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.view;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.database.DriverDownloader;
 import com.chuntung.plugin.mybatis.builder.model.CustomDriverInfo;
 import com.chuntung.plugin.mybatis.builder.util.StringUtil;
@@ -60,7 +61,7 @@ public class RegisterDriverDialog extends DialogWrapper {
     public RegisterDriverDialog(@Nullable Project project, List<CustomDriverInfo> drivers) {
         super(project);
         this.project = project;
-        setTitle("Register Drivers");
+        setTitle(MybatisBuilderBundle.message("dialog.register.driver.title"));
 
         for (CustomDriverInfo driver : drivers) {
             listModel.addElement(driver.clone());
@@ -68,10 +69,10 @@ public class RegisterDriverDialog extends DialogWrapper {
 
         driverList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         driverList.addListSelectionListener(this::onSelectionChanged);
-        libraryField.addBrowseFolderListener("Choose Driver Library",
-                "Select the JDBC driver jar", project, JAR_DESCRIPTOR);
+        libraryField.addBrowseFolderListener(MybatisBuilderBundle.message("choose.driver.library"),
+                MybatisBuilderBundle.message("choose.driver.library.description"), project, JAR_DESCRIPTOR);
 
-        downloadButton = new JButton("Download");
+        downloadButton = new JButton(MybatisBuilderBundle.message("button.download"));
         downloadButton.addActionListener(e -> doDownload());
 
         init();
@@ -97,12 +98,12 @@ public class RegisterDriverDialog extends DialogWrapper {
         mavenPanel.add(downloadButton, BorderLayout.EAST);
 
         JPanel form = FormBuilder.createFormBuilder()
-                .addLabeledComponent("Name:", nameField)
-                .addLabeledComponent("Driver class:", classField)
-                .addLabeledComponent("URL template:", urlField)
-                .addLabeledComponent("Maven coordinate:", mavenPanel)
-                .addLabeledComponent("Driver library:", libraryField)
-                .addLabeledComponent("Default port:", portField)
+                .addLabeledComponent(MybatisBuilderBundle.message("label.name"), nameField)
+                .addLabeledComponent(MybatisBuilderBundle.message("label.driver.class"), classField)
+                .addLabeledComponent(MybatisBuilderBundle.message("label.url.template"), urlField)
+                .addLabeledComponent(MybatisBuilderBundle.message("label.maven.coordinate"), mavenPanel)
+                .addLabeledComponent(MybatisBuilderBundle.message("label.driver.library"), libraryField)
+                .addLabeledComponent(MybatisBuilderBundle.message("label.default.port"), portField)
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
         form.setBorder(JBUI.Borders.emptyLeft(8));
@@ -127,7 +128,7 @@ public class RegisterDriverDialog extends DialogWrapper {
         flushForm();
         CustomDriverInfo driver = new CustomDriverInfo();
         driver.setId(UUID.randomUUID().toString().replace("-", ""));
-        driver.setName("New Driver");
+        driver.setName(MybatisBuilderBundle.message("message.new.driver"));
         listModel.addElement(driver);
         driverList.setSelectedIndex(listModel.size() - 1);
     }
@@ -194,16 +195,16 @@ public class RegisterDriverDialog extends DialogWrapper {
         for (int i = 0; i < listModel.size(); i++) {
             CustomDriverInfo d = listModel.get(i);
             if (!StringUtil.stringHasValue(d.getName())) {
-                return new ValidationInfo("Driver name is required", nameField);
+                return new ValidationInfo(MybatisBuilderBundle.message("validation.driver.name.required"), nameField);
             }
             if (!StringUtil.stringHasValue(d.getDriverClass())) {
-                return new ValidationInfo("Driver class is required for \"" + d.getName() + "\"", classField);
+                return new ValidationInfo(MybatisBuilderBundle.message("validation.driver.class.required", d.getName()), classField);
             }
             boolean hasLibrary = StringUtil.stringHasValue(d.getDriverLibrary());
             boolean hasCoordinate = StringUtil.stringHasValue(d.getMavenCoordinate());
             if (!hasLibrary && !hasCoordinate) {
                 return new ValidationInfo(
-                        "Driver library or Maven coordinate is required for \"" + d.getName() + "\"",
+                        MybatisBuilderBundle.message("validation.driver.library.required", d.getName()),
                         libraryField);
             }
         }
@@ -215,10 +216,10 @@ public class RegisterDriverDialog extends DialogWrapper {
         if (currentDriver == null) return;
         String coord = currentDriver.getMavenCoordinate();
         if (!StringUtil.stringHasValue(coord)) {
-            Messages.showWarningDialog(project, "Please enter a Maven coordinate first (e.g. com.oracle.database.jdbc:ojdbc11:23.4.0.24.05)", "No Coordinate");
+            Messages.showWarningDialog(project, MybatisBuilderBundle.message("warning.no.coordinate.message"), MybatisBuilderBundle.message("warning.no.coordinate.title"));
             return;
         }
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Downloading Driver", true) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, MybatisBuilderBundle.message("message.downloading.driver"), true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 try {
@@ -238,7 +239,7 @@ public class RegisterDriverDialog extends DialogWrapper {
             }
             @Override
             public void onThrowable(@NotNull Throwable error) {
-                Messages.showErrorDialog(project, error.getMessage(), "Driver Download Failed");
+                Messages.showErrorDialog(project, error.getMessage(), MybatisBuilderBundle.message("error.driver.download.failed"));
             }
         });
     }

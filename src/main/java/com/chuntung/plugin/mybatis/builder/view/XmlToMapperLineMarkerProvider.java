@@ -3,6 +3,7 @@
  */
 package com.chuntung.plugin.mybatis.builder.view;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.MybatisIcons;
 import com.chuntung.plugin.mybatis.builder.util.MapperXmlIndex;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo;
@@ -55,7 +56,7 @@ public class XmlToMapperLineMarkerProvider extends RelatedItemLineMarkerProvider
         PsiElement target = cls.getNameIdentifier() != null ? cls.getNameIdentifier() : cls;
         result.add(NavigationGutterIconBuilder.create(MybatisIcons.XML_TO_MAPPER)
                 .setTargets(Collections.singletonList(target))
-                .setTooltipText("Navigate to Mapper interface")
+                .setTooltipText(MybatisBuilderBundle.message("tooltip.navigate.to.mapper.interface"))
                 .setAlignment(GutterIconRenderer.Alignment.RIGHT)
                 .createLineMarkerInfo(anchor));
     }
@@ -74,7 +75,7 @@ public class XmlToMapperLineMarkerProvider extends RelatedItemLineMarkerProvider
         PsiElement target = method.getNameIdentifier() != null ? method.getNameIdentifier() : method;
         result.add(NavigationGutterIconBuilder.create(MybatisIcons.XML_TO_MAPPER)
                 .setTargets(Collections.singletonList(target))
-                .setTooltipText("Navigate to Mapper method")
+                .setTooltipText(MybatisBuilderBundle.message("tooltip.navigate.to.mapper.method"))
                 .setAlignment(GutterIconRenderer.Alignment.RIGHT)
                 .createLineMarkerInfo(anchor));
     }

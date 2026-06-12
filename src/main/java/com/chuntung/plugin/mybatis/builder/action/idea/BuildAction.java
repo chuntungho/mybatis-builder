@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.MybatisBuilderService;
 import com.chuntung.plugin.mybatis.builder.MybatisIcons;
 import com.chuntung.plugin.mybatis.builder.database.ConnectionProperties;
@@ -54,7 +55,7 @@ public class BuildAction extends DumbAwareAction {
     private static final String ACTION_ID = "MyBatisBuilder.Build";
 
     public BuildAction() {
-        super("Build", "Generate code based on selected tables and parameters", MybatisIcons.BUILD);
+        super(MybatisBuilderBundle.message("action.build.text"), MybatisBuilderBundle.message("action.build.description"), MybatisIcons.BUILD);
     }
 
     public static AnAction getInstance(Project project) {
@@ -97,7 +98,7 @@ public class BuildAction extends DumbAwareAction {
         ConnectionInfo connectionInfo = new ConnectionInfo();
         String msg = populateSelectedTables(service, paramWrapper, connectionInfo, tree.getSelectionModel());
         if (msg != null) {
-            Messages.showWarningDialog(msg, "Building Failed");
+            Messages.showWarningDialog(msg, MybatisBuilderBundle.message("error.building.failed"));
             return;
         }
 
@@ -112,9 +113,9 @@ public class BuildAction extends DumbAwareAction {
             logger.warn("Failed to connect to database", e);
             String message = e.getMessage();
             if (e.getCause() instanceof java.net.UnknownHostException) {
-                message = "Unknown host: " + e.getCause().getMessage();
+                message = MybatisBuilderBundle.message("info.unknown.host", e.getCause().getMessage());
             }
-            Messages.showErrorDialog(message, "Building Error");
+            Messages.showErrorDialog(message, MybatisBuilderBundle.message("error.building.error"));
             return;
         }
 
@@ -129,7 +130,7 @@ public class BuildAction extends DumbAwareAction {
                                           ConnectionInfo info, TreeSelectionModel selectionModel) {
         String msg = null;
         if (selectionModel == null) {
-            msg = "Please open tool window first";
+            msg = MybatisBuilderBundle.message("info.please.open.tool.window");
             return msg;
         }
 
@@ -147,7 +148,7 @@ public class BuildAction extends DumbAwareAction {
                         if (info.getDatabase() == null) {
                             info.setDatabase(database);
                         } else {
-                            msg = "Only support the tables in the same database";
+                            msg = MybatisBuilderBundle.message("info.same.database.only");
                             break;
                         }
                     }
@@ -159,7 +160,7 @@ public class BuildAction extends DumbAwareAction {
                         if (info.getId() == null) {
                             info.setId(connectionId);
                         } else {
-                            msg = "Only support the tables in the same connection";
+                            msg = MybatisBuilderBundle.message("info.same.connection.only");
                             break;
                         }
                     }
@@ -187,7 +188,7 @@ public class BuildAction extends DumbAwareAction {
         paramWrapper.setSelectedTables(tables);
 
         if (tables.isEmpty()) {
-            msg = "There is no table selected";
+            msg = MybatisBuilderBundle.message("info.no.table.selected");
         }
 
         return msg;

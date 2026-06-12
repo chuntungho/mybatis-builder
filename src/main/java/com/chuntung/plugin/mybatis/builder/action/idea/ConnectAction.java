@@ -4,6 +4,7 @@
 
 package com.chuntung.plugin.mybatis.builder.action.idea;
 
+import com.chuntung.plugin.mybatis.builder.MybatisBuilderBundle;
 import com.chuntung.plugin.mybatis.builder.action.TreeNodeLoader;
 import com.chuntung.plugin.mybatis.builder.model.DatabaseItem;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
@@ -25,7 +26,7 @@ public class ConnectAction extends DumbAwareAction {
     private final TreeNodeLoader loader;
 
     public ConnectAction(Supplier<TreePath> currentPath, JTree tree, TreeNodeLoader loader) {
-        super("Connect");
+        super(MybatisBuilderBundle.message("action.connect.text"));
         this.currentPath = currentPath;
         this.tree = tree;
         this.loader = loader;
@@ -47,7 +48,7 @@ public class ConnectAction extends DumbAwareAction {
         TreePath path = currentPath.get();
         if (path == null) return;
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-        new Task.Backgroundable(null, "Connecting ...") {
+        new Task.Backgroundable(null, MybatisBuilderBundle.message("message.connecting")) {
             @Override
             public void run(@NotNull ProgressIndicator pi) {
                 loader.load(node, true);
